@@ -38,7 +38,7 @@ const PostInput = ({ profileUrl }) => {
     closeModal();
   };
 
-  const handelSavePost=()=>{
+  const handelSavePost = () => {
     console.log("Poll Saved: ", value);
     closePollModal();
   }
@@ -46,25 +46,11 @@ const PostInput = ({ profileUrl }) => {
   const handleEmojiClick = (emojiObject) => {
     setPostText((prev) => prev + emojiObject.emoji);
 
-
-    //DataSend to the backend I Not used this function as a resuable component because i face some issue in the in frontend and state managment
-
-
-
-
-
-
-
-
-
-
-
-
   };
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4 w-full max-w-lg mx-auto">
-      {/* Profile Image & Input */}
+
       <div className="flex items-center space-x-4">
         <button onClick={() => window.open(profileUrl, "_blank")}>
           <img
@@ -82,7 +68,6 @@ const PostInput = ({ profileUrl }) => {
         />
       </div>
 
-      {/* Media Upload Button */}
       <div className="flex items-center space-x-4 mt-4">
         <button
           onClick={openModal}
@@ -100,9 +85,6 @@ const PostInput = ({ profileUrl }) => {
         </button>
       </div>
 
-
-
-      {/* Modal with Animation */}
       <AnimatePresence>
         {isModalOpen && (
           <motion.div
@@ -117,7 +99,7 @@ const PostInput = ({ profileUrl }) => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
             >
-              {/* Close Button */}
+
               <button
                 onClick={closeModal}
                 className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-all"
@@ -125,12 +107,10 @@ const PostInput = ({ profileUrl }) => {
                 <X size={24} />
               </button>
 
-              {/* Modal Header */}
               <h2 className="text-lg font-semibold text-center text-black">
                 Create Post
               </h2>
 
-              {/* Input Field */}
               <textarea
                 value={postText}
                 onChange={(e) => setPostText(e.target.value)}
@@ -138,7 +118,6 @@ const PostInput = ({ profileUrl }) => {
                 className="w-full mt-4 p-2 border rounded-lg resize-none text-black"
               />
 
-              {/* Emoji Picker Button */}
               <button
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 className="flex items-center space-x-2 text-yellow-500 mt-2"
@@ -147,14 +126,13 @@ const PostInput = ({ profileUrl }) => {
                 <span>Emoji</span>
               </button>
 
-              {/* Emoji Picker */}
               {showEmojiPicker && (
                 <div className="absolute mt-2 z-50">
                   <EmojiPicker onEmojiClick={handleEmojiClick} />
                 </div>
               )}
 
-              {/* Image Preview */}
+
               {image && (
                 <div className="mt-4">
                   <img
@@ -165,7 +143,7 @@ const PostInput = ({ profileUrl }) => {
                 </div>
               )}
 
-              {/* Media Upload */}
+
               <label className="flex items-center space-x-2 cursor-pointer text-blue-500 mt-4">
                 <Image size={20} />
                 <span>Upload Image</span>
@@ -176,7 +154,7 @@ const PostInput = ({ profileUrl }) => {
                 />
               </label>
 
-              {/* Buttons */}
+
               <div className="flex space-x-2 mt-4">
                 <button
                   onClick={handleSave}
@@ -203,8 +181,6 @@ const PostInput = ({ profileUrl }) => {
 
 
 
-      {/* for PollInput */}
-
       <AnimatePresence>
         {isPollModalOpen && (
           <motion.div
@@ -219,7 +195,7 @@ const PostInput = ({ profileUrl }) => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
             >
-              {/* Close Button */}
+
               <button
                 onClick={closePollModal}
                 className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-all"
@@ -227,12 +203,12 @@ const PostInput = ({ profileUrl }) => {
                 <X size={24} />
               </button>
 
-              {/* Modal Header */}
+
               <h2 className="text-lg font-semibold text-center text-black">
                 Create Polls and Surveys:
               </h2>
 
-              {/* PollBarInput */}
+
               <input
                 type="text"
                 value={value}
@@ -241,7 +217,7 @@ const PostInput = ({ profileUrl }) => {
                 placeholder="Query"
               />
 
-              {/* Buttons */}
+
               <div className="flex space-x-2 mt-4">
                 <button
                   onClick={handelSavePost}
@@ -264,11 +240,6 @@ const PostInput = ({ profileUrl }) => {
           </motion.div>
         )}
       </AnimatePresence>
-
-
-
-
-
     </div>
   );
 };

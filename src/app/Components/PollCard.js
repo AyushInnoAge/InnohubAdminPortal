@@ -43,25 +43,15 @@ const PollCard = ({
           <span className="text-gray-800 font-semibold text-base sm:text-lg">{username}</span>
         </div>
 
-        {/* Image Section If You Waant to add image*/}
-        {/* <motion.img
-          src={imageUrl}
-          alt={title}
-          className="w-full h-auto object-cover rounded-md"
-          initial={{ scale: 1 }}
-          whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 150, damping: 10 }}
-        /> */}
-
         <PollBar/>
         <p className="text-sm text-gray-600">Total Votes: 100</p>
-        {/* Post Content */}
+       
+
         <div className="p-4 sm:p-6">
           <h2 className="text-xl sm:text-2xl font-bold text-black">{title}</h2>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">{description}</p>
         </div>
 
-        {/* Like & Comment Section */}
         <div className="flex items-center justify-between mt-4">
           <button 
             className="flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors"

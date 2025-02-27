@@ -38,7 +38,7 @@ const PollBar = () => {
       <input
         type="range"
         value={rangeValue}
-        onClick={() => setRangeValue(1)} // Click makes it 100% filled
+        onClick={() => setRangeValue(1)}
         min={0}
         max={1}
         step={1}
@@ -47,15 +47,6 @@ const PollBar = () => {
           background: rangeValue === 1 ? "blue" : "gray",
         }}
       />
-      {/* <input
-        type="range"
-        value={rangeValue}
-        onChange={(e) => setRangeValue(e.target.value)}
-        min={1}
-        max={1}
-        className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
-      /> */}
-      {/* <p className="text-sm text-gray-600">Total Votes: {rangeValue}</p> */}
     </div>
   );
 };

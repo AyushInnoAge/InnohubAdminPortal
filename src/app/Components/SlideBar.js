@@ -45,7 +45,7 @@ export default function SidebarProfile2({
   return (
     <TooltipProvider>
       <Card className="w-full p-5 shadow-lg rounded-2xl bg-white">
-        {/* Profile Section */}
+      
         <div className="flex flex-col items-center text-center">
           <Avatar
             src={imageUrl}
@@ -57,7 +57,7 @@ export default function SidebarProfile2({
           </p>
         </div>
 
-        {/* Achievements Section */}
+       
         <div className="mt-6">
           <h3 className="text-md font-semibold mb-3 text-gray-800">
             Achievements
@@ -80,7 +80,7 @@ export default function SidebarProfile2({
           </div>
         </div>
 
-        {/* Buttons */}
+    
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <Button variant="outline">Profile</Button>
           <Button variant="default" className="flex gap-2">

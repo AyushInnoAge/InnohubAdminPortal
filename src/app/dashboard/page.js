@@ -24,12 +24,9 @@ export default function Home() {
   ]);
 
 
-
-
-
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
-      {/* Sidebar - Smaller width */}
+      
       <div className="hidden md:flex md:w-1/5 lg:w-1/6 p-4 bg-white shadow-md flex-col">
         <SidebarProfile
           imageUrl="https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI"
@@ -38,7 +35,7 @@ export default function Home() {
         />
       </div>
 
-      {/* Main Feed Section - Expanded width */}
+      
       <div className="flex flex-col w-full md:w-4/5 lg:w-5/6 p-4 overflow-y-auto h-screen space-y-6">
         <div className="w-full max-w-4xl mx-auto">
           <PostInput profileUrl="https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI" />
