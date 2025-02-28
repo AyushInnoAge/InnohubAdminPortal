@@ -18,7 +18,7 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setError(""); // Reset errors
 
-    if (!email || !password || !confirmPassword) {
+    if (!password || !confirmPassword) {
       alert("All fields are required!");
       return;
     }
@@ -32,7 +32,7 @@ export default function ResetPasswordPage() {
 
     try {
       const response = await fetch(API_URL, {
-        method: "PUT", // Use POST or PUT depending on your API
+        method: "POST", // Use POST or PUT depending on your API
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
@@ -61,7 +61,7 @@ export default function ResetPasswordPage() {
         {/* {error && <p className={styles.error}>{error}</p>} Show errors if any */}
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          <input
+          {/* <input
             type="email"
             placeholder="Email"
             className={styles.input}
@@ -69,7 +69,7 @@ export default function ResetPasswordPage() {
             name="email"
             onChange={(e) => setEmail(e.target.value)}
             required
-          />
+          /> */}
           <input
             type="text"
             placeholder="Enter Your New Password"
@@ -79,28 +79,32 @@ export default function ResetPasswordPage() {
             required
           />
 
-<div className={styles.passwordContainer}>
-  <input
-    type={showConfirmPassword ? "text" : "password"}
-    placeholder="Confirm Password"
-    autoComplete="new-password"
-    name="ConfirmPassword"
-    className={styles.input}
-    value={confirmPassword}
-    onChange={(e) => setConfirmPassword(e.target.value)}
-    required
-  />
-  <button
-    type="button"
-    className={styles.eyeButton}
-    onClick={() => setShowConfirmPassword((prev) => !prev)} // Use prev state for better toggling
-  >
-    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-  </button>
-</div>
+          <div className={styles.passwordContainer}>
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              autoComplete="new-password"
+              name="ConfirmPassword"
+              className={styles.input}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className={styles.eyeButton}
+              onClick={() => setShowConfirmPassword((prev) => !prev)} // Use prev state for better toggling
+            >
+              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
 
 
-          <button type="submit" className={styles.button} disabled={loading}>
+          <button
+            type="submit"
+            className={`${styles.button} ${!password || !confirmPassword ? styles.disabledButton : ""}`}
+            disabled={!password || !confirmPassword || loading}
+          >
             {loading ? "Resetting..." : "Reset"}
           </button>
         </form>

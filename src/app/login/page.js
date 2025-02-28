@@ -24,6 +24,13 @@ export default function LoginPage() {
     event.preventDefault();
     setError("");
 
+    // Email pattern validation
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailPattern.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     if (!email || !password) {
       alert("Email and Password are required!");
       return;
@@ -91,12 +98,18 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <button type="submit" className={styles.button}>Login</button>
+          <button
+            type="submit"
+            className={`${styles.button} ${!(email && password) ? styles.disabledButton : ""}`}
+            disabled={!(email && password)}
+          >
+            Login
+          </button>
         </form>
 
         <p className={styles.footerText}>
           Forgot Your Password?{" "}
-          <Link href="/ResetPassword" className={styles.link}>Forgot Password</Link>
+          <Link href="/ResetPasswordEmail" className={styles.link}>Forgot Password</Link>
         </p>
       </div>
     </div>
