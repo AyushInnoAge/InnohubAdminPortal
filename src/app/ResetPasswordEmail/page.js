@@ -4,13 +4,13 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./resetpasswordemail.module.css";
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [step, setStep] = useState("email"); // "email" → "otp" → "password"
+  const [step, setStep] = useState("email"); // "email" → "otp-password"
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -39,10 +39,10 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5279/api/send-otp", {
+      const response = await fetch("http://localhost:5279/request-password-reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ Email: email }),
       });
 
       const data = await response.json();
@@ -50,8 +50,8 @@ export default function LoginPage() {
         throw new Error(data.message || "Failed to send OTP.");
       }
 
-      setMessage("OTP sent to your email.");
-      setStep("otp");
+      setMessage("OTP sent to your email. Enter OTP and set a new password.");
+      setStep("otp-password");
     } catch (error) {
       setError(error.message);
     } finally {
@@ -59,8 +59,8 @@ export default function LoginPage() {
     }
   };
 
-  // ✅ Step 2: Validate OTP
-  const handleVerifyOtp = async (event) => {
+  // ✅ Step 2: Verify OTP & Update Password (Combined)
+  const handleVerifyOtpAndUpdatePassword = async (event) => {
     event.preventDefault();
     setError("");
     setMessage("");
@@ -71,34 +71,6 @@ export default function LoginPage() {
       setLoading(false);
       return;
     }
-
-    try {
-      const response = await fetch("http://localhost:5279/api/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Invalid OTP.");
-      }
-
-      setMessage("OTP verified! Please enter a new password.");
-      setStep("password");
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ✅ Step 3: Update Password
-  const handleUpdatePassword = async (event) => {
-    event.preventDefault();
-    setError("");
-    setMessage("");
-    setLoading(true);
 
     if (newPassword.length < 6) {
       setError("Password must be at least 6 characters.");
@@ -113,10 +85,10 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5279/api/update-password", {
+      const response = await fetch("http://localhost:5279/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, newPassword }),
+        body: JSON.stringify({ Email: email, Token: otp, NewPassword: newPassword }),
       });
 
       const data = await response.json();
@@ -142,16 +114,9 @@ export default function LoginPage() {
         <h2 className={styles.title}>Welcome To Inno Age</h2>
         <p className={styles.subtitle}>Trouble logging in?</p>
 
-        {/* ✅ Form Steps */}
         <form
           ref={formRef}
-          onSubmit={
-            step === "email"
-              ? handleSendOtp
-              : step === "otp"
-                ? handleVerifyOtp
-                : handleUpdatePassword
-          }
+          onSubmit={step === "email" ? handleSendOtp : handleVerifyOtpAndUpdatePassword}
           className={styles.form}
         >
           {step === "email" && (
@@ -172,8 +137,9 @@ export default function LoginPage() {
             </>
           )}
 
-          {step === "otp" && (
+          {step === "otp-password" && (
             <>
+              {/* OTP Input */}
               <input
                 type="text"
                 placeholder="Enter OTP"
@@ -185,23 +151,26 @@ export default function LoginPage() {
                 maxLength="6"
               />
 
-              <button type="submit" className={styles.button} disabled={otp.length !== 6 || loading}>
-                {loading ? "Verifying OTP..." : "Verify OTP"}
-              </button>
-            </>
-          )}
+              {/* New Password Input */}
+              <div className={styles.passwordContainer}>
+                <input
+                  type="text"
+                  placeholder="New Password"
+                  className={styles.input}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                />
+                {/* <button
+                  type="button"
+                  className={styles.eyeButton}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button> */}
+              </div>
 
-          {step === "password" && (
-            <>
-              <input
-                type="password"
-                placeholder="New Password"
-                className={styles.input}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
-
+              {/* Confirm Password Input */}
               <div className={styles.passwordContainer}>
                 <input
                   type={showPassword ? "text" : "password"}
@@ -211,7 +180,7 @@ export default function LoginPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
-                <button
+                 <button
                   type="button"
                   className={styles.eyeButton}
                   onClick={() => setShowPassword(!showPassword)}
@@ -220,8 +189,8 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              <button type="submit" className={styles.button} disabled={!newPassword || !confirmPassword || loading}>
-                {loading ? "Updating Password..." : "Update Password"}
+              <button type="submit" className={styles.button} disabled={loading}>
+                {loading ? "Updating Password..." : "Verify OTP & Update Password"}
               </button>
             </>
           )}
