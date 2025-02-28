@@ -1,16 +1,21 @@
 "use client";
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import styles from "./resetpasswordemail.module.css";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState("email"); // "email" → "otp" → "password"
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const formRef = useRef(null);
-  const API_URL = "http://localhost:5279/login";
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -19,13 +24,13 @@ export default function LoginPage() {
     }
   };
 
-  const handleSubmit = async (event) => {
+  // ✅ Step 1: Request OTP
+  const handleSendOtp = async (event) => {
     event.preventDefault();
     setError("");
     setMessage("");
     setLoading(true);
 
-    // Validate email format
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailPattern.test(email)) {
       setError("Please enter a valid email address.");
@@ -34,32 +39,19 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5279/api/check-email", {
+      const response = await fetch("http://localhost:5279/api/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || "Email not found in our records.");
+        throw new Error(data.message || "Failed to send OTP.");
       }
 
-      // If email exists, send the reset link
-      const resetResponse = await fetch("http://localhost:5279/api/send-reset-link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const resetData = await resetResponse.json();
-
-      if (!resetResponse.ok) {
-        throw new Error(resetData.message || "Failed to send reset link.");
-      }
-
-      setMessage("A reset link has been sent to your email.");
+      setMessage("OTP sent to your email.");
+      setStep("otp");
     } catch (error) {
       setError(error.message);
     } finally {
@@ -67,6 +59,81 @@ export default function LoginPage() {
     }
   };
 
+  // ✅ Step 2: Validate OTP
+  const handleVerifyOtp = async (event) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+    setLoading(true);
+
+    if (otp.length !== 6) {
+      setError("Please enter a valid 6-digit OTP.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5279/api/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid OTP.");
+      }
+
+      setMessage("OTP verified! Please enter a new password.");
+      setStep("password");
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Step 3: Update Password
+  const handleUpdatePassword = async (event) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+    setLoading(true);
+
+    if (newPassword.length < 6) {
+      setError("Password must be at least 6 characters.");
+      setLoading(false);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5279/api/update-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, newPassword }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update password.");
+      }
+
+      setMessage("Password updated successfully! Redirecting to login...");
+      setTimeout(() => {
+        window.location.href = "/login"; // Redirect to login page
+      }, 2000);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -75,32 +142,97 @@ export default function LoginPage() {
         <h2 className={styles.title}>Welcome To Inno Age</h2>
         <p className={styles.subtitle}>Trouble logging in?</p>
 
-        <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
-          <input
-            type="email"
-            placeholder="Enter Email"
-            name="email"
-            className={styles.input}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={handleKeyDown}
-            required
-          />
+        {/* ✅ Form Steps */}
+        <form
+          ref={formRef}
+          onSubmit={
+            step === "email"
+              ? handleSendOtp
+              : step === "otp"
+                ? handleVerifyOtp
+                : handleUpdatePassword
+          }
+          className={styles.form}
+        >
+          {step === "email" && (
+            <>
+              <input
+                type="email"
+                placeholder="Enter Email"
+                className={styles.input}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={handleKeyDown}
+                required
+              />
 
+              <button type="submit" className={styles.button} disabled={!email || loading}>
+                {loading ? "Sending OTP..." : "Send OTP"}
+              </button>
+            </>
+          )}
 
+          {step === "otp" && (
+            <>
+              <input
+                type="text"
+                placeholder="Enter OTP"
+                className={styles.input}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                onKeyDown={handleKeyDown}
+                required
+                maxLength="6"
+              />
 
-          <button
-            type="submit"
-            className={`${styles.button} ${!email ? styles.disabledButton : ""}`}
-            disabled={!email}
-          >
-            Send Login Link
-          </button>
+              <button type="submit" className={styles.button} disabled={otp.length !== 6 || loading}>
+                {loading ? "Verifying OTP..." : "Verify OTP"}
+              </button>
+            </>
+          )}
+
+          {step === "password" && (
+            <>
+              <input
+                type="password"
+                placeholder="New Password"
+                className={styles.input}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+
+              <div className={styles.passwordContainer}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Confirm New Password"
+                  className={styles.input}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className={styles.eyeButton}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
+              <button type="submit" className={styles.button} disabled={!newPassword || !confirmPassword || loading}>
+                {loading ? "Updating Password..." : "Update Password"}
+              </button>
+            </>
+          )}
         </form>
 
+        {/* ✅ Display Messages */}
+        {error && <p className={styles.error}>{error}</p>}
+        {message && <p className={styles.success}>{message}</p>}
+
         <p className={styles.footerText}>
-          Back to Login : {" "}
-          <Link href="/login" className={styles.link}>Login</Link>
+          Back to Login: <Link href="/login" className={styles.link}>Login</Link>
         </p>
       </div>
     </div>
