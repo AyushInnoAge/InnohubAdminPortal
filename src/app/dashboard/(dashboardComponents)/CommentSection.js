@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 import { Bell } from "lucide-react";
-import { Card } from "../Components/ui/card";
+import { Card } from "../../Components/ui/card";
 
-export default function NotificationSection({ notifications=[] }) {
+export default function NotificationSection({ notifications = [] }) {
   return (
     <div className="w-full">
       {/* Notification Header */}
       <div className="flex items-center justify-between border-b p-2">
-        <h2 className="text-lg font-semibold text-blue-700">Notifications</h2>
+        <h2 className="text-lg font-semibold text-blue-700">Comment</h2>
 
         {/* Animated Bell Icon */}
         <motion.div
