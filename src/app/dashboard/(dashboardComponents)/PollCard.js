@@ -8,6 +8,7 @@ const PollCard = ({
   username, 
   title, 
   description,
+  totalVotes
 }) => {
   const [hoverDirection, setHoverDirection] = useState({ x: 0, y: 0 });
   const [Like, setLike] = useState(0);
@@ -44,7 +45,7 @@ const PollCard = ({
         </div>
 
         <PollBar/>
-        <p className="text-sm text-gray-600">Total Votes: 100</p>
+        <p className="text-sm text-gray-600">{totalVotes}</p>
        
 
         <div className="p-4 sm:p-6">
@@ -52,7 +53,7 @@ const PollCard = ({
           <p className="text-gray-600 mt-2 text-sm sm:text-base">{description}</p>
         </div>
 
-        <div className="flex items-center justify-between mt-4">
+        {/* <div className="flex items-center justify-between mt-4">
           <button 
             className="flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors"
             aria-label="Like post"
@@ -68,7 +69,7 @@ const PollCard = ({
             <MessageCircle size={24} />
             <span>Comment</span>
           </button>
-        </div>
+        </div> */}
       </motion.div>
     </div>
   );

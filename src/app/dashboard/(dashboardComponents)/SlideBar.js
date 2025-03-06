@@ -1,14 +1,14 @@
-import { Card } from "../Components/ui/card";
-import { Avatar } from "../Components/ui/avatar";
-import { Button } from "../Components/ui/button";
-import { Badge } from "../Components/ui/badge";
+import { Card } from "../../Components/ui/card";
+import { Avatar } from "../../Components/ui/avatar";
+import { Button } from "../../Components/ui/button";
+import { Badge } from "../../Components/ui/badge";
 import { Linkedin } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
-} from "../Components/ui/tooltip";
+} from "../../Components/ui/tooltip";
 
 export default function SidebarProfile2({
   imageUrl,
