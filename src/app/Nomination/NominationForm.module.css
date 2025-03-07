@@ -1,0 +1,430 @@
+/* General container styling with glassmorphism */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 120px auto 20px;
+    padding: 40px;
+    font-family: 'Inter', sans-serif;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 10px 10px 20px rgba(2, 6, 8, 0.3);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Abstract Gradient Shapes - Add Top-right and Bottom-left */
+.container::before,
+.container::after {
+    content: "";
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(to right, #b403fa, #f106ca);
+    border-radius: 50%;
+    opacity: 0.2;
+    z-index: -1;
+    border: 3px dashed rgba(250, 246, 1, 0.8);
+    /* Dashed border */
+
+    /* Adding Rotation Animation */
+    animation: rotateCircle 10s linear infinite;
+    /* Adding animation */
+}
+
+/* Existing Top-left shape */
+.container::before {
+    top: -10px;
+    left: -30px;
+}
+
+/* Existing Bottom-right shape */
+.container::after {
+    bottom: -30px;
+    right: -10px;
+}
+
+/* Keyframes for Rotation */
+@keyframes rotateCircle {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Square Border Design */
+.squareLine {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(208, 7, 235, 0.7);
+    animation: pulse 3s infinite ease-in-out;
+}
+
+/* Positioning */
+.squareTopRight {
+    top: 10px;
+    right: 10px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.squareBottomLeft {
+    bottom: 10px;
+    left: 10px;
+    border-right: none;
+    border-top: none;
+}
+
+/* Animation to Add a Subtle Effect */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+}
+
+
+/* Floating gradient shape */
+.gradient-shape {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(to right, #09ddec, #0ae778);
+    border-radius: 50%;
+    opacity: 0.3;
+    filter: blur(40px);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+}
+
+/* Form Styling */
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+}
+
+/* Inputs, Textarea, Select */
+.input,
+.textarea,
+.select {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
+
+/* Heading */
+.heading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: linear-gradient(to right, #FFD700, #FFA500, #FFD700);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 2s infinite linear;
+    text-align: center;
+    flex-wrap: wrap;
+}
+
+/* Trophy Icon */
+.trophyIcon {
+    margin-right: 15px;
+    display: inline-block;
+    font-size: 0px;
+    width: 40px;
+    height: 40px;
+    animation: bounce 1.5s infinite ease-in-out;
+}
+
+/* Trophy Bouncing Effect */
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Shiny Effect */
+@keyframes shine {
+    0% {
+        background-position: 0% center;
+    }
+
+    100% {
+        background-position: 200% center;
+    }
+}
+
+/* Labels */
+.label {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 20px 0 5px;
+    background: linear-gradient(to right, #5a67ff, #c84dff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Search Container */
+.searchContainer {
+    position: relative;
+    width: 100%;
+}
+
+/* Input Field */
+.input {
+    background-color: #faeafa;
+    border: 1px solid #ff69b4;
+    background: transparent;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+
+.input:focus {
+    border-color: #ff1493;
+    box-shadow: 0 0 8px rgba(255, 20, 147, 0.5);
+
+}
+
+.inputmanager {
+    width: 35%;
+    padding: 1px; 
+    font-size: 16px;
+    
+   
+  
+    
+    /* Ensures input field has a white background */
+    color: rgb(22, 22, 22); /* Ensures text inside input is visible */
+}
+/* Autocomplete Dropdown */
+.dropdown {
+    position: absolute;
+    width: 100%;
+    background: #ffebf2;
+    border: 1px solid #ff69b4;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Dropdown Items */
+.dropdownItem {
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 16px;
+    color: #333;
+}
+
+.dropdownItem:hover {
+    background: #ffb6c1;
+}
+
+/* Textarea */
+.textarea {
+    min-height: 200px;
+    background-color: #f1f1f1;
+    resize: vertical;
+}
+.selectedManagersContainer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    background: #fdfcfc;
+    padding: 4px;
+    border-radius: 20px;
+    min-height: 40px;
+    width: 60%;
+    border: 1px solid #ff69b4;
+}
+
+.selectedManagerTag {
+    display: inline-flex;
+    align-items: center;
+    background-color: #b3b3b3; /* Grey background */
+    color: #000; /* Black text for visibility */
+    padding: 5px 10px;
+    margin: 3px;
+    border-radius: 15px; /* Makes it curved */
+    font-size: 14px;
+    
+}
+
+
+.removeIcon {
+    margin-left: 8px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+}
+
+/* Clear Icon */
+.clearIcon {
+    position: absolute;
+    right: 10px;
+    top: 20%;
+    cursor: pointer;
+    font-size: 18px;
+    color: #888;
+    transform: translateY(1px);
+}
+
+.clearIcon:hover {
+    color: red;
+}
+
+/* Submit Button */
+.submitButton {
+    margin-top: 15px;
+    padding: 12px;
+    font-size: 18px;
+    background: linear-gradient(to right, #707bff, #D65DFF);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: block;
+    margin: 15px auto 0;
+}
+
+.submitButton:hover {
+    background: linear-gradient(to right, #5a67ff, #c84dff);
+}
+
+.submitButton:disabled {
+    background: grey;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Success & Error Messages */
+.success {
+    color: green;
+    font-size: 16px;
+    text-align: center;
+}
+
+.error {
+    color: red;
+    font-size: 16px;
+    text-align: center;
+}
+
+
+
+/* Responsive Button */
+@media (max-width: 480px) {
+    .submitButton {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+/* Responsive Square Borders */
+.squareLine {
+    width: 50px;
+    height: 50px;
+}
+
+@media (max-width: 768px) {
+    .squareLine {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .squareLine {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+/* Trophy Icon - Adjust Size */
+.trophyIcon {
+    width: clamp(30px, 5vw, 40px);
+    height: clamp(30px, 5vw, 40px);
+    animation: bounce 1.5s infinite ease-in-out;
+}
+@media (max-width: 1024px) {
+    .trophyIcon {
+        width: 35px;
+        height: 35px;
+        margin-right: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .trophyIcon {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .trophyIcon {
+        width: 25px;
+        height: 25px;
+        margin-right: 8px;
+    }
+}
+
+
+/* Autocomplete Dropdown */
+.dropdown {
+    width: 100%;
+}
+
+/* Success & Error Messages */
+
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+    .heading {
+        font-size: 1.5rem;
+    }
+
+    .label {
+        font-size: 14px;
+    }
+}
