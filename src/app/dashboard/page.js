@@ -2,14 +2,77 @@
 import AnimatedPostCard from "./(dashboardComponents)/AnimatedPostCard";
 import PostInput from "./(dashboardComponents)/PostInputSection";
 import SidebarProfile from "./(dashboardComponents)/SlideBar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import PollCard from "./(dashboardComponents)/PollCard";
 import axios from "axios";
-import { PostContext } from "./(dashboardComponents)/ContextApi";
+import { PostContext, UserDataContext } from "../Components/ContextApi";
+import { jwtDecode } from "jwt-decode";
 export default function Home() {
+//userData
+const [userData, setUserData]=useState({
+  fullName: "",
+  EmpID: "",
+  Role: "",
+  Team: "",
+  designation: "",
+  email: "",
+  phone: "",
+  address: "",
+  profilePicture: "/profile.jpg",
+  image:"",
+  userId:""
+})
+
+
+//dummy login 
+useEffect(() => {
+    const login = async () => {
+      try {
+        const response = await fetch("http://localhost:5279/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: "itsmanish0001@gmail.com",//actual credentials
+            password: "manish123", //actual credentials
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const token = data.token;
+          localStorage.setItem("token", token); // Store token in localStorage
+
+          const decoded = jwtDecode(token);
+          console.log("Decoded Token:", decoded);
+
+          setUserData({
+            fullName: decoded.Name || "",
+            EmpID: decoded.EmployeeId || "",
+            Role: decoded.Role || "",
+            Team: decoded.Team || "",
+            designation: decoded.Designation || "",
+            email: decoded.EmailId || "",
+            phone: decoded.PhoneNo || "",
+            address: decoded.Address || "",
+            profilePicture: "/profile.jpg",
+            image:decoded.Image || "",
+            userId:decoded.userId || "",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching login:", error);
+      }
+    };
+
+    login();
+  }, []);
+
+
 
   const [dashboardData, setDashboardData] = useState([]);
-
 
   //Every Reload and dependency change useEffect run and featch main ui data
 
@@ -33,9 +96,8 @@ export default function Home() {
   //cheak data set in dashboard or not 
   useEffect(() => {
     console.log("Dashboard data", dashboardData);
-  }, [dashboardData])
-
-
+    console.log(userData);
+  }, [dashboardData, userData])
 
 
 
@@ -44,8 +106,8 @@ export default function Home() {
 
       <div className="hidden md:flex md:w-1/5 lg:w-1/6 p-4 bg-white shadow-md flex-col">
         <SidebarProfile
-          imageUrl="https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI"
-          UserName="Ayush Raj Singh"
+          imageUrl={userData.image}
+          UserName={userData.Name}
           Designation="Software Developer"
         />
       </div>
@@ -55,7 +117,7 @@ export default function Home() {
 
       <div className="flex flex-col w-full md:w-4/5 lg:w-5/6 p-4 overflow-y-auto h-screen space-y-6">
         <div className="w-full max-w-4xl mx-auto">
-          <PostContext.Provider value={{ dashboardData, setDashboardData }}>
+          <PostContext.Provider value={{ dashboardData, setDashboardData, userData }}>
             <PostInput profileUrl="https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI"
 
             />

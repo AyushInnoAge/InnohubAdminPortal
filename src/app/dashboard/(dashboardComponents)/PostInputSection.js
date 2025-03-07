@@ -3,7 +3,7 @@ import { Image, X, Smile } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { PostContext } from "./ContextApi";
+import { PostContext } from "../../Components/ContextApi";
 
 
 const PostInput = ({ profileUrl }) => {
@@ -17,7 +17,7 @@ const PostInput = ({ profileUrl }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [value, setValue] = useState("");
   
-const {dashboardData, setDashboardData}= useContext(PostContext)
+const {dashboardData, setDashboardData, userData}= useContext(PostContext)
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -52,6 +52,7 @@ const {dashboardData, setDashboardData}= useContext(PostContext)
       created_at:new Date().toISOString()
     }
     // setDashboardData(data);
+    console.log("userData", userData);
     var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", data);
     
     setDashboardData(preData=>[data, ...preData]);
@@ -68,7 +69,7 @@ const {dashboardData, setDashboardData}= useContext(PostContext)
       type:"Poll",
       title:pollTitle,
       poll:pollDescription,
-      userId:"67c1743a237d2fe4aeb76ffd",
+      userId:userData.userId,
       created_at:new Date().toISOString()
     }
     var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", data);

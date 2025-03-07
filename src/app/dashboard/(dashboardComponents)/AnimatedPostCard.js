@@ -126,11 +126,24 @@ const AnimatedPostCard = ({
         </div>
 
         {notification ? (
-          <div className=" lg:flex  p-4 bg-white shadow-md">
+            <div className="p-4 bg-white shadow-md">
+            <div className="flex items-center border rounded-md overflow-hidden">
+              <input
+                type="text"
+                className="w-full p-2 outline-none"
+                placeholder="Write a comment..."
+              />
+              <button
+                className="bg-blue-500 text-white px-3 py-2 text-sm hover:bg-blue-600 transition"
+              >
+                Submit
+              </button>
+            </div>
             <NotificationSection notifications={notifications} />
           </div>
         ) : (
           ""
+
         )}
       </motion.div>
     </div>
