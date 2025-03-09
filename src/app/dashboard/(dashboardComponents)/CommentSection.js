@@ -2,7 +2,8 @@ import { motion } from "framer-motion";
 import { Bell } from "lucide-react";
 import { Card } from "../../Components/ui/card";
 
-export default function NotificationSection({ notifications = [] }) {
+export default function CommentBox({ comments = [] }) {
+  console.log("Comments: ", comments);
   return (
     <div className="w-full">
       {/* Notification Header */}
@@ -23,19 +24,35 @@ export default function NotificationSection({ notifications = [] }) {
         </motion.div>
       </div>
 
-      {/* Notification List (Scrollable) */}
+      {/* Comments List (Scrollable) */}
       <div className="max-h-64 overflow-y-auto space-y-2 p-2">
-        {notifications.length > 0 ? (
-          notifications.map((notification) => (
+        {comments.length > 0 ? (
+          comments.map((comment, index) => (
             <Card
-              key={notification.id}
-              className="p-2 border border-gray-200 hover:bg-gray-100 transition cursor-pointer"
+              key={index}
+              className="p-3 border border-gray-200 hover:bg-gray-100 transition cursor-pointer"
             >
-              <p className="text-sm text-gray-700">{notification.text}</p>
+              {/* Profile Image and Name */}
+              <div className="flex items-center space-x-3">
+                <img
+                  src={comment.imageUrl || "/default-profile.png"}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">
+                    {comment.userId || "Anonymous"}
+                  </p>
+                  <p className="text-xs text-gray-500">{comment.created_at || "Just now"}</p>
+                </div>
+              </div>
+
+              {/* Comment Text */}
+              <p className="text-sm text-gray-700 mt-2">{comment.comment}</p>
             </Card>
           ))
         ) : (
-          <p className="text-sm text-gray-500 text-center">No notifications</p>
+          <p className="text-sm text-gray-500 text-center">No Comment</p>
         )}
       </div>
     </div>

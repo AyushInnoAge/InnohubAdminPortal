@@ -19,6 +19,7 @@ const PostInput = ({ profileUrl }) => {
   
 const {dashboardData, setDashboardData, userData}= useContext(PostContext)
 
+
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
@@ -48,7 +49,7 @@ const {dashboardData, setDashboardData, userData}= useContext(PostContext)
       image:image,
       title:postTitle,
       description:postDescription,
-      userId:"67c1743a237d2fe4aeb76ffd",
+      userId:userData.userId,
       created_at:new Date().toISOString()
     }
     // setDashboardData(data);
