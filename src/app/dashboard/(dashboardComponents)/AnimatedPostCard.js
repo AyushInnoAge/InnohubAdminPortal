@@ -62,11 +62,14 @@ const AnimatedPostCard = ({
     if (!commentValue.trim()) return;
     try {
       console.log("Comment me aa gya")
+     
+     var ImageUrl= `https://api.dicebear.com/7.x/initials/svg?seed=${userData.Name}`
+    
       const commentData = {
         postId: PostId,
         comment: commentValue,
         userId: userData.Name,
-        imageUrl: "",
+        imageUrl: ImageUrl
       };
       await axios.post("http://localhost:5279/apiDashboard/commentAdd", commentData);
       setCommentsDisplay((prev) => [commentData, ...prev]);

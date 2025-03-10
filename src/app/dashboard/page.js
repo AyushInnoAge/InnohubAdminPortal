@@ -17,7 +17,7 @@ if(token==null){
 return router.push("/login");
 }
 
-console.log("token:  ",token);
+// console.log("token:  ",token);
 const decoded = jwtDecode(token);
 
   const [userData, setUserData] = useState({
@@ -55,10 +55,11 @@ const decoded = jwtDecode(token);
   const [page, setPage] = useState(1);
   const observerRef = useRef(null);
   const lastPostRef = useRef(null);
+  const [pageTrack, setPageTrack] = useState(0);
 
   useEffect(() => {
     fetchPosts();
-  }, [page]);
+  }, [page>pageTrack]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -67,6 +68,7 @@ const decoded = jwtDecode(token);
       const res = await axios.get(
         `http://localhost:5279/apiDashboard/GetAllPosts?page=${page}&pageSize=10`
       );
+      setPageTrack(pageTrack+1)
       setDashboardData((prev) => [...prev, ...res.data.value]);
     } catch (error) {
       console.error("API call failed:", error);
@@ -131,6 +133,9 @@ const decoded = jwtDecode(token);
                         title={post.title}
                         description={post.description}
                         totalVotes={post.totalVotes}
+                        postId={post.id}
+                        totalYes={post.totalYes}
+                        totalNo ={post.totalNo}
                       />
                     )}
                   </div>
