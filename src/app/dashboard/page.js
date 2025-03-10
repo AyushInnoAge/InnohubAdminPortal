@@ -7,22 +7,48 @@ import PollCard from "./(dashboardComponents)/PollCard";
 import axios from "axios";
 import { PostContext, UserDataContext } from "../Components/ContextApi";
 import { jwtDecode } from "jwt-decode";
-
+import { useRouter } from "next/navigation";
 export default function Home() {
+
+  const router= useRouter();
+
+const token= localStorage.getItem("token");
+if(token==null){
+return router.push("/login");
+}
+
+console.log("token:  ",token);
+const decoded = jwtDecode(token);
+
   const [userData, setUserData] = useState({
-    Name: "Ayush Raj Singh",
-    EmpID: "170",
-    Role: "Software Developer",
-    Team: "Team Shubham",
-    Designation: "Intern",
-    Email: "ayush123@gmail.com",
-    Phone: "1234567890",
-    Address: "Noida",
-    ProfilePicture: "/profile.jpg",
+    Name: decoded.Name ||"Ayush Raj Singh",
+    EmpID: decoded.EmployeeId || "170",
+    Role: decoded.Role || "Software Developer",
+    Team: decoded.Team || "Team Shubham",
+    Designation: decoded.Designation || "Intern",
+    Email: decoded.EmailId || "ayush123@gmail.com",
+    Phone: decoded.PhoneNo || "1234567890",
+    Address: decoded.Address || "Noida",
+    ProfilePicture:"/profile.jpg",
     Image:
-      "https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI",
-    userId: "67c1743a237d2fe4aeb76ffd",
+     decoded.imageUrl || "https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI",
+    userId: decoded.userId ||"67c1743a237d2fe4aeb76ffd",
   });
+
+  // const [userData, setUserData] = useState({
+  //   Name: "Ayush Raj Singh",
+  //   EmpID: "170",
+  //   Role:"Software Developer",
+  //   Team: "Team Shubham",
+  //   Designation: "Intern",
+  //   Email: "ayush123@gmail.com",
+  //   Phone: "1234567890",
+  //   Address:"Noida",
+  //   ProfilePicture:"/profile.jpg",
+  //   Image:
+  //  "https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI",
+  //   userId: "67c1743a237d2fe4aeb76ffd",
+  // });
 
   const [dashboardData, setDashboardData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,6 +63,7 @@ export default function Home() {
   const fetchPosts = async () => {
     setLoading(true);
     try {
+      console.log("dashboard DataEnter")
       const res = await axios.get(
         `http://localhost:5279/apiDashboard/GetAllPosts?page=${page}&pageSize=10`
       );
