@@ -44,20 +44,47 @@ const {dashboardData, setDashboardData, userData}= useContext(PostContext)
   };
 
   const handleSavePost = async () => {
-    var data={
-      type:"Post",
-      image:image,
-      title:postTitle,
-      description:postDescription,
-      userId:userData.userId,
-      created_at:new Date().toISOString()
-    }
+    // var data={
+    //   type:"Post",
+    //   image:image,
+    //   title:postTitle,
+    //   description:postDescription,
+    //   userId:userData.userId,
+    //   created_at:new Date().toISOString()
+    // }
+
+    // var imageURL;
+    //   if(!image){
+    //    imageURL="";
+    //   }
+
+      // if (image!=null){
+      //   if (image instanceof Blob) {
+      //     const file = new File([image], "uploaded-image.jpg", { type: image.type });
+      //     imageURL = file;
+      //   }
+      // }
+      // console.log(imageURL);
+
+const file = new File ([image], "default-name.jpg", {type: image.type})
+console.log(file)
+    const formDataToSend = new FormData();
+    formDataToSend.append("Type", "Post");
+    formDataToSend.append("image", file);
+    formDataToSend.append("title", postTitle);
+    formDataToSend.append("description", postDescription)
+    formDataToSend.append("userId", userData.userId)
+    formDataToSend.append("created_at", new Date().toISOString());
+
     // setDashboardData(data);
-    console.log("userData", userData);
-    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", data);
+    for (let pair of formDataToSend.entries()) {
+      console.log(pair[0] + ": " + pair[1]);
+    }
+    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", formDataToSend);
     
-    setDashboardData(preData=>[data, ...preData]);
-    console.log(data);
+    
+    // setDashboardData(preData=>[formDataToSend, ...preData]);
+    // console.log(data);
 
     // console.log("Post saved:", postDescription);
     // console.log("IMAGE: ", image)
