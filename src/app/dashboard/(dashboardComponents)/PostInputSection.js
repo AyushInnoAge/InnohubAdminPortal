@@ -16,8 +16,8 @@ const PostInput = ({ profileUrl }) => {
   const [image, setImage] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [value, setValue] = useState("");
-  
-const {dashboardData, setDashboardData, userData}= useContext(PostContext)
+
+  const { dashboardData, setDashboardData, userData } = useContext(PostContext)
 
 
   const openModal = () => setIsModalOpen(true);
@@ -32,8 +32,8 @@ const {dashboardData, setDashboardData, userData}= useContext(PostContext)
   const openPollModal = () => setIsPollModalOpen(true);
   const closePollModal = () => {
     setIsPollModalOpen(false);
-   setPollTitle("");
-   setPollDescription("");
+    setPollTitle("");
+    setPollDescription("");
   }
 
   const handleImageUpload = (e) => {
@@ -44,28 +44,41 @@ const {dashboardData, setDashboardData, userData}= useContext(PostContext)
   };
 
   const handleSavePost = async () => {
-    var data={
-      type:"Post",
-      image:image,
-      title:postTitle,
-      description:postDescription,
-      userId:userData.userId,
-      created_at:new Date().toISOString()
+    var data = {
+      type: "Post",
+      image: image,
+      title: postTitle,
+      description: postDescription,
+      userId: userData.userId,
+      created_at: new Date().toISOString()
     }
-    // setDashboardData(data);
-    console.log("userData", userData);
-    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", data);
-    
-    setDashboardData(preData=>[data, ...preData]);
-    console.log(data);
 
-    // console.log("Post saved:", postDescription);
-    // console.log("IMAGE: ", image)
+    var file = "";
+    if (image != null) {
+      file = new File([image], "default-name.jpg", { type: image.type })
+      console.log(file)
+    }
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("Type", "Post");
+    formDataToSend.append("image", file);
+    formDataToSend.append("title", postTitle);
+    formDataToSend.append("description", postDescription)
+    formDataToSend.append("userId", userData.userId)
+    formDataToSend.append("created_at", new Date().toISOString());
+    // setDashboardData(data);
+    for (let pair of formDataToSend.entries()) {
+      console.log(pair[0] + ": " + pair[1]);
+    }
+    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", formDataToSend);
+
+    setDashboardData(preData => [data, ...preData]);
+    console.log(data);
     closeModal();
   };
 
   const handelSavePoll = async () => {
-    
+
     var data= {
       type:"Poll",
       title:pollTitle,
@@ -73,9 +86,18 @@ const {dashboardData, setDashboardData, userData}= useContext(PostContext)
       userId:userData.userId,
       created_at:new Date().toISOString()
     }
-    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", data);
-    
-    setDashboardData(preData=>[data, ...preData]);
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("Type", "Poll");
+    formDataToSend.append("image", "");
+    formDataToSend.append("title", pollTitle);
+    formDataToSend.append("description", pollDescription)
+    formDataToSend.append("userId", userData.userId)
+    formDataToSend.append("created_at", new Date().toISOString());
+
+    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", formDataToSend);
+
+    setDashboardData(preData => [data, ...preData]);
     console.log("Poll Saved: ", data);
     closePollModal();
   }
@@ -84,28 +106,6 @@ const {dashboardData, setDashboardData, userData}= useContext(PostContext)
     setPostText((prev) => prev + emojiObject.emoji);
 
   };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   return (

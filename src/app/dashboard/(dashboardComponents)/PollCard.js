@@ -65,23 +65,6 @@ const PollCard = ({
           </p>
         </div>
 
-        {/* <div className="flex items-center justify-between mt-4">
-          <button 
-            className="flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors"
-            aria-label="Like post"
-            onClick={()=>setLike(Like+1)}
-          >
-            <ThumbsUp size={24} />
-            <span>Like {Like}</span>
-          </button>
-          <button 
-            className="flex items-center space-x-2 text-gray-500 hover:text-gray-700 transition-colors"
-            aria-label="Comment on post"
-          >
-            <MessageCircle size={24} />
-            <span>Comment</span>
-          </button>
-        </div> */}
       </motion.div>
     </div>
   );
