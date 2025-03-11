@@ -111,7 +111,7 @@ export default function Navbar() {
           <div className="profile-container">
             <button className="profile-btn" onClick={toggleProfileDropdown}>
               <Image src="/profile1.webp" alt="User"  className="profile-pic" width={32} height={32} />
-              <span className="profile-text">Vedant</span>
+              <span className="profile-text">Ayush</span>
             </button>
             {isProfileOpen && (
               <div className="profile-dropdown">

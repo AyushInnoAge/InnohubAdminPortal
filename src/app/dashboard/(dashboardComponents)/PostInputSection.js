@@ -3,7 +3,7 @@ import { Image, X, Smile } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { PostContext } from "./ContextApi";
+import { PostContext } from "../../Components/ContextApi";
 
 
 const PostInput = ({ profileUrl }) => {
@@ -16,8 +16,9 @@ const PostInput = ({ profileUrl }) => {
   const [image, setImage] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [value, setValue] = useState("");
-  
-const {dashboardData, setDashboardData}= useContext(PostContext)
+
+  const { dashboardData, setDashboardData, userData } = useContext(PostContext)
+
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -31,8 +32,8 @@ const {dashboardData, setDashboardData}= useContext(PostContext)
   const openPollModal = () => setIsPollModalOpen(true);
   const closePollModal = () => {
     setIsPollModalOpen(false);
-   setPollTitle("");
-   setPollDescription("");
+    setPollTitle("");
+    setPollDescription("");
   }
 
   const handleImageUpload = (e) => {
@@ -43,37 +44,60 @@ const {dashboardData, setDashboardData}= useContext(PostContext)
   };
 
   const handleSavePost = async () => {
-    var data={
-      type:"Post",
-      image:image,
-      title:postTitle,
-      description:postDescription,
-      userId:"67c1743a237d2fe4aeb76ffd",
-      created_at:new Date().toISOString()
+    var data = {
+      type: "Post",
+      image: image,
+      title: postTitle,
+      description: postDescription,
+      userId: userData.userId,
+      created_at: new Date().toISOString()
     }
-    // setDashboardData(data);
-    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", data);
-    
-    setDashboardData(preData=>[data, ...preData]);
-    console.log(data);
 
-    // console.log("Post saved:", postDescription);
-    // console.log("IMAGE: ", image)
+    var file = "";
+    if (image != null) {
+      file = new File([image], "default-name.jpg", { type: image.type })
+      console.log(file)
+    }
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("Type", "Post");
+    formDataToSend.append("image", file);
+    formDataToSend.append("title", postTitle);
+    formDataToSend.append("description", postDescription)
+    formDataToSend.append("userId", userData.userId)
+    formDataToSend.append("created_at", new Date().toISOString());
+    // setDashboardData(data);
+    for (let pair of formDataToSend.entries()) {
+      console.log(pair[0] + ": " + pair[1]);
+    }
+    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", formDataToSend);
+
+    setDashboardData(preData => [data, ...preData]);
+    console.log(data);
     closeModal();
   };
 
   const handelSavePoll = async () => {
-    
+
     var data= {
       type:"Poll",
       title:pollTitle,
       poll:pollDescription,
-      userId:"67c1743a237d2fe4aeb76ffd",
+      userId:userData.userId,
       created_at:new Date().toISOString()
     }
-    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", data);
-    
-    setDashboardData(preData=>[data, ...preData]);
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("Type", "Poll");
+    formDataToSend.append("image", "");
+    formDataToSend.append("title", pollTitle);
+    formDataToSend.append("description", pollDescription)
+    formDataToSend.append("userId", userData.userId)
+    formDataToSend.append("created_at", new Date().toISOString());
+
+    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", formDataToSend);
+
+    setDashboardData(preData => [data, ...preData]);
     console.log("Poll Saved: ", data);
     closePollModal();
   }
@@ -82,28 +106,6 @@ const {dashboardData, setDashboardData}= useContext(PostContext)
     setPostText((prev) => prev + emojiObject.emoji);
 
   };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   return (

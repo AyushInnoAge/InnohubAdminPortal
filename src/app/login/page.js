@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./login.module.css";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -12,6 +13,7 @@ export default function LoginPage() {
 
   const formRef = useRef(null);
   const API_URL = "http://localhost:5279/login";
+  const router= useRouter();
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -49,6 +51,14 @@ export default function LoginPage() {
         alert(data.message || "Invalid email or password");
         setError(data.message || "Invalid email or password");
         return;
+      }
+
+      if(data.success){
+        const token = data.response.token
+          localStorage.setItem("token", token); // Store token in localStorage
+          console.log("Token from Login: ", token);
+          router.push("/dashboard");
+          
       }
 
       alert("Login Successful!");
