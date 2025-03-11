@@ -3,9 +3,9 @@
     width: 90%;
     max-width: 1200px;
     margin: 120px auto 20px;
-    padding: 40px;
+    padding: 30px;
     font-family: 'Inter', sans-serif;
-    background: rgba(255, 255, 255, 0.1);
+     background-color: rgb(255, 253, 253);
     border-radius: 8px;
     box-shadow: 10px 10px 20px rgba(2, 6, 8, 0.3);
     backdrop-filter: blur(10px);

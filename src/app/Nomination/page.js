@@ -15,7 +15,7 @@ const NominationForm = () => {
     const [filteredManagers, setFilteredManagers] = useState([]);
     const [managerSearchTerm, setManagerSearchTerm] = useState("");
 
-  //  const [roles, setRoles] = useState([]);
+    //  const [roles, setRoles] = useState([]);
     const [filteredRoles, setFilteredRoles] = useState([]);
     const [roleSearchTerm, setRoleSearchTerm] = useState("");
 
@@ -62,15 +62,15 @@ const NominationForm = () => {
                 if (!response.ok) throw new Error("Failed to fetch employees");
 
                 const data = await response.json();
-                console.log(data);  
-  
+                console.log(data);
+
                 if (!Array.isArray(data) || data.length === 0) {
                     throw new Error("No valid data available");
                 }
 
                 setEmployees(data);
                 setManagers(data);
-              //  setRoles([...new Set(data.map(emp => emp.role))]); // Assuming `role` exists in the API
+                //  setRoles([...new Set(data.map(emp => emp.role))]); // Assuming `role` exists in the API
             } catch (err) {
                 setError(err.message);
             }
@@ -105,7 +105,7 @@ const NominationForm = () => {
             setShowManagerDropdown(filtered.length > 0);
         }
     }, [managerSearchTerm, managers]);
-    
+
 
     // Filter roles based on search term
     useEffect(() => {
@@ -127,10 +127,10 @@ const NominationForm = () => {
         setSelectedEmployee(employee);
         setSearchTerm(employee.name);
         setShowEmployeeDropdown(false);
-    
+
         // Assuming each employee has a `managerId` field
         const employeeManager = managers.find(mgr => mgr.id === employee.managerId);
-        
+
         if (employeeManager) {
             setSelectedManagers([employeeManager]);  // Auto-select manager
         } else {
@@ -171,15 +171,16 @@ const NominationForm = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("authToken");
-                if (!token) {
-                    console.error("No token found, user might be logged out.");
-                    return;
-                }
+            if (!token) {
+                console.error("No token found, user might be logged out.");
+                return;
+            }
             const response = await fetch("http://localhost:5279/api/shoutout", {
                 method: "POST",
-                headers: { "Content-Type": "application/json",
+                headers: {
+                    "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
-                 },
+                },
                 body: JSON.stringify({
                     UserId: selectedEmployee.id,
                     ManagerIds: selectedManagers.map(m => m.id),
@@ -247,12 +248,12 @@ const NominationForm = () => {
                         onChange={(e) => setRoleSearchTerm(e.target.value)}
                         onFocus={() => {
                             setShowRoleDropdown(true);
-                            setFilteredRoles(roles); // Populate dropdown immediately
+                            setFilteredRoles(roles);
                         }}
                         onBlur={() => setTimeout(() => setShowRoleDropdown(false), 200)}
                     />
                     {roleSearchTerm && <span className={styles.clearIcon} onClick={() => setRoleSearchTerm("")}>❌</span>}
-                     {showRoleDropdown && (
+                    {showRoleDropdown && (
                         <ul className={styles.dropdown}>
                             {filteredRoles.map((role, index) => (
                                 <li key={index} onClick={() => handleSelectRole(role)}>
@@ -274,8 +275,7 @@ const NominationForm = () => {
                         onFocus={() => {
                             setShowEmployeeDropdown(true);  // Show dropdown when input is focused
                             setFilteredEmployees(employees); // Ensure dropdown is populated
-                        }}
-                        onBlur={() => setTimeout(() => setShowEmployeeDropdown(false), 200)} // Close dropdown on blur
+                        }} onBlur={() => setTimeout(() => setShowEmployeeDropdown(false), 200)} // Close dropdown on blur
                     />
                     {searchTerm && <span className={styles.clearIcon} onClick={() => setSearchTerm("")}>❌</span>}
                     {showEmployeeDropdown && (
@@ -287,7 +287,7 @@ const NominationForm = () => {
                             ))}
                         </ul>
                     )}
-                    
+
                 </div>
 
                 {/* Manager Search */}
@@ -308,8 +308,9 @@ const NominationForm = () => {
                             onChange={(e) => setManagerSearchTerm(e.target.value)}
                             onFocus={() => {
                                 setShowManagerDropdown(true);
-                                setFilteredManagers(managers); // Populate dropdown
+                                setFilteredManagers(managers);
                             }}
+
                             onBlur={() => setTimeout(() => setShowManagerDropdown(false), 200)}
                         />
                     </div>
@@ -356,4 +357,5 @@ const NominationForm = () => {
     );
 };
 
-export default NominationForm; 
+export default NominationForm;
+
