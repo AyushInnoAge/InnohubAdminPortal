@@ -24,7 +24,7 @@ export default function ResetPasswordPage() {
     }
   };
 
-  // ✅ Step 1: Request OTP
+  //  Step 1: Request OTP
   const handleSendOtp = async (event) => {
     event.preventDefault();
     setError("");
@@ -59,7 +59,7 @@ export default function ResetPasswordPage() {
     }
   };
 
-  // ✅ Step 2: Verify OTP & Update Password (Combined)
+  // Step 2: Verify OTP & Update Password (Combined)
   const handleVerifyOtpAndUpdatePassword = async (event) => {
     event.preventDefault();
     setError("");
@@ -109,10 +109,13 @@ export default function ResetPasswordPage() {
 
   return (
     <div className={styles.container}>
+        
       <div className={styles.card}>
         <img src="/logo.svg" alt="Innoage Logo" className={styles.logo} />
         <h2 className={styles.title}>Welcome To Inno Age</h2>
         <p className={styles.subtitle}>Trouble logging in?</p>
+
+        {error && <p className={styles.error}>{error}</p>}
 
         <form
           ref={formRef}
@@ -196,8 +199,8 @@ export default function ResetPasswordPage() {
           )}
         </form>
 
-        {/* ✅ Display Messages */}
-        {error && <p className={styles.error}>{error}</p>}
+        {/* Display Messages */}
+      
         {message && <p className={styles.success}>{message}</p>}
 
         <p className={styles.footerText}>

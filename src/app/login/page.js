@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const formRef = useRef(null);
   const API_URL = "http://localhost:5279/login";
@@ -34,7 +35,7 @@ export default function LoginPage() {
     }
 
     if (!email || !password) {
-      alert("Email and Password are required!");
+      setError("Email and Password are required!");
       return;
     }
 
@@ -48,7 +49,7 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Invalid email or password");
+       // alert(data.message || "Invalid email or password");
         setError(data.message || "Invalid email or password");
         return;
       }
@@ -62,9 +63,9 @@ export default function LoginPage() {
       }
       
 
-      alert("Login Successful!");
+     setMessage("Login Successful!");
     } catch (error) {
-      alert("Network error. Please try again.");
+      //alert("Network error. Please try again.");
       setError("Network error. Please try again.");
       console.error("Login failed:", error);
     }
@@ -73,9 +74,12 @@ export default function LoginPage() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
+
         <img src="/logo.svg" alt="Innoage Logo" className={styles.logo} />
         <h2 className={styles.title}>Welcome To Inno Age</h2>
         <p className={styles.subtitle}>Sign in to your account</p>
+
+        {error && <p className={styles.error}>{error}</p>}
 
         <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
           <input
@@ -109,10 +113,12 @@ export default function LoginPage() {
             </button>
           </div>
 
+          {message && <p className={styles.success}>{message}</p>}
+
           <button
             type="submit"
-            className={`${styles.button} ${!(email && password) ? styles.disabledButton : ""}`}
-            disabled={!(email && password)}
+            className={`${styles.button} ${!(email && password && password.length>=6) ? styles.disabledButton : ""}`}
+            disabled={!(email && password && password.length>=6)}
           >
             Login
           </button>

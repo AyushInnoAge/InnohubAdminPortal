@@ -24,12 +24,7 @@
     border-radius: 50%;
     opacity: 0.2;
     z-index: -1;
-    border: 3px dashed rgba(250, 246, 1, 0.8);
-    /* Dashed border */
-
-    /* Adding Rotation Animation */
-    animation: rotateCircle 10s linear infinite;
-    /* Adding animation */
+    
 }
 
 /* Existing Top-left shape */
@@ -209,6 +204,7 @@
 .input {
     background-color: #faeafa;
     border: 1px solid #ff69b4;
+    color: #333;
     background: transparent;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
@@ -243,20 +239,31 @@
     z-index: 1000;
     max-height: 200px;
     overflow-y: auto;
+    padding: 10px 0;
 }
 
 /* Dropdown Items */
 .dropdownItem {
-    padding: 10px;
+    padding: 12px 15px;  
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.1s;
     font-size: 16px;
+    margin: 5px 0;
     color: #333;
 }
 
 .dropdownItem:hover {
     background: #ffb6c1;
+    transform: scale(1.02); 
 }
+.dropdown::-webkit-scrollbar {
+    width: 5px;
+  }
+  
+  .dropdown::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 5px;
+  }
 
 /* Textarea */
 .textarea {
@@ -276,25 +283,30 @@
     border: 1px solid #ff69b4;
 }
 
+/* Style for selected managers */
 .selectedManagerTag {
     display: inline-flex;
     align-items: center;
-    background-color: #b3b3b3; /* Grey background */
-    color: #000; /* Black text for visibility */
+    background: #e0f7fa;
     padding: 5px 10px;
-    margin: 3px;
-    border-radius: 15px; /* Makes it curved */
+    border-radius: 20px;
+    margin: 5px;
     font-size: 14px;
-    
-}
+    color: #007b8f;
+    cursor: default;
+  }
 
 
-.removeIcon {
-    margin-left: 8px;
+  .removeIcon {
+    margin-left: 5px;
     cursor: pointer;
-    color: white;
-    font-weight: bold;
-}
+    color: red;
+    font-size: 14px;
+  }
+  
+  .removeIcon:hover {
+    color: darkred;
+  }
 
 /* Clear Icon */
 .clearIcon {
