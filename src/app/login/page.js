@@ -60,6 +60,7 @@ export default function LoginPage() {
           router.push("/dashboard");
           
       }
+      
 
       alert("Login Successful!");
     } catch (error) {
