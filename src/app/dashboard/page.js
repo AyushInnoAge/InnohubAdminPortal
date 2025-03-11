@@ -8,6 +8,7 @@ import axios from "axios";
 import { PostContext, UserDataContext } from "../Components/ContextApi";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
+import FestivalCard from "./(dashboardComponents)/Festivale";
 export default function Home() {
 
   const router= useRouter();
@@ -92,7 +93,7 @@ const decoded = jwtDecode(token);
         </div>
 
         <div className="w-full max-w-4xl mx-auto space-y-6">
-          {dashboardData.length === 0 ? (
+          {/* {dashboardData.length === 0 ? (
             <h1 className="text-black size-max text-center">Loading...</h1>
           ) : (
             <>
@@ -127,7 +128,9 @@ const decoded = jwtDecode(token);
                 ))}
               </PostContext.Provider>
             </>
-          )}
+          )} */}
+
+          <FestivalCard/>
         </div>
       </div>
       {loading && <h1 className="text-center">Loading more posts...</h1>}
