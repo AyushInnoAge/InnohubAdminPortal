@@ -15,7 +15,7 @@ const NominationForm = () => {
     const [filteredManagers, setFilteredManagers] = useState([]);
     const [managerSearchTerm, setManagerSearchTerm] = useState("");
 
-    const [roles, setRoles] = useState([]);
+  //  const [roles, setRoles] = useState([]);
     const [filteredRoles, setFilteredRoles] = useState([]);
     const [roleSearchTerm, setRoleSearchTerm] = useState("");
 
@@ -29,28 +29,52 @@ const NominationForm = () => {
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
     const [showManagerDropdown, setShowManagerDropdown] = useState(false);
     const [showRoleDropdown, setShowRoleDropdown] = useState(false);
-      
+
     //Multiple Managers
     const [selectedManagers, setSelectedManagers] = useState([]);
-
+    const [roles] = useState([
+        "Employee of the Month",
+        "Star of the Month",
+        "Best Team Leader",
+        "Employee of the Year",
+        "Employee of the Quarter",
+        "Rising Star",
+        "Problem Solver",
+        "Best Mentor",
+        "ShoutOut"
+    ]);
     // Fetch employees and managers from API
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("https://jsonplaceholder.typicode.com/users");
+                const token = localStorage.getItem("authToken");
+                if (!token) {
+                    console.error("No token found, user might be logged out.");
+                    return;
+                }
+                const response = await fetch("http://localhost:5279/user/fetch_users", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
                 if (!response.ok) throw new Error("Failed to fetch employees");
 
                 const data = await response.json();
-                if (data.length === 0) throw new Error("No data available");
+                console.log(data);  
+  
+                if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error("No valid data available");
+                }
 
-                setEmployees(data.sort((a, b) => a.name.localeCompare(b.name)));
-                setManagers(data.sort((a, b) => a.name.localeCompare(b.name))); // Using same data for demo
-                setRoles([...new Set(data.map(emp => emp.company.bs))]); // Example roles from API
+                setEmployees(data);
+                setManagers(data);
+              //  setRoles([...new Set(data.map(emp => emp.role))]); // Assuming `role` exists in the API
             } catch (err) {
                 setError(err.message);
             }
         };
-
         fetchData();
     }, []);
 
@@ -60,11 +84,11 @@ const NominationForm = () => {
             setFilteredEmployees([]);
             setShowEmployeeDropdown(false);
         } else {
-            const filtered = employees.filter((emp) =>
-                emp.name.toLowerCase().includes(searchTerm.toLowerCase())
+            const filtered = employees.filter(emp =>
+                emp.name.toLowerCase().startsWith(searchTerm.toLowerCase())
             );
             setFilteredEmployees(filtered);
-            setShowEmployeeDropdown(true);
+            setShowEmployeeDropdown(filtered.length > 0);
         }
     }, [searchTerm, employees]);
 
@@ -74,60 +98,63 @@ const NominationForm = () => {
             setFilteredManagers([]);
             setShowManagerDropdown(false);
         } else {
-            const filtered = managers.filter((mgr) =>
-                mgr.name.toLowerCase().includes(managerSearchTerm.toLowerCase())
+            const filtered = managers.filter(mgr =>
+                mgr.name.toLowerCase().startsWith(managerSearchTerm.toLowerCase())
             );
             setFilteredManagers(filtered);
-            setShowManagerDropdown(true);
+            setShowManagerDropdown(filtered.length > 0);
         }
     }, [managerSearchTerm, managers]);
+    
 
+    // Filter roles based on search term
     useEffect(() => {
         if (!roleSearchTerm.trim()) {
             setFilteredRoles([]);
             setShowRoleDropdown(false);
         } else {
-            const filtered = roles.filter((role) =>
-                role.toLowerCase().includes(roleSearchTerm.toLowerCase())
+            const filtered = roles.filter(role =>
+                role.toLowerCase().startsWith(roleSearchTerm.toLowerCase()) // Ensures it starts with the input
             );
             setFilteredRoles(filtered);
-            setShowRoleDropdown(true);
+            setShowRoleDropdown(filtered.length > 0);
         }
     }, [roleSearchTerm, roles]);
+
+
+    // Handle selections
+    const handleSelectEmployee = (employee) => {
+        setSelectedEmployee(employee);
+        setSearchTerm(employee.name);
+        setShowEmployeeDropdown(false);
+    
+        // Assuming each employee has a `managerId` field
+        const employeeManager = managers.find(mgr => mgr.id === employee.managerId);
+        
+        if (employeeManager) {
+            setSelectedManagers([employeeManager]);  // Auto-select manager
+        } else {
+            setSelectedManagers([]);  // Clear if no manager is found
+        }
+    };
+
+    const handleSelectManager = (manager) => {
+        if (!selectedManagers.some(m => m.id === manager.id)) {
+            setSelectedManagers([...selectedManagers, manager]);
+        }
+        setManagerSearchTerm("");
+        setShowManagerDropdown(false);
+    };
+
+    const handleRemoveManager = (id) => {
+        setSelectedManagers(selectedManagers.filter(m => m.id !== id));
+    };
 
     const handleSelectRole = (role) => {
         setSelectedRole(role);
         setRoleSearchTerm(role);
         setShowRoleDropdown(false);
     };
-
-    // Handle selecting an employee
-    const handleSelectEmployee = (employee) => {
-        setSelectedEmployee(employee);
-        setSearchTerm(employee.name);
-        setShowEmployeeDropdown(false); // Hide dropdown immediately
-    };
-
-    // Handle selecting a manager
-    // const handleSelectManager = (manager) => {
-    //     setSelectedManager(manager);
-    //     setManagerSearchTerm(manager.name);
-    //     setShowManagerDropdown(false); // Hide dropdown immediately
-    // };
-  
-    //handle selecting multiple managers
-
-const handleSelectManager = (manager) => {
-    if (!selectedManagers.some((m) => m.id === manager.id)) {
-        setSelectedManagers([...selectedManagers, manager]);
-    }
-    setManagerSearchTerm(""); // Clear input for next search
-};
-
-const handleRemoveManager = (id) => {
-    setSelectedManagers(selectedManagers.filter((m) => m.id !== id));
-};
-
 
 
     // Handle form submission
@@ -136,32 +163,44 @@ const handleRemoveManager = (id) => {
         setMessage("");
         setError("");
 
-        if (!selectedEmployee || !selectedManager || !reason.trim()) {
-            setError("Please select an employee, a manager, and provide a reason.");
+        if (!selectedEmployee || selectedManagers.length === 0 || !reason.trim()) {
+            setError("Please select an employee, at least one manager, and provide a reason.");
             return;
         }
 
         setLoading(true);
-
         try {
-            const response = await fetch("http://localhost:5279/nominate", {
+            const token = localStorage.getItem("authToken");
+                if (!token) {
+                    console.error("No token found, user might be logged out.");
+                    return;
+                }
+            const response = await fetch("http://localhost:5279/api/shoutout", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                 },
                 body: JSON.stringify({
                     UserId: selectedEmployee.id,
-                    ManagerId: selectedManager.id,
+                    ManagerIds: selectedManagers.map(m => m.id),
+                    Nomination_Type: selectedRole,
                     Reason: reason
                 }),
             });
 
-            if (!response.ok) throw new Error("Failed to submit nomination");
+            const result = await response.json();
 
-            setMessage("Nomination submitted successfully!");
+            if (!response.ok) throw new Error("Failed to submit nomination");
+            // console.log(response);
+
+            setMessage(result.message);
             setSelectedEmployee(null);
             setSearchTerm("");
-            setSelectedManager(null);
+            setSelectedManagers([]);
             setManagerSearchTerm("");
             setReason("");
+            setSelectedRole(null);
+            setRoleSearchTerm("");
         } catch (err) {
             setError("Something went wrong. Please try again.");
         } finally {
@@ -206,14 +245,17 @@ const handleRemoveManager = (id) => {
                         placeholder="Type a role..."
                         value={roleSearchTerm}
                         onChange={(e) => setRoleSearchTerm(e.target.value)}
-                        onFocus={() => setShowRoleDropdown(true)}
+                        onFocus={() => {
+                            setShowRoleDropdown(true);
+                            setFilteredRoles(roles); // Populate dropdown immediately
+                        }}
                         onBlur={() => setTimeout(() => setShowRoleDropdown(false), 200)}
                     />
                     {roleSearchTerm && <span className={styles.clearIcon} onClick={() => setRoleSearchTerm("")}>❌</span>}
-                    {showRoleDropdown && filteredRoles.length > 0 && (
+                     {showRoleDropdown && (
                         <ul className={styles.dropdown}>
                             {filteredRoles.map((role, index) => (
-                                <li key={index} className={styles.dropdownItem} onClick={() => handleSelectRole(role)}>
+                                <li key={index} onClick={() => handleSelectRole(role)}>
                                     {role}
                                 </li>
                             ))}
@@ -229,19 +271,23 @@ const handleRemoveManager = (id) => {
                         placeholder="Type a name..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        onFocus={() => setShowEmployeeDropdown(true)}
+                        onFocus={() => {
+                            setShowEmployeeDropdown(true);  // Show dropdown when input is focused
+                            setFilteredEmployees(employees); // Ensure dropdown is populated
+                        }}
                         onBlur={() => setTimeout(() => setShowEmployeeDropdown(false), 200)} // Close dropdown on blur
                     />
                     {searchTerm && <span className={styles.clearIcon} onClick={() => setSearchTerm("")}>❌</span>}
-                    {showEmployeeDropdown && filteredEmployees.length > 0 && (
+                    {showEmployeeDropdown && (
                         <ul className={styles.dropdown}>
-                            {filteredEmployees.map((employee) => (
-                                <li key={employee.id} className={styles.dropdownItem} onClick={() => handleSelectEmployee(employee)}>
+                            {filteredEmployees.map(employee => (
+                                <li key={employee.id} onMouseDown={() => handleSelectEmployee(employee)}>
                                     {employee.name}
                                 </li>
                             ))}
                         </ul>
                     )}
+                    
                 </div>
 
                 {/* Manager Search */}
@@ -260,14 +306,17 @@ const handleRemoveManager = (id) => {
                             placeholder="Type a manager's name..."
                             value={managerSearchTerm}
                             onChange={(e) => setManagerSearchTerm(e.target.value)}
-                            onFocus={() => setShowManagerDropdown(true)}
+                            onFocus={() => {
+                                setShowManagerDropdown(true);
+                                setFilteredManagers(managers); // Populate dropdown
+                            }}
                             onBlur={() => setTimeout(() => setShowManagerDropdown(false), 200)}
                         />
                     </div>
-                    {showManagerDropdown && filteredManagers.length > 0 && (
+                    {showManagerDropdown && (
                         <ul className={styles.dropdown}>
-                            {filteredManagers.map((manager) => (
-                                <li key={manager.id} className={styles.dropdownItem} onClick={() => handleSelectManager(manager)}>
+                            {filteredManagers.map(manager => (
+                                <li key={manager.id} onMouseDown={() => handleSelectManager(manager)}>
                                     {manager.name}
                                 </li>
                             ))}
@@ -307,4 +356,4 @@ const handleRemoveManager = (id) => {
     );
 };
 
-export default NominationForm;  
+export default NominationForm; 
