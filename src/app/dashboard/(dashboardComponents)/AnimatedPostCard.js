@@ -61,17 +61,20 @@ const AnimatedPostCard = ({
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
-      console.log("Comment me aa gya")
+      
+     
+     var ImageUrl= `https://api.dicebear.com/7.x/initials/svg?seed=${userData.Name}`
+    
       const commentData = {
         postId: PostId,
         comment: commentValue,
         userId: userData.Name,
-        imageUrl: "",
+        imageUrl: ImageUrl
       };
       await axios.post("http://localhost:5279/apiDashboard/commentAdd", commentData);
       setCommentsDisplay((prev) => [commentData, ...prev]);
       setCommentValue(""); // Clear input after submission
-      console.log("comment se chala gya")
+     
     } catch (error) {
       console.error(error);
     }
@@ -150,7 +153,7 @@ const AnimatedPostCard = ({
                 type="text"
                 value={commentValue}
                 onChange={(e) => setCommentValue(e.target.value)}
-                className="w-full p-2 outline-none"
+                className="w-full p-2 outline-none text-black"
                 placeholder="Write a comment..."
               />
               <button

@@ -17,7 +17,7 @@ if(token==null){
 return router.push("/login");
 }
 
-console.log("token:  ",token);
+// console.log("token:  ",token);
 const decoded = jwtDecode(token);
 
   const [userData, setUserData] = useState({
@@ -35,26 +35,12 @@ const decoded = jwtDecode(token);
     userId: decoded.userId ||"67c1743a237d2fe4aeb76ffd",
   });
 
-  // const [userData, setUserData] = useState({
-  //   Name: "Ayush Raj Singh",
-  //   EmpID: "170",
-  //   Role:"Software Developer",
-  //   Team: "Team Shubham",
-  //   Designation: "Intern",
-  //   Email: "ayush123@gmail.com",
-  //   Phone: "1234567890",
-  //   Address:"Noida",
-  //   ProfilePicture:"/profile.jpg",
-  //   Image:
-  //  "https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI",
-  //   userId: "67c1743a237d2fe4aeb76ffd",
-  // });
-
   const [dashboardData, setDashboardData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const observerRef = useRef(null);
   const lastPostRef = useRef(null);
+ 
 
   useEffect(() => {
     fetchPosts();
@@ -67,6 +53,7 @@ const decoded = jwtDecode(token);
       const res = await axios.get(
         `http://localhost:5279/apiDashboard/GetAllPosts?page=${page}&pageSize=10`
       );
+      
       setDashboardData((prev) => [...prev, ...res.data.value]);
     } catch (error) {
       console.error("API call failed:", error);
@@ -115,10 +102,10 @@ const decoded = jwtDecode(token);
                     {post.type !== "Poll" ? (
                       <AnimatedPostCard
                         profileImage="https://media.licdn.com/dms/image/v2/C5103AQFTiwdba6bFqA/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1516274936348?e=1746057600&v=beta&t=vR_wHlnYK86TFKIAgENOAfXKzDkTZPTIluFKyGIaLMs"
-                        username="ADCD"
+                        username="ABC"
                         title={post.title}
                         description={post.description}
-                        imageUrl=""
+                        imageUrl={post.image}
                         PostId={post.id}
                         like={post.like}
                         date={post.created_at}
@@ -131,6 +118,9 @@ const decoded = jwtDecode(token);
                         title={post.title}
                         description={post.description}
                         totalVotes={post.totalVotes}
+                        postId={post.id}
+                        totalYes={post.totalYes}
+                        totalNo ={post.totalNo}
                       />
                     )}
                   </div>
