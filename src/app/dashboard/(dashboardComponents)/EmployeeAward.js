@@ -6,27 +6,21 @@ import { PostContext } from "@/app/Components/ContextApi";
 import CommentBox from "@/app/dashboard/(dashboardComponents)/CommentSection";
 
 const AppreciationCard = ({
-    profileImage = "https://via.placeholder.com/150",
-    username = "John Doe",
-    profileUrl = "#",
     title = "Employee of the Month",
     message = "Congratulations on your outstanding performance and dedication!",
     imageUrl = "https://img.freepik.com/free-vector/employee-month-award-theme_23-2148458399.jpg?t=st=1741774588~exp=1741778188~hmac=3c44734e5aa403a898031893ddfea6b86566fa58acf20d3ae8fd3a5f6203a818&w=740",
     PostId = "12345",
-    like = ["user1", "user2"],
+    like =[],
     date = new Date().toISOString(),
     badge = "Top Performer",
-    commentDatas = [
-        { userId: "Jane Smith", comment: "Well deserved!", imageUrl: "https://via.placeholder.com/50" },
-        { userId: "Mike Johnson", comment: "Congrats!", imageUrl: "https://via.placeholder.com/50" }
-    ]
+    commentDatas = []
 }) => {
 
     const [Like, setLike] = useState(like);
     const [commentsDisplay, setCommentsDisplay] = useState(commentDatas);
     const [commentValue, setCommentValue] = useState("");
     const [comment, setComment] = useState(false);
-    const [likeButtonDisable, setLikeButtonDisable] = useState(true);
+    const [likeButtonDisable, setLikeButtonDisable] = useState(false);
 
     const timing = new Date(date);
     const time = `${timing.getDate()}-${timing.getMonth() + 1}-${timing.getFullYear()}`;
@@ -106,11 +100,22 @@ const AppreciationCard = ({
             </div>
 
             {comment && (
-                <div className="p-4 bg-gray-100 shadow-md mt-4 rounded-md">
+                <div className="p-4 bg-white shadow-md">
                     <div className="flex items-center border rounded-md overflow-hidden">
-                        <input type="text" value={commentValue} onChange={(e) => setCommentValue(e.target.value)} className="w-full p-2 outline-none text-black bg-white" placeholder="Write a comment..." />
-                        <button className="bg-gray-600 text-white px-3 py-2 text-sm hover:bg-gray-800 transition" onClick={setCommentSubmit}>Send</button>
-                    </div>
+              <input
+                type="text"
+                value={commentValue}
+                onChange={(e) => setCommentValue(e.target.value)}
+                className="w-full p-2 outline-none text-black"
+                placeholder="Write a comment..."
+              />
+              <button
+                className="bg-blue-500 text-white px-3 py-2 text-sm hover:bg-blue-600 transition"
+                onClick={setCommentSubmit}
+              >
+                Submit
+              </button>
+            </div>
                     <CommentBox comments={commentsDisplay} />
                 </div>
             )}

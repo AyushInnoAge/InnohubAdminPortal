@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { ThumbsUp, MessageCircle } from "lucide-react";
+import { ThumbsUp, MessageCircle, PersonStanding } from "lucide-react";
 import CommentBox from "./CommentSection";
 
 const balloonVariants = {
@@ -21,7 +21,15 @@ const sparkVariants = {
   },
 };
 
-const BirthdayCard = () => {
+const BirthdayCard = (
+ { title,
+  description,
+  image,
+  like=[],
+  comments=[],
+  postId,
+  userData}
+) => {
   const [Like, setLike] = useState(0);
   const [commentValue, setCommentValue] = useState("");
   const [commentsDisplay, setCommentsDisplay] = useState([
@@ -31,15 +39,49 @@ const BirthdayCard = () => {
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
   const [comment, setComment] = useState(false);
 
-  const postData = {
-    profileImage: "https://via.placeholder.com/50",
-    username: "John Doe",
-    profileUrl: "#",
-    title: "Happy Birthday! 🎂🎉",
-    description: "Wishing you a fantastic day filled with joy and happiness!",
-    imageUrl: "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8YmlydGhkYXl8ZW58MHx8MHx8fDA%3D",
-    date: "11-03-2025",
+
+  // useEffect(() => {
+  //   if (Like.length !== 0) {
+  //     setLikeButtonDisable(Like.includes(userData.userId));
+  //   }
+  // }, [Like, userData.userId]);
+
+
+  // Submit Like Button
+  const setLikeSubmit = async () => {
+    try {
+      const likedData = { postId: PostId, userId: userData.userId };
+      setLikeButtonDisable(true);
+      await axios.post("http://localhost:5279/apiDashboard/InsertLike", likedData);
+      setLike((prev) => [...prev, userData.userId]);
+    } catch (error) {
+      console.error(error);
+    }
   };
+
+  // Submit Comment Button
+  const setCommentSubmit = async () => {
+    if (!commentValue.trim()) return;
+    try {
+      
+     
+     var ImageUrl= `https://api.dicebear.com/7.x/initials/svg?seed=${userData.Name}`
+    
+      const commentData = {
+        postId: PostId,
+        comment: commentValue,
+        userId: userData.Name,
+        imageUrl: ImageUrl
+      };
+      await axios.post("http://localhost:5279/apiDashboard/commentAdd", commentData);
+      setCommentsDisplay((prev) => [commentData, ...prev]);
+      setCommentValue(""); // Clear input after submission
+     
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
 
   return (
     <div className="relative bg-white rounded-lg p-6 w-full max-w-lg mx-auto shadow-xl overflow-hidden border-2 border-gray-200">
@@ -61,7 +103,10 @@ const BirthdayCard = () => {
 
       <div className="flex items-center justify-between mt-4">
         <button className="flex items-center space-x-2 text-blue-500 disabled:opacity-50" 
-          disabled={likeButtonDisable} onClick={() => setLike(Like + 1)}>
+          disabled={likeButtonDisable} 
+          onClick={setLikeSubmit}
+          
+          >
           <ThumbsUp size={24} />
           <span>Like {Like}</span>
         </button>

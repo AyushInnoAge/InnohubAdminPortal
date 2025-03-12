@@ -79,7 +79,7 @@ export default function Home() {
       observerRef.current.observe(lastPostRef.current);
     }
   }, [dashboardData]);
-
+console.log("userData: ", userData)
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
       <div className="hidden md:flex md:w-1/5 lg:w-1/6 p-4 bg-white shadow-md flex-col">
