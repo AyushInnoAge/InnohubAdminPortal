@@ -55,7 +55,7 @@
     position: absolute;
     width: 60px;
     height: 60px;
-    border: 5px solid rgba(208, 7, 235, 0.7);
+    border: 8px solid rgba(208, 7, 235, 0.7);
     animation: pulse 3s infinite ease-in-out;
 }
 
@@ -125,6 +125,7 @@
     padding: 12px;
     font-size: 16px;
     border: 1px solid #ccc;
+    color: #333;
     border-radius: 5px;
     outline: none;
 }
@@ -220,10 +221,7 @@
     width: 35%;
     padding: 1px; 
     font-size: 16px;
-    
-   
-  
-    
+
     /* Ensures input field has a white background */
     color: rgb(22, 22, 22); /* Ensures text inside input is visible */
 }
@@ -235,11 +233,12 @@
     border: 1px solid #ff69b4;
     border-radius: 5px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-top: 5px;
+    margin-top: 2px;
     z-index: 1000;
     max-height: 200px;
     overflow-y: auto;
     padding: 10px 0;
+
 }
 
 /* Dropdown Items */
@@ -250,11 +249,14 @@
     font-size: 16px;
     margin: 5px 0;
     color: #333;
+    gap: 10px;
 }
 
 .dropdownItem:hover {
     background: #ffb6c1;
     transform: scale(1.02); 
+    background: #ff69b4;
+
 }
 .dropdown::-webkit-scrollbar {
     width: 5px;
@@ -269,6 +271,7 @@
 .textarea {
     min-height: 200px;
     background-color: #f1f1f1;
+    color: #333;
     resize: vertical;
 }
 .selectedManagersContainer {
@@ -276,7 +279,7 @@
     flex-wrap: wrap;
     align-items: center;
     background: #fdfcfc;
-    padding: 4px;
+    padding: 3px;
     border-radius: 20px;
     min-height: 40px;
     width: 60%;
@@ -288,6 +291,9 @@
     display: inline-flex;
     align-items: center;
     background: #e0f7fa;
+    background: linear-gradient( to right, #0beaf1,#66ccf1,#ffffff );
+    color: #000; /* Black text for visibility */
+
     padding: 5px 10px;
     border-radius: 20px;
     margin: 5px;
@@ -426,8 +432,6 @@
 .dropdown {
     width: 100%;
 }
-
-/* Success & Error Messages */
 
 
 /* Responsive Media Queries */
