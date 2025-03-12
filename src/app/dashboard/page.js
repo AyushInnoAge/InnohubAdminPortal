@@ -9,20 +9,25 @@ import { PostContext, UserDataContext } from "../Components/ContextApi";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 import FestivalCard from "./(dashboardComponents)/Festivale";
+import BirthdayCard from "./(dashboardComponents)/BirthdayCard";
+import AppreciationCard from "./(dashboardComponents)/EmployeeAward";
+
+
+
 export default function Home() {
 
-  const router= useRouter();
+  const router = useRouter();
 
-const token= localStorage.getItem("token");
-if(token==null){
-return router.push("/login");
-}
+  const token = localStorage.getItem("token");
+  if (token == null) {
+    return router.push("/login");
+  }
 
-// console.log("token:  ",token);
-const decoded = jwtDecode(token);
+
+  const decoded = jwtDecode(token);
 
   const [userData, setUserData] = useState({
-    Name: decoded.Name ||"Ayush Raj Singh",
+    Name: decoded.Name || "Ayush Raj Singh",
     EmpID: decoded.EmployeeId || "170",
     Role: decoded.Role || "Software Developer",
     Team: decoded.Team || "Team Shubham",
@@ -30,10 +35,10 @@ const decoded = jwtDecode(token);
     Email: decoded.EmailId || "ayush123@gmail.com",
     Phone: decoded.PhoneNo || "1234567890",
     Address: decoded.Address || "Noida",
-    ProfilePicture:"/profile.jpg",
+    ProfilePicture: "/profile.jpg",
     Image:
-     decoded.imageUrl || "https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI",
-    userId: decoded.userId ||"67c1743a237d2fe4aeb76ffd",
+      decoded.imageUrl || "https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI",
+    userId: decoded.userId || "67c1743a237d2fe4aeb76ffd",
   });
 
   const [dashboardData, setDashboardData] = useState([]);
@@ -41,7 +46,7 @@ const decoded = jwtDecode(token);
   const [page, setPage] = useState(1);
   const observerRef = useRef(null);
   const lastPostRef = useRef(null);
- 
+
 
   useEffect(() => {
     fetchPosts();
@@ -54,7 +59,7 @@ const decoded = jwtDecode(token);
       const res = await axios.get(
         `http://localhost:5279/apiDashboard/GetAllPosts?page=${page}&pageSize=10`
       );
-      
+
       setDashboardData((prev) => [...prev, ...res.data.value]);
     } catch (error) {
       console.error("API call failed:", error);
@@ -93,14 +98,15 @@ const decoded = jwtDecode(token);
         </div>
 
         <div className="w-full max-w-4xl mx-auto space-y-6">
-          {/* {dashboardData.length === 0 ? (
+          {dashboardData.length === 0 ? (
             <h1 className="text-black size-max text-center">Loading...</h1>
           ) : (
             <>
               <PostContext.Provider value={{ userData }}>
                 {dashboardData.map((post, index) => (
                   <div key={index} ref={index === dashboardData.length - 1 ? lastPostRef : null}>
-                    {post.type !== "Poll" ? (
+
+                    {post.type == "Post" ? (
                       <AnimatedPostCard
                         profileImage="https://media.licdn.com/dms/image/v2/C5103AQFTiwdba6bFqA/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1516274936348?e=1746057600&v=beta&t=vR_wHlnYK86TFKIAgENOAfXKzDkTZPTIluFKyGIaLMs"
                         username="ABC"
@@ -112,7 +118,7 @@ const decoded = jwtDecode(token);
                         date={post.created_at}
                         commentDatas={post.comment}
                       />
-                    ) : (
+                    ) : post.type == "Poll" ? (
                       <PollCard
                         profileImage="https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI"
                         username="Ayush Raj Singh"
@@ -121,16 +127,22 @@ const decoded = jwtDecode(token);
                         totalVotes={post.totalVotes}
                         postId={post.id}
                         totalYes={post.totalYes}
-                        totalNo ={post.totalNo}
+                        totalNo={post.totalNo}
                       />
-                    )}
+                    ) : (post.type == "Birthday" || post.type == "Aniversary") ?
+                      (<BirthdayCard />) : null
+
+                    }
                   </div>
                 ))}
               </PostContext.Provider>
             </>
-          )} */}
-
-          <FestivalCard/>
+          )}
+          <FestivalCard />
+          {/* <HoliComponent/> */}
+          <AppreciationCard />
+          <PollCard />
+          {/* <FestivalCard/> */}
         </div>
       </div>
       {loading && <h1 className="text-center">Loading more posts...</h1>}

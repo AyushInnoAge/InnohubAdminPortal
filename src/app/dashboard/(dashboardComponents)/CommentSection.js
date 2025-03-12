@@ -6,22 +6,10 @@ export default function CommentBox({ comments = [] }) {
   console.log("Comments: ", comments);
   return (
     <div className="w-full">
-      {/* Notification Header */}
+      {/* Comment Header */}
       <div className="flex items-center justify-between border-b p-2">
         <h2 className="text-lg font-semibold text-blue-700">Comment</h2>
 
-        {/* Animated Bell Icon */}
-        <motion.div
-          animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
-          transition={{
-            repeat: Infinity,
-            repeatType: "loop",
-            duration: 1.5,
-            ease: "easeInOut",
-          }}
-        >
-          <Bell className="w-6 h-6 text-gray-500" />
-        </motion.div>
       </div>
 
       {/* Comments List (Scrollable) */}
