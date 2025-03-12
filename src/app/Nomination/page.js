@@ -147,16 +147,7 @@ const NominationForm = () => {
 
     // Filter roles based on search term
     useEffect(() => {
-        // if (!roleSearchTerm.trim()) {
-        //     setFilteredRoles([]);
-        //     setShowRoleDropdown(false);
-        // } else {
-        //     const filtered = roles.filter(role =>
-        //         role.toLowerCase().startsWith(roleSearchTerm.toLowerCase()) // Ensures it starts with the input
-        //     );
-        //     setFilteredRoles(filtered);
-        //     setShowRoleDropdown(filtered.length > 0);
-        // }
+        
         let filtered = [];
 
         if (userRole.toLowerCase() === "hr") {
@@ -166,10 +157,15 @@ const NominationForm = () => {
         } else if (userRole.toLowerCase() === "employee") {
             filtered = ["ShoutOut"];  // Only allow "ShoutOut"
         }
+        
+        if (roleSearchTerm.trim() !== "") {
+            filtered = filtered.filter(role =>
+                role.toLowerCase().includes(roleSearchTerm.toLowerCase())
+            );
+        }
     
         setFilteredRoles(filtered);
-    }, [userRole, roles]);
-
+    }, [userRole, roles, roleSearchTerm]); 
 
     // Handle selections
     const handleSelectEmployee = (employee) => {
@@ -177,13 +173,18 @@ const NominationForm = () => {
         setSearchTerm(employee.name);
         setShowEmployeeDropdown(false);
 
+        
+
         // Assuming each employee has a `managerId` field
-        const employeeManager = managers.find(mgr => mgr.id === employee.managerId);
+        const employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
 
         if (employeeManager) {
-            setSelectedManagers([employeeManager]);  // Auto-select manager
+            setSelectedManagers([employeeManager]); 
+            setManagerSearchTerm(employeeManager.name);  // Auto-select manager
+            setManagerSearchTerm("") 
         } else {
-            setSelectedManagers([]);  // Clear if no manager is found
+            setSelectedManagers([]); // Clear if no manager is found
+            setManagerSearchTerm("") 
         }
     };
 
@@ -297,7 +298,7 @@ const NominationForm = () => {
                         onChange={(e) => setRoleSearchTerm(e.target.value)}
                         onFocus={() => {
                             setShowRoleDropdown(true);
-                            //setFilteredRoles(userRole);
+                             setFilteredRoles(roles);
                         }}
                         onBlur={() => setTimeout(() => setShowRoleDropdown(false), 200)}
                     />
