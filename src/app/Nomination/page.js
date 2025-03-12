@@ -47,7 +47,7 @@ const NominationForm = () => {
     const [userRole, setUserRole] = useState("");
 
     useEffect(() => {
-        const token = localStorage.getItem("token");  
+        const token = localStorage.getItem("token");
         if (!token) {
             console.error("No token found, user might be logged out.");
             return;
@@ -78,7 +78,7 @@ const NominationForm = () => {
                     console.error("No token found, user might be logged out.");
                     return;
                 }
-                const response = await fetch("http://localhost:5279/user/fetch_users", {
+                const response = await fetch("http://localhost:5279/user/fetch_my_employees", {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -95,7 +95,7 @@ const NominationForm = () => {
                 }
 
                 setEmployees(data);
-                setManagers(data);
+               
                 //  setRoles([...new Set(data.map(emp => emp.role))]); // Assuming `role` exists in the API
             } catch (err) {
                 setError(err.message);
@@ -117,55 +117,76 @@ const NominationForm = () => {
                 emp.name.toLowerCase().startsWith(searchTerm.toLowerCase())
             );
 
-            /* Filter based on selected role (new Requirements)*/
-            if (selectedRole) {
-                if (selectedRole.toLowerCase().includes("team")) {
-                    filtered = filtered.filter(emp => emp.name.toLowerCase().startsWith("team"));
-                } else if (selectedRole.toLowerCase().includes("leader")) {
-                    filtered = filtered.filter(emp => emp.role.toLowerCase().includes("leader"));
-                }
-            }
+           
             setFilteredEmployees(filtered);
             setShowEmployeeDropdown(filtered.length > 0);
         }
-    }, [searchTerm, employees, selectedRole]);
+    }, [searchTerm, employees]);
 
     // Filter managers based on search term
     useEffect(() => {
-        if (!managerSearchTerm.trim()) {
-            setFilteredManagers([]);
-            setShowManagerDropdown(false);
-        } else {
-            const filtered = managers.filter(mgr =>
-                mgr.name.toLowerCase().startsWith(managerSearchTerm.toLowerCase())
-            );
-            setFilteredManagers(filtered);
-            setShowManagerDropdown(filtered.length > 0);
-        }
-    }, [managerSearchTerm, managers]);
-
+        const fetchManagers = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    console.error("No token found, user might be logged out.");
+                    return;
+                }
+                const response = await fetch("http://localhost:5279/user/fetch_all_TeamLeaders", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+    
+                if (!response.ok) throw new Error("Failed to fetch managers");
+    
+                const data = await response.json();
+    
+                if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error("No valid managers available");
+                }
+    
+                setManagers(data);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+    
+        fetchManagers();
+    }, []);
 
     // Filter roles based on search term
     useEffect(() => {
-        
+        if (!userRole) return; // Ensure userRole is set before filtering
+    
         let filtered = [];
-
-        if (userRole.toLowerCase() === "hr") {
-            filtered = roles;  // Show all categories
-        } else if (userRole.toLowerCase() === "teamleader") {
-            filtered = roles.filter(role => !role.toLowerCase().includes("team")); // Exclude roles with "team"
-        } else if (userRole.toLowerCase() === "employee") {
-            filtered = ["ShoutOut"];  // Only allow "ShoutOut"
+    
+        switch (userRole.toLowerCase()) {
+            case "hr":
+                filtered = roles; // HR sees all categories
+                break;
+            case "teamleader":
+                filtered = roles.filter(role => !role.toLowerCase().includes("team"));
+                break;
+            case "employee":
+                filtered = ["ShoutOut"]; // Employee can only see "ShoutOut"
+                break;
+            default:
+                filtered = []; // Default to empty if the role is unknown
         }
-        
-        if (roleSearchTerm.trim() !== "") {
+    
+        // Apply search filtering
+        if (roleSearchTerm.trim()) {
             filtered = filtered.filter(role =>
                 role.toLowerCase().includes(roleSearchTerm.toLowerCase())
             );
         }
     
         setFilteredRoles(filtered);
-    }, [userRole, roles, roleSearchTerm]); 
+    }, [userRole, roleSearchTerm]);
+    
 
     // Handle selections
     const handleSelectEmployee = (employee) => {
@@ -173,18 +194,18 @@ const NominationForm = () => {
         setSearchTerm(employee.name);
         setShowEmployeeDropdown(false);
 
-        
+
 
         // Assuming each employee has a `managerId` field
         const employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
 
         if (employeeManager) {
-            setSelectedManagers([employeeManager]); 
+            setSelectedManagers([employeeManager]);
             setManagerSearchTerm(employeeManager.name);  // Auto-select manager
-            setManagerSearchTerm("") 
+            setManagerSearchTerm("")
         } else {
             setSelectedManagers([]); // Clear if no manager is found
-            setManagerSearchTerm("") 
+            setManagerSearchTerm("")
         }
     };
 
@@ -298,7 +319,7 @@ const NominationForm = () => {
                         onChange={(e) => setRoleSearchTerm(e.target.value)}
                         onFocus={() => {
                             setShowRoleDropdown(true);
-                             setFilteredRoles(roles);
+                           
                         }}
                         onBlur={() => setTimeout(() => setShowRoleDropdown(false), 200)}
                     />
@@ -307,7 +328,7 @@ const NominationForm = () => {
                         <ul className={styles.dropdown}>
                             {filteredRoles.map((role, index) => (
                                 <li key={index}
-                                    className={userRole === userRole  ? styles.dropdownItem : ''}
+                                    className={userRole === userRole ? styles.dropdownItem : ''}
                                     onClick={() => handleSelectRole(role)}>
                                     {role}
                                 </li>
