@@ -5,7 +5,20 @@ import Image from "next/image";
 import "./navbar.css";
 import { FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { IoNotificationsSharp } from "react-icons/io5";
+import { FaTrophy } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa";
+import { GrDocumentPerformance } from "react-icons/gr";
+import { MdOutlineEvent } from "react-icons/md";
+import { IoBicycleOutline } from "react-icons/io5";
+import { RiGalleryFill } from "react-icons/ri";
+import {
+  FaThLarge,
+  FaBox,
+  FaUsers,
+  FaUserCog,
+  FaQuestionCircle,
+  FaSignOutAlt,
+} from "react-icons/fa";
 
 export default function Navbar() {
   const [isDropdownOpen, setDropdownOpen] = useState(null);
@@ -31,7 +44,10 @@ export default function Navbar() {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest(".nav-item") && !event.target.closest(".profile-container")) {
+      if (
+        !event.target.closest(".nav-item") &&
+        !event.target.closest(".profile-container")
+      ) {
         setDropdownOpen(null);
         setProfileOpen(false);
       }
@@ -50,23 +66,25 @@ export default function Navbar() {
         setSidebarOpen(false);
       }
     };
-  
+
     if (isSidebarOpen) {
       document.addEventListener("click", handleClickOutside);
     } else {
       document.removeEventListener("click", handleClickOutside);
     }
-  
+
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, [isSidebarOpen]);
-  
 
   return (
     <header>
       <nav className="navbar">
         <div className="navbar-container">
+          <button className="menu-btn" onClick={toggleSidebar}>
+            {isSidebarOpen ? <FaTimes /> : <FaBars />}
+          </button>
           {/* Logo */}
           <div className="logo-container">
             <Image src="/logo.svg" alt="Logo" width={40} height={40} />
@@ -74,9 +92,6 @@ export default function Navbar() {
           </div>
 
           {/* Hamburger Menu for Small Screens */}
-          <button className="menu-btn" onClick={toggleSidebar}>
-            {isSidebarOpen ? <FaTimes /> : <FaBars />}
-          </button>
 
           {/* Navigation Links (Visible on Large Screens) */}
           <div className={`nav-links ${isSidebarOpen ? "hide" : ""}`}>
@@ -85,29 +100,70 @@ export default function Navbar() {
             </Link>
             <div className="nav-item">
               <div className="dropdown1">
-                <button className="nav-link dropdown-btn" onClick={() => toggleDropdown("awards")}>Awards</button>
-                <FaChevronDown size={12} onClick={() => toggleDropdown("awards")} />
+                <button
+                  className="nav-link dropdown-btn"
+                  onClick={() => toggleDropdown("awards")}
+                >
+                  Awards
+                </button>
+                <FaChevronDown
+                  size={12}
+                  onClick={() => toggleDropdown("awards")}
+                />
               </div>
               {isDropdownOpen === "awards" && (
                 <div className="dropdown-content lower-dropdown">
-                  <Link href="/awards/employee-month" className="dropdown-item">Employee of the Month</Link>
-                  <Link href="/awards/top-performers" className="dropdown-item">Top Performers</Link>
+                  <Link href="/awards/employee-month" className="dropdown-item">
+                    Employee of the Month
+                  </Link>
+                  <Link href="/awards/top-performers" className="dropdown-item">
+                    Top Performers
+                  </Link>
                 </div>
               )}
             </div>
             <div className="nav-item">
               <div className="dropdown1">
-                <button className="nav-link dropdown-btn" onClick={() => toggleDropdown("fun")}>Fun & Social Activities</button>
-                <FaChevronDown size={12} onClick={() => toggleDropdown("fun")} />
+                <button
+                  className="nav-link dropdown-btn"
+                  onClick={() => toggleDropdown("fun")}
+                >
+                  Fun & Social Activities
+                </button>
+                <FaChevronDown
+                  size={12}
+                  onClick={() => toggleDropdown("fun")}
+                />
               </div>
               {isDropdownOpen === "fun" && (
                 <div className="dropdown-content lower-dropdown">
-                  <Link href="/activities/team-building" className="dropdown-item">Team Building</Link>
-                  <Link href="/activities/events" className="dropdown-item">Company Events</Link>
-                  <Link href="/activities/recent-outings" className="dropdown-item">Recent Outings</Link>
-                  <Link href="/activities/upcoming-events" className="dropdown-item">Upcoming Events</Link>
-                  <Link href="/activities/gallery" className="dropdown-item">Gallery</Link>
-                  <Link href="/activities/policies" className="dropdown-item">Policies</Link>
+                  <Link
+                    href="/activities/team-building"
+                    className="dropdown-item"
+                  >
+                    Team Building
+                  </Link>
+                  <Link href="/activities/events" className="dropdown-item">
+                    Company Events
+                  </Link>
+                  <Link
+                    href="/activities/recent-outings"
+                    className="dropdown-item"
+                  >
+                    Recent Outings
+                  </Link>
+                  <Link
+                    href="/activities/upcoming-events"
+                    className="dropdown-item"
+                  >
+                    Upcoming Events
+                  </Link>
+                  <Link href="/activities/gallery" className="dropdown-item">
+                    Gallery
+                  </Link>
+                  <Link href="/activities/policies" className="dropdown-item">
+                    Policies
+                  </Link>
                 </div>
               )}
             </div>
@@ -117,13 +173,23 @@ export default function Navbar() {
           <div className="right-container">
             <div className="profile-container">
               <button className="profile-btn" onClick={toggleProfileDropdown}>
-                <Image src="/profile1.webp" alt="User" className="profile-pic" width={32} height={32} />
+                <Image
+                  src="/profile1.webp"
+                  alt="User"
+                  className="profile-pic"
+                  width={32}
+                  height={32}
+                />
                 <span className="profile-text">Vedant</span>
               </button>
               {isProfileOpen && (
                 <div className="profile-dropdown">
-                  <Link href="/profile/edit" className="dropdown-item">Profile</Link>
-                  <Link href="/logout" className="dropdown-item">Logout</Link>
+                  <Link href="/profile/edit" className="dropdown-item">
+                    Profile
+                  </Link>
+                  <Link href="/logout" className="dropdown-item">
+                    Logout
+                  </Link>
                 </div>
               )}
             </div>
@@ -135,7 +201,11 @@ export default function Navbar() {
             <div className="notification">
               <Link href="/notifications" className="nav-link2">
                 <IoNotificationsSharp className="notification-icon" />
-                {notificationCount > 0 && <span className="notification-badge">{notificationCount}</span>}
+                {notificationCount > 0 && (
+                  <span className="notification-badge">
+                    {notificationCount}
+                  </span>
+                )}
               </Link>
             </div>
           </div>
@@ -143,18 +213,57 @@ export default function Navbar() {
       </nav>
 
       {/* Sidebar Menu for Small Screens */}
-      <div className={`sidebar ${isSidebarOpen ? "active" : ""}`}>
-  <Link href="/dashboard" className="sidebar-link" onClick={toggleSidebar}>Dashboard</Link>
-  <Link href="/awards/employee-month" className="sidebar-link" onClick={toggleSidebar}>Employee of the Month</Link>
-  <Link href="/awards/top-performers" className="sidebar-link" onClick={toggleSidebar}>Top Performers</Link>
-  <Link href="/activities/team-building" className="sidebar-link" onClick={toggleSidebar}>Team Building</Link>
-  <Link href="/activities/events" className="sidebar-link" onClick={toggleSidebar}>Company Events</Link>
-  <Link href="/activities/recent-outings" className="sidebar-link" onClick={toggleSidebar}>Recent Outings</Link>
-  <Link href="/activities/upcoming-events" className="sidebar-link" onClick={toggleSidebar}>Upcoming Events</Link>
-  <Link href="/activities/gallery" className="sidebar-link" onClick={toggleSidebar}>Gallery</Link>
-  <Link href="/activities/policies" className="sidebar-link" onClick={toggleSidebar}>Policies</Link>
-</div>
+      {/* Sidebar Menu for Small Screens */}
+      {isSidebarOpen && (
+        <div className="sidebar">
+          {/* Sidebar Header */}
+          <div className="sidebar-header">
+            <Image src="/logo.svg" alt="Logo" width={120} height={40} />
+          </div>
 
+          {/* Scrollable Sidebar Links */}
+          <div className="sidebar-menu">
+            <Link
+              href="/dashboard"
+              className="sidebar-link"
+              onClick={toggleSidebar}
+            >
+              <FaThLarge /> Dashboard
+            </Link>
+
+            {/* Admin Section */}
+            <div className="sidebar-section">Awards</div>
+            <Link
+              href="/account"
+              className="sidebar-link"
+              onClick={toggleSidebar}
+            >
+             <FaTrophy />Employee of the Month
+            </Link>
+            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
+            <GrDocumentPerformance />Top Performers
+            </Link>
+            <div className="sidebar-section">Fun & Social Activities</div>
+            <Link
+              href="/account"
+              className="sidebar-link"
+              onClick={toggleSidebar}
+            >
+              <FaUserCog /> Team Building
+            </Link>
+            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
+            <MdOutlineEvent />Company Events
+            </Link>
+            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
+            <IoBicycleOutline />Recent Outings
+            </Link>
+            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
+            <RiGalleryFill />Gallery
+            </Link>
+          </div>
+          
+        </div>
+      )}
     </header>
   );
 }
