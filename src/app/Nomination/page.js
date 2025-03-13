@@ -96,7 +96,7 @@ const NominationForm = () => {
 
                 setEmployees(data);
                
-                //  setRoles([...new Set(data.map(emp => emp.role))]); // Assuming `role` exists in the API
+                
             } catch (err) {
                 setError(err.message);
             }
