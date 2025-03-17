@@ -94,14 +94,19 @@ const PostInput = ({ profileUrl }) => {
     formDataToSend.append("userId", userData.userId);
     formDataToSend.append("created_at", new Date().toISOString());
 
-    var response = await axios.post(
-      "http://localhost:5279/apiDashboard/InsertPost",
-      formDataToSend
-    );
+    try {
+      var response = await axios.post(
+        "http://localhost:5279/apiDashboard/InsertPost",
+        formDataToSend
+      );
 
-    setDashboardData((preData) => [data, ...preData]);
-    console.log("Poll Saved: ", data);
-    closePollModal();
+      setDashboardData((preData) => [data, ...preData]);
+      // console.log("Poll Saved: ", data);
+      closePollModal();
+    } catch (error) {
+      return error;
+    }
+
   };
 
   const handleEmojiClick = (emojiObject) => {
@@ -221,11 +226,10 @@ const PostInput = ({ profileUrl }) => {
                 <button
                   onClick={handleSavePost}
                   disabled={!postTitle && !postDescription && !image}
-                  className={`px-4 py-2 rounded-lg w-full ${
-                    !postTitle && !postDescription && !image
+                  className={`px-4 py-2 rounded-lg w-full ${!postTitle && !postDescription && !image
                       ? "bg-gray-500 text-white cursor-not-allowed"
                       : "bg-blue-500 text-white"
-                  }`}
+                    }`}
                 >
                   Post
                 </button>
@@ -286,11 +290,10 @@ const PostInput = ({ profileUrl }) => {
                 <button
                   onClick={handelSavePoll}
                   disabled={!pollTitle && !pollDescription}
-                  className={`px-4 py-2 rounded-lg w-full ${
-                    !pollTitle && !pollDescription
+                  className={`px-4 py-2 rounded-lg w-full ${!pollTitle && !pollDescription
                       ? "bg-gray-500 text-white cursor-not-allowed"
                       : "bg-blue-500 text-white"
-                  }`}
+                    }`}
                 >
                   Post
                 </button>

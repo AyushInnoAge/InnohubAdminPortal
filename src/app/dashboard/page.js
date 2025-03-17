@@ -15,11 +15,29 @@ export default function Home() {
   const router = useRouter();
 
   const token = localStorage.getItem("token");
-  if (token == null) {
-    return router.push("/login");
-  }
+
+  useEffect(()=>{
+    if(!token){
+      return router.push("/login");
+    }
+    try{
+      const payload = JSON.parse(atob(token.split(".")[1])); 
+      const expiry = payload.exp * 1000; 
+      // console.log("expire=> ",expiry);
+      // console.log("Datecheak=>",Date.now() > expiry )
+      if(Date.now() > expiry){
+        localStorage.removeItem("token");
+        return router.push("/login");
+      } 
+    }catch{
+      console.log("invalidToken")
+      localStorage.removeItem("token");
+      return router.push("/login");
+    }
+  },[]);
 
   // console.log("token:  ",token);
+  
   const decoded = jwtDecode(token);
 
   const [userData, setUserData] = useState({
@@ -31,13 +49,9 @@ export default function Home() {
     Email: decoded.EmailId || "ayush123@gmail.com",
     Phone: decoded.PhoneNo || "1234567890",
     Address: decoded.Address || "Noida",
-    ProfilePicture: "/profile.jpg",
-    Image:
-      decoded.imageUrl ||
-      "https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI",
-    userId: decoded.userId || "67c1743a237d2fe4aeb76ffd",
+    Image:decoded.Image || `https://api.dicebear.com/7.x/initials/svg?seed=${decoded.Name}`,
+    userId: decoded.UserId || "67c1743a237d2fe4aeb76ffd",
   });
-
   const [dashboardData, setDashboardData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);

@@ -97,8 +97,8 @@ const AnimatedPostCard = ({
           <button
             onClick={() =>
               window.open(
-                PostUser?.Image ||
-                  `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser?.Name}`,
+                PostUser?.image ||
+                  `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser?.name}`,
                 "_blank"
               )
             }
@@ -107,8 +107,8 @@ const AnimatedPostCard = ({
           >
             <img
               src={
-                PostUser?.Image ||
-                `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser?.Name}`
+                PostUser?.image ||
+                `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser?.name}`
               }
               alt={`Profile`}
               className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover hover:scale-110 transition-transform"
@@ -116,7 +116,7 @@ const AnimatedPostCard = ({
           </button>
           <div className="flex flex-col">
             <span className="text-gray-800 font-semibold text-base sm:text-lg">
-              {PostUser?.Name || "Ayush"}
+              {PostUser?.name || "Ayush"}
             </span>
             <span className="text-gray-500 text-sm sm:text-xs">{time}</span>
           </div>

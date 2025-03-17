@@ -117,15 +117,15 @@ const PollCard = (Post) => {
         <div className="flex items-center space-x-4 mb-4">
           <img
             src={
-              user?.Image ||
-              `https://api.dicebear.com/7.x/initials/svg?seed=${user?.Name}`
+              user?.image ||
+              `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
             }
             alt={`Profile`}
             className="w-10 h-10 rounded-full object-cover border border-gray-400"
           />
           <div className="flex flex-col">
             <span className="text-gray-800 font-semibold text-base sm:text-lg">
-              {user?.Name || "Ayush"}
+              {user?.name || "Ayush"}
             </span>
             <span className="text-gray-500 text-sm sm:text-xs">{time}</span>
           </div>
