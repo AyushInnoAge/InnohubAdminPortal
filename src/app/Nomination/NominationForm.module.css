@@ -5,7 +5,7 @@
     margin: 120px auto 20px;
     padding: 30px;
     font-family: 'Inter', sans-serif;
-     background-color: rgb(255, 253, 253);
+    background: linear-gradient(to right, #f8e8ff, #e0f7fa);
     border-radius: 8px;
     box-shadow: 10px 10px 20px rgba(2, 6, 8, 0.3);
     backdrop-filter: blur(10px);
@@ -125,6 +125,7 @@
     padding: 12px;
     font-size: 16px;
     border: 1px solid #ccc;
+    background-color: #fffaf0; 
     color: #333;
     border-radius: 5px;
     outline: none;
@@ -270,7 +271,7 @@
 /* Textarea */
 .textarea {
     min-height: 200px;
-    background-color: #f1f1f1;
+    background-color: #fffaf0; 
     color: #333;
     resize: vertical;
 }
@@ -279,7 +280,7 @@
     flex-wrap: wrap;
     align-items: center;
     background: #fdfcfc;
-    padding: 3px;
+    padding: 7px;
     border-radius: 20px;
     min-height: 40px;
     width: 60%;
