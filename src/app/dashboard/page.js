@@ -13,44 +13,41 @@ import AppreciationCard from "./(dashboardComponents)/EmployeeAward";
 import FestivalCard from "./(dashboardComponents)/Festivale";
 export default function Home() {
   const router = useRouter();
-
-  const token = localStorage.getItem("token");
+  const [decoded, setDecoded]= useState(null);
 
   useEffect(()=>{
-    if(!token){
-      return router.push("/login");
-    }
-    try{
-      const payload = JSON.parse(atob(token.split(".")[1])); 
-      const expiry = payload.exp * 1000; 
-      // console.log("expire=> ",expiry);
-      // console.log("Datecheak=>",Date.now() > expiry )
-      if(Date.now() > expiry){
-        localStorage.removeItem("token");
-        return router.push("/login");
-      } 
-    }catch{
-      console.log("invalidToken")
+    const token = localStorage.getItem("token");
+  if (!token) return  window.location.href = "/login";;
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1])); 
+    const expiry = payload.exp * 1000;
+    
+    if (Date.now() > expiry) {
       localStorage.removeItem("token");
       return router.push("/login");
     }
-  },[]);
 
-  // console.log("token:  ",token);
-  
-  const decoded = jwtDecode(token);
+    setDecoded(jwtDecode(token)); // Decode after validation
+  } catch {
+    console.log("Invalid Token");
+    localStorage.removeItem("token");
+    return router.push("/login");
+  }
+  },[])
+
 
   const [userData, setUserData] = useState({
-    Name: decoded.Name || "Ayush Raj Singh",
-    EmpID: decoded.EmployeeId || "170",
-    Role: decoded.Role || "Software Developer",
-    Team: decoded.Team || "Team Shubham",
-    Designation: decoded.Designation || "Intern",
-    Email: decoded.EmailId || "ayush123@gmail.com",
-    Phone: decoded.PhoneNo || "1234567890",
-    Address: decoded.Address || "Noida",
-    Image:decoded.Image || `https://api.dicebear.com/7.x/initials/svg?seed=${decoded.Name}`,
-    userId: decoded.UserId || "67c1743a237d2fe4aeb76ffd",
+    Name: decoded?.Name || "Ayush Raj Singh",
+    EmpID: decoded?.EmployeeId || "170",
+    Role: decoded?.Role || "Software Developer",
+    Team: decoded?.Team || "Team Shubham",
+    Designation: decoded?.Designation || "Intern",
+    Email: decoded?.EmailId || "ayush123@gmail.com",
+    Phone: decoded?.PhoneNo || "1234567890",
+    Address: decoded?.Address || "Noida",
+    Image:decoded?.Image || `https://api.dicebear.com/7.x/initials/svg?seed=${decoded?.Name}`,
+    userId: decoded?.UserId || "67c1743a237d2fe4aeb76ffd",
   });
   const [dashboardData, setDashboardData] = useState([]);
   const [loading, setLoading] = useState(false);
