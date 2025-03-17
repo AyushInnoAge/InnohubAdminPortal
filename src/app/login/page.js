@@ -19,9 +19,9 @@ export default function LoginPage() {
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
-     // if (email && password && password.length >= 6) {
+     if (email && password && password.length >= 6) {
         formRef.current.requestSubmit();
-     // }
+      }
     }
   };
 

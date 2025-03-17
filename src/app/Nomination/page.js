@@ -36,7 +36,6 @@ const NominationForm = () => {
     const [roles] = useState([
         // "Employee of the Month",
         "Star of the Month",
-        "Employee of the Year",
         "Best Team (yearly)",
         "Best Team Leader (yearly)",
         "Best Team (Half yearly)",
@@ -72,37 +71,61 @@ const NominationForm = () => {
     // Fetch employees and managers from API
     useEffect(() => {
         const fetchData = async () => {
+            let api = "";
+
+
+            if (userRole === "HR") {
+                if (selectedRole === "Star of the Month") {
+                    api = "http://localhost:5279/users/fetch_nominated_employees";
+                }
+                else if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
+                    api = "http://localhost:5279/teams/fetch_all_teams";
+                }
+
+                else if (selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
+                    api = "http://localhost:5279/user/fetch_all_TeamLeaders";
+                }
+            }
+            else {
+                api = "http://localhost:5279/user/fetch_my_employees";
+
+            }
+
+            console.log("Fetching employees for role:", selectedRole, "and user role:", userRole);
+
             try {
+
                 const token = localStorage.getItem("token");
                 if (!token) {
                     console.error("No token found, user might be logged out.");
                     return;
                 }
-                const response = await fetch("http://localhost:5279/user/fetch_my_employees", {
+
+                const response = await fetch(api, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     }
                 });
+
                 if (!response.ok) throw new Error("Failed to fetch employees");
 
                 const data = await response.json();
                 console.log(data);
 
-                if (!Array.isArray(data) || data.length === 0) {
+                if (!Array.isArray(data)) {
                     throw new Error("No valid data available");
                 }
 
                 setEmployees(data);
-               
-                
             } catch (err) {
                 setError(err.message);
             }
         };
+
         fetchData();
-    }, []);
+    }, [selectedRole], [userRole]); // Correct dependency array
 
 
 
@@ -113,15 +136,36 @@ const NominationForm = () => {
             setFilteredEmployees([]);
             setShowEmployeeDropdown(false);
         } else {
-            const filtered = employees.filter(emp =>
-                emp.name.toLowerCase().startsWith(searchTerm.toLowerCase())
-            );
+            let filtered = [];
 
-           
+            if (userRole === "HR") {
+                if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
+                    // Filter by teamName for Best Team roles
+                    filtered = employees.filter(emp =>
+                        emp.teamName?.toLowerCase().startsWith(searchTerm.toLowerCase())
+                    );
+                } else if (selectedRole === "Star of the Month") {
+                    // Filter by userName for Star of the Month
+                    filtered = employees.filter(emp =>
+                        emp.user?.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
+                    );
+                } else {
+                    // Default behavior: filter by employee name
+                    filtered = employees.filter(emp =>
+                        emp.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
+                    );
+                }
+            } else {
+                filtered = employees.filter(emp =>
+                    emp.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
+                );
+            }
+
             setFilteredEmployees(filtered);
             setShowEmployeeDropdown(filtered.length > 0);
         }
-    }, [searchTerm, employees]);
+    }, [searchTerm, employees, selectedRole]);
+
 
     // Filter managers based on search term
     useEffect(() => {
@@ -139,36 +183,37 @@ const NominationForm = () => {
                         "Authorization": `Bearer ${token}`
                     }
                 });
-    
+
                 if (!response.ok) throw new Error("Failed to fetch managers");
-    
+
                 const data = await response.json();
-    
+                console.log("manager", data);
+
                 if (!Array.isArray(data) || data.length === 0) {
                     throw new Error("No valid managers available");
                 }
-    
+
                 setManagers(data);
             } catch (err) {
                 setError(err.message);
             }
         };
-    
+
         fetchManagers();
     }, []);
 
-    // Filter roles based on search term
+    // Filter  search term based on role login
     useEffect(() => {
         if (!userRole) return; // Ensure userRole is set before filtering
-    
+
         let filtered = [];
-    
+
         switch (userRole.toLowerCase()) {
             case "hr":
-                filtered = roles; // HR sees all categories
+                filtered = roles.filter(role => role.toLowerCase() !== "shoutout"); // HR sees all categories except "ShoutOut"
                 break;
             case "teamleader":
-                filtered = roles.filter(role => !role.toLowerCase().includes("team"));
+                filtered = roles.filter(role => !role.toLowerCase().includes("team")); // TeamLeader can't see team-related categories
                 break;
             case "employee":
                 filtered = ["ShoutOut"]; // Employee can only see "ShoutOut"
@@ -176,28 +221,61 @@ const NominationForm = () => {
             default:
                 filtered = []; // Default to empty if the role is unknown
         }
-    
+
         // Apply search filtering
         if (roleSearchTerm.trim()) {
             filtered = filtered.filter(role =>
                 role.toLowerCase().includes(roleSearchTerm.toLowerCase())
             );
         }
-    
+
         setFilteredRoles(filtered);
     }, [userRole, roleSearchTerm]);
-    
+
 
     // Handle selections
     const handleSelectEmployee = (employee) => {
+
+        if (userRole === "HR") {
+            if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
+                setSearchTerm(employee.teamName);
+            } 
+            else if (selectedRole === "Star of the Month") {
+                setSearchTerm(employee.user.name);
+            }
+             else {
+                setSearchTerm(employee.name);
+            }
+        }
+            else {
+                setSearchTerm(employee.name);
+            }
+
+
         setSelectedEmployee(employee);
-        setSearchTerm(employee.name);
         setShowEmployeeDropdown(false);
 
+       // console.log("Employee Manager:", employee.user.teamLeaderId);
+
+        // Get manager based on role condition
+
+        let employeeManager = null; 
+            if (userRole === "HR" && selectedRole === "Star of the Month") {
+                const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
+                console.log("Team Leader ID:", teamLeaderId);
+            
+                if (teamLeaderId) {
+                    employeeManager = managers.find(mgr => mgr.id === teamLeaderId);
+                } 
+                else{
+                  employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
+                }
+            }
+       else {
+                employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
+        }
 
 
-        // Assuming each employee has a `managerId` field
-        const employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
 
         if (employeeManager) {
             setSelectedManagers([employeeManager]);
@@ -319,7 +397,7 @@ const NominationForm = () => {
                         onChange={(e) => setRoleSearchTerm(e.target.value)}
                         onFocus={() => {
                             setShowRoleDropdown(true);
-                           
+
                         }}
                         onBlur={() => setTimeout(() => setShowRoleDropdown(false), 200)}
                     />
@@ -337,7 +415,13 @@ const NominationForm = () => {
                     )}
                 </div>
                 {/* Employee Search */}
-                <label className={styles.label}>Search Employee:</label>
+                <label className={styles.label}>
+                    {selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)"
+                        ? "Search Team:"
+                        : selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)"
+                            ? "Search Team Leader:"
+                            : "Search Employee:"}
+                </label>
                 <div className={styles.searchContainer}>
                     <input
                         type="text"
@@ -356,8 +440,15 @@ const NominationForm = () => {
                             {filteredEmployees.map(employee => (
                                 <li key={employee.id}
                                     className={employees === employees ? styles.dropdownItem : ''}
-                                    onMouseDown={() => handleSelectEmployee(employee)}>
-                                    {employee.name}
+                                    onMouseDown={() => handleSelectEmployee(employee)}
+                                >
+                                    {userRole === "HR" ? (
+                                        selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)"
+                                            ? employee.teamName
+                                            : selectedRole === "Star of the Month"
+                                                ? employee.user.name
+                                                : employee.name
+                                    ) : employee.name}
                                 </li>
                             ))}
                         </ul>
