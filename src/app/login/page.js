@@ -4,16 +4,16 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./login.module.css";
 import { useRouter } from "next/navigation";
-
+import { useAuth } from "../Components/AuthContext";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-
+  const { setUser } = useAuth()
   const formRef = useRef(null);
   const API_URL = "http://localhost:5279/login";
-  const router= useRouter();
+  const router = useRouter();
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -46,21 +46,23 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-
+      console.log(data);
       if (!response.ok) {
         alert(data.message || "Invalid email or password");
         setError(data.message || "Invalid email or password");
         return;
       }
 
-      if(data.success){
-        const token = data.response.token
-          localStorage.setItem("token", token); // Store token in localStorage
-          console.log("Token from Login: ", token);
-          router.push("/dashboard");
-          
+      if (data.statusCode == 200) {
+        const token = data.message.token
+        const userdata = data.message.user;
+        localStorage.setItem("userData", JSON.stringify(userdata));
+        localStorage.setItem("token", token); // Store token in localStorage
+        console.log("Token from Login: ", token);
+        router.push("/dashboard");
+
       }
-      
+
 
       alert("Login Successful!");
     } catch (error) {

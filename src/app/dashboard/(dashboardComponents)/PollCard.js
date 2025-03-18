@@ -40,7 +40,7 @@ const PollCard = (Post) => {
   }, [userData, totalYes, totalNo]);
 
   const updatePollData = (index) => {
-    if (totalYes.length > 0 || totalNo.length > 0) {
+    if (totalYes?.length > 0 || totalNo?.length > 0) {
       const yes = totalYesSet.some((item) => item.userId === userData?.userId);
       const no = totalNoSet.some((item) => item.userId === userData?.userId);
 
@@ -80,12 +80,12 @@ const PollCard = (Post) => {
     if (options[index].label === "No") {
       setTotalNo((prev) => prev + 1);
       var userIdData = { userId: userData.userId };
-      setTotalNoSet((prev) => [...prev, userIdData]);
+      setTotalNoSet((prev=[]) => [...prev, userIdData]);
       updatePollData(index);
     } else {
       var userIdData = { userId: userData.userId };
       setTotalYes((prev) => prev + 1);
-      setTotalYesSet((prev) => [...prev, userIdData]);
+      setTotalYesSet((prev=[]) => [...prev, userIdData]);
       updatePollData(index);
     }
 

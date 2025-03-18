@@ -11,43 +11,47 @@ import { useRouter } from "next/navigation";
 import BirthdayCard from "./(dashboardComponents)/BirthdayCard";
 import AppreciationCard from "./(dashboardComponents)/EmployeeAward";
 import FestivalCard from "./(dashboardComponents)/Festivale";
+import { useAuth } from "../Components/AuthContext";
 export default function Home() {
   const router = useRouter();
-  const [decoded, setDecoded]= useState(null);
-
-  useEffect(()=>{
+  const [decoded, setDecoded] = useState(null);
+  const { user, setUser } = useAuth();
+  useEffect(() => {
     const token = localStorage.getItem("token");
-  if (!token) return  window.location.href = "/login";;
+    const storage=JSON.parse(localStorage.getItem("userData"));
+    setUser(storage);
+    console.log("token => ", token);
+    if (!token) return window.location.href = "/login";;
 
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1])); 
-    const expiry = payload.exp * 1000;
-    
-    if (Date.now() > expiry) {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const expiry = payload.exp * 1000;
+
+      if (Date.now() > expiry) {
+        localStorage.removeItem("token");
+        return router.push("/login");
+      }
+
+      // setDecoded(jwtDecode(token)); // Decode after validation
+    } catch {
+      console.log("Invalid Token");
       localStorage.removeItem("token");
       return router.push("/login");
     }
-
-    setDecoded(jwtDecode(token)); // Decode after validation
-  } catch {
-    console.log("Invalid Token");
-    localStorage.removeItem("token");
-    return router.push("/login");
-  }
-  },[])
-
-
+  }, [])
+  console.log("UserDatas=>", user)
+  // console.log("decoded=> ", decoded);
   const [userData, setUserData] = useState({
-    Name: decoded?.Name || "Ayush Raj Singh",
-    EmpID: decoded?.EmployeeId || "170",
-    Role: decoded?.Role || "Software Developer",
-    Team: decoded?.Team || "Team Shubham",
-    Designation: decoded?.Designation || "Intern",
-    Email: decoded?.EmailId || "ayush123@gmail.com",
+    Name: user?.name || "Ayush Raj Singh",
+    // EmpID: decoded?.EmployeeId || "170",
+    Role: user?.role || "Software Developer",
+    // Team: decoded?.Team || "Team Shubham",
+    Designation: user?.designation || "Intern",
+    Email: user?.email || "ayush123@gmail.com",
     Phone: decoded?.PhoneNo || "1234567890",
-    Address: decoded?.Address || "Noida",
-    Image:decoded?.Image || `https://api.dicebear.com/7.x/initials/svg?seed=${decoded?.Name}`,
-    userId: decoded?.UserId || "67c1743a237d2fe4aeb76ffd",
+    // Address: user?.address || "Noida",
+    Image: user?.image || `https://api.dicebear.com/7.x/initials/svg?seed=${decoded?.Name}`,
+    userId: user?.id || "67c1743a237d2fe4aeb76ffd",
   });
   const [dashboardData, setDashboardData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -55,13 +59,14 @@ export default function Home() {
   const observerRef = useRef(null);
   const lastPostRef = useRef(null);
   const [lastFetchedDate, setLastFetchedDate] = useState(null);
-
+  const [hasMoredata, setHasMoreData] = useState(true);
   useEffect(() => {
     console.log("page: =>", page);
     fetchPosts();
   }, [page]);
 
   const fetchPosts = async () => {
+    if (loading || !hasMoredata) return;
     setLoading(true);
     try {
       const url = lastFetchedDate
@@ -76,6 +81,8 @@ export default function Home() {
       if (data.length > 0) {
         setDashboardData((prev) => [...prev, ...data]);
         setLastFetchedDate(data[data.length - 1]?.created_At); //update cursour
+      } else {
+        setHasMoreData(false)
       }
     } catch (error) {
       console.error("API call failed:", error);
@@ -86,18 +93,26 @@ export default function Home() {
   useEffect(() => {
     if (!observerRef.current) {
       observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && !loading) {  // Prevents API calls while still loading
           setPage((prev) => prev + 1);
         }
       });
     }
+
     if (lastPostRef.current) {
       observerRef.current.observe(lastPostRef.current);
     }
-  }, [dashboardData]);
+
+    return () => {
+      if (lastPostRef.current) {
+        observerRef.current.unobserve(lastPostRef.current); // Cleanup observer
+      }
+    };
+  }, [dashboardData, loading]);
 
   useEffect(() => {
     console.log(dashboardData);
+    console.log("UserData=>", userData);
   }, [dashboardData]);
 
   return (
