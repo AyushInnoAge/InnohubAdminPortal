@@ -62,9 +62,6 @@ export default function LoginPage() {
         router.push("/dashboard");
 
       }
-
-
-      alert("Login Successful!");
     } catch (error) {
       alert("Network error. Please try again.");
       setError("Network error. Please try again.");

@@ -14,15 +14,29 @@ import FestivalCard from "./(dashboardComponents)/Festivale";
 import { useAuth } from "../Components/AuthContext";
 export default function Home() {
   const router = useRouter();
-  const [decoded, setDecoded] = useState(null);
-  const { user, setUser } = useAuth();
+  const { user, setUser } = useAuth(); 
+  const [dashboardData, setDashboardData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const observerRef = useRef(null);
+  const lastPostRef = useRef(null);
+  const [lastFetchedDate, setLastFetchedDate] = useState(null);
+  const [hasMoredata, setHasMoreData] = useState(true);
+  const [userData, setUserData]=useState({
+    Name:"",
+    userId:"",
+    Role:"",
+    Designation:"",
+    Image:"",
+    department:"",
+  })
+  //Token Arrangment
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storage=JSON.parse(localStorage.getItem("userData"));
     setUser(storage);
     console.log("token => ", token);
-    if (!token) return window.location.href = "/login";;
-
+    if (!token) return window.location.href = "/login";
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       const expiry = payload.exp * 1000;
@@ -39,27 +53,22 @@ export default function Home() {
       return router.push("/login");
     }
   }, [])
-  console.log("UserDatas=>", user)
-  // console.log("decoded=> ", decoded);
-  const [userData, setUserData] = useState({
-    Name: user?.name || "Ayush Raj Singh",
-    // EmpID: decoded?.EmployeeId || "170",
-    Role: user?.role || "Software Developer",
-    // Team: decoded?.Team || "Team Shubham",
-    Designation: user?.designation || "Intern",
-    Email: user?.email || "ayush123@gmail.com",
-    Phone: decoded?.PhoneNo || "1234567890",
-    // Address: user?.address || "Noida",
-    Image: user?.image || `https://api.dicebear.com/7.x/initials/svg?seed=${decoded?.Name}`,
-    userId: user?.id || "67c1743a237d2fe4aeb76ffd",
-  });
-  const [dashboardData, setDashboardData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const observerRef = useRef(null);
-  const lastPostRef = useRef(null);
-  const [lastFetchedDate, setLastFetchedDate] = useState(null);
-  const [hasMoredata, setHasMoreData] = useState(true);
+
+  //userInsert In Globle State
+useEffect(()=>{
+  if(user){
+    setUserData({
+      Name:user?.name || "...",
+      userId:user?.id || ".." ,
+      Role:user?.role || "Software devloper",
+      Designation:user?.designation || "..",
+      Image:`https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`,
+      department:user?.department || "IT",
+    })
+  }
+},[user]);
+
+  //if page change dashboar data call
   useEffect(() => {
     console.log("page: =>", page);
     fetchPosts();
@@ -76,7 +85,7 @@ export default function Home() {
       console.log("url=> ", url);
       console.log("dashboard DataEnter");
       const res = await axios.get(url);
-      const data = res.data.value;
+      const data = res.data.message.value;
       console.log("res=> ", res);
       if (data.length > 0) {
         setDashboardData((prev) => [...prev, ...data]);
@@ -90,6 +99,7 @@ export default function Home() {
     setLoading(false);
   };
 
+  //Page change cheak
   useEffect(() => {
     if (!observerRef.current) {
       observerRef.current = new IntersectionObserver((entries) => {
@@ -110,6 +120,8 @@ export default function Home() {
     };
   }, [dashboardData, loading]);
 
+
+  //dashboard data
   useEffect(() => {
     console.log(dashboardData);
     console.log("UserData=>", userData);
