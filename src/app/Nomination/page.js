@@ -85,11 +85,19 @@ const NominationForm = () => {
                 else if (selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
                     api = "http://localhost:5279/user/fetch_all_TeamLeaders";
                 }
+                else{
+                     api = "http://localhost:5279/users/fetch_nominated_employees";
+                }
             }
-            else {
+            else if(userRole === "TeamLeader" || userRole === "Employee"){ {
                 api = "http://localhost:5279/user/fetch_my_employees";
 
             }
+        }
+            else{
+                api = "http://localhost:5279/teams/fetch_all_teams";
+                }
+          
 
             console.log("Fetching employees for role:", selectedRole, "and user role:", userRole);
 
@@ -108,6 +116,7 @@ const NominationForm = () => {
                         "Authorization": `Bearer ${token}`
                     }
                 });
+                console.log("Response Status:", response.status);
 
                 if (!response.ok) throw new Error("Failed to fetch employees");
 

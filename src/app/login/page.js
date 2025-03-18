@@ -14,12 +14,12 @@ export default function LoginPage() {
 
   const formRef = useRef(null);
   const API_URL = "http://localhost:5279/login";
-  const router= useRouter();
+  const router = useRouter();
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
-     if (email && password && password.length >= 6) {
+      if (email && password && password.length >= 6) {
         formRef.current.requestSubmit();
       }
     }
@@ -51,21 +51,23 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-       // alert(data.message || "Invalid email or password");
+        // alert(data.message || "Invalid email or password");
         setError(data.message || "Invalid email or password");
         return;
       }
 
-      if(data.success){
-        const token = data.response.token
-          localStorage.setItem("token", token); // Store token in localStorage
-          console.log("Token from Login: ", token);
-          router.push("/dashboard");
-          
-      }
-      
 
-     setMessage("Login Successful!");
+      const token = data?.message?.token;
+      if (token) {
+        localStorage.setItem("token", token); // Store token in localStorage
+        console.log("Token stored in localStorage:", token);
+        setMessage("Login Successful!");
+        router.push("/dashboard");
+      } 
+      else {
+        setError("Token not found in response!");
+      }
+      setMessage("Login Successful!");
     } catch (error) {
       //alert("Network error. Please try again.");
       setError("Network error. Please try again.");
@@ -119,8 +121,8 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className={`${styles.button} ${!(email && password && password.length>=6) ? styles.disabledButton : ""}`}
-            disabled={!(email && password && password.length>=6)}
+            className={`${styles.button} ${!(email && password && password.length >= 6) ? styles.disabledButton : ""}`}
+            disabled={!(email && password && password.length >= 6)}
           >
             Login
           </button>
