@@ -4,13 +4,12 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./login.module.css";
 import { useRouter } from "next/navigation";
-
+import { useAuth } from "../Components/AuthContext";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
 
   const formRef = useRef(null);
   const API_URL = "http://localhost:5279/login";
@@ -49,25 +48,22 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-
+      console.log(data);
       if (!response.ok) {
         // alert(data.message || "Invalid email or password");
         setError(data.message || "Invalid email or password");
         return;
       }
 
-
-      const token = data?.message?.token;
-      if (token) {
+      if (data.statusCode == 200) {
+        const token = data.message.token
+        const userdata = data.message.user;
+        localStorage.setItem("userData", JSON.stringify(userdata));
         localStorage.setItem("token", token); // Store token in localStorage
-        console.log("Token stored in localStorage:", token);
-        setMessage("Login Successful!");
+        console.log("Token from Login: ", token);
         router.push("/dashboard");
-      } 
-      else {
-        setError("Token not found in response!");
+
       }
-      setMessage("Login Successful!");
     } catch (error) {
       //alert("Network error. Please try again.");
       setError("Network error. Please try again.");
@@ -117,7 +113,7 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {message && <p className={styles.success}>{message}</p>}
+          {/* {message && <p className={styles.success}>{message}</p>} */}
 
           <button
             type="submit"

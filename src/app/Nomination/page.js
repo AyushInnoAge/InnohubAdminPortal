@@ -5,9 +5,10 @@ import styles from "./NominationForm.module.css";
 import { GiTrophyCup } from "react-icons/gi";
 import { motion } from "framer-motion";
 import Image from "next/image";
-
+import { useAuth } from "../Components/AuthContext";
 
 const NominationForm = () => {
+    const { user } = useAuth(); //Auth user Data
     const [employees, setEmployees] = useState([]);
     const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -34,8 +35,8 @@ const NominationForm = () => {
     //Multiple Managers
     const [selectedManagers, setSelectedManagers] = useState([]);
     const [roles] = useState([
-        // "Employee of the Month",
-        "Star of the Month",
+        // "Employee Of The Month",
+        "Star Of The Month",
         "Best Team (yearly)",
         "Best Team Leader (yearly)",
         "Best Team (Half yearly)",
@@ -44,6 +45,10 @@ const NominationForm = () => {
     ]);
 
     const [userRole, setUserRole] = useState("");
+
+    useEffect(() => {
+        console.log("User Data", user);
+    }, []);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -75,7 +80,7 @@ const NominationForm = () => {
 
 
             if (userRole === "HR") {
-                if (selectedRole === "Star of the Month") {
+                if (selectedRole === "Star Of The Month") {
                     api = "http://localhost:5279/users/fetch_nominated_employees";
                 }
                 else if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
@@ -85,19 +90,20 @@ const NominationForm = () => {
                 else if (selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
                     api = "http://localhost:5279/user/fetch_all_TeamLeaders";
                 }
-                else{
-                     api = "http://localhost:5279/users/fetch_nominated_employees";
+                else {
+                    api = "http://localhost:5279/users/fetch_nominated_employees";
                 }
             }
-            else if(userRole === "TeamLeader" || userRole === "Employee"){ {
-                api = "http://localhost:5279/user/fetch_my_employees";
+            else if (userRole === "TeamLeader" || userRole === "Employee") {
+                {
+                    api = "http://localhost:5279/user/fetch_my_employees";
 
-            }
-        }
-            else{
-                api = "http://localhost:5279/teams/fetch_all_teams";
                 }
-          
+            }
+            else {
+                api = "http://localhost:5279/teams/fetch_all_teams";
+            }
+
 
             console.log("Fetching employees for role:", selectedRole, "and user role:", userRole);
 
@@ -108,6 +114,19 @@ const NominationForm = () => {
                     console.error("No token found, user might be logged out.");
                     return;
                 }
+
+
+                // // Decode the token to get the logged-in user's ID
+                // const decodedToken = jwtDecode(token);
+                // const loggedInUserId = decodedToken?.user?.id;
+                // console.log("Logged-in User ID:", loggedInUserId);
+                // if (!loggedInUserId) {
+                //     console.error("User ID not found in token.");
+                //     return;
+                // }
+
+                // console.log("Logged-in User ID:", loggedInUserId);
+
 
                 const response = await fetch(api, {
                     method: "GET",
@@ -126,8 +145,15 @@ const NominationForm = () => {
                 if (!Array.isArray(data)) {
                     throw new Error("No valid data available");
                 }
+                let filteredData = data;
 
-                setEmployees(data);
+            // Remove the logged-in employee from the list if the role is Employee
+            // if (userRole === "Employee") {
+            //     filteredData = data.filter(emp => emp.id !== loggedInUserId);
+            //     console.log("Filtered Employees (Excluding Logged-in User):", filteredData);
+            // }
+
+                setEmployees(filteredData);
             } catch (err) {
                 setError(err.message);
             }
@@ -153,8 +179,8 @@ const NominationForm = () => {
                     filtered = employees.filter(emp =>
                         emp.teamName?.toLowerCase().startsWith(searchTerm.toLowerCase())
                     );
-                } else if (selectedRole === "Star of the Month") {
-                    // Filter by userName for Star of the Month
+                } else if (selectedRole === "Star Of The Month") {
+                    // Filter by userName for Star Of The Month
                     filtered = employees.filter(emp =>
                         emp.user?.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
                     );
@@ -248,40 +274,40 @@ const NominationForm = () => {
         if (userRole === "HR") {
             if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
                 setSearchTerm(employee.teamName);
-            } 
-            else if (selectedRole === "Star of the Month") {
+            }
+            else if (selectedRole === "Star Of The Month") {
                 setSearchTerm(employee.user.name);
             }
-             else {
-                setSearchTerm(employee.name);
-            }
-        }
             else {
                 setSearchTerm(employee.name);
             }
+        }
+        else {
+            setSearchTerm(employee.name);
+        }
 
 
         setSelectedEmployee(employee);
         setShowEmployeeDropdown(false);
 
-       // console.log("Employee Manager:", employee.user.teamLeaderId);
+        // console.log("Employee Manager:", employee.user.teamLeaderId);
 
         // Get manager based on role condition
 
-        let employeeManager = null; 
-            if (userRole === "HR" && selectedRole === "Star of the Month") {
-                const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
-                console.log("Team Leader ID:", teamLeaderId);
-            
-                if (teamLeaderId) {
-                    employeeManager = managers.find(mgr => mgr.id === teamLeaderId);
-                } 
-                else{
-                  employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
-                }
+        let employeeManager = null;
+        if (userRole === "HR" && selectedRole === "Star Of The Month") {
+            const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
+            console.log("Team Leader ID:", teamLeaderId);
+
+            if (teamLeaderId) {
+                employeeManager = managers.find(mgr => mgr.id === teamLeaderId);
             }
-       else {
+            else {
                 employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
+            }
+        }
+        else {
+            employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
         }
 
 
@@ -320,39 +346,68 @@ const NominationForm = () => {
         e.preventDefault();
         setMessage("");
         setError("");
+        setLoading(true); // Set loading before any async call
 
         if (!selectedEmployee || selectedManagers.length === 0 || !reason.trim()) {
             setError("Please select an employee, at least one manager, and provide a reason.");
+            setLoading(false);  // Reset loading state if validation fails
             return;
         }
 
-        setLoading(true);
         try {
             const token = localStorage.getItem("token");
             if (!token) {
                 console.error("No token found, user might be logged out.");
+                setLoading(false);
                 return;
             }
+            let UserId;
+            if (userRole === "HR") {
+                if (selectedRole === "Star Of The Month" || selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
+                    UserId = selectedEmployee.userId;  // Use `userId` for "Star Of The Month" and "Best Team Leader"
+                } else if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
+                    UserId = selectedEmployee.id; // Use `teamId` for "Best Team"
+                } else {
+                    UserId = selectedEmployee.id;  // Default to `id`
+                }
+            } else {
+                UserId = selectedEmployee.id; // Default for non-HR users
+            }
+
+            console.log("Submitting Data:", {
+                UserId,
+                ManagerIds: selectedManagers.map(m => m.id),
+                Nomination_Type: selectedRole,
+                Reason: reason
+            });
+
+            const obj = {
+                ManagerIds: selectedManagers.map(m => m.id),
+                Nomination_Type: selectedRole,
+                Reason: reason
+            }
+
+            if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
+                obj.TeamId = selectedEmployee.id;
+            }
+            else {
+                obj.UserId = selectedEmployee.id;
+            }
+
             const response = await fetch("http://localhost:5279/api/shoutout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    UserId: selectedEmployee.id,
-                    ManagerIds: selectedManagers.map(m => m.id),
-                    Nomination_Type: selectedRole,
-                    Reason: reason
-                }),
+                body: JSON.stringify(obj),
             });
 
             const result = await response.json();
 
-            if (!response.ok) throw new Error("Failed to submit nomination");
-            // console.log(response);
+            if (!response.ok) throw new Error(result.message || "Failed to submit nomination");
 
-            setMessage(result.message);
+            setMessage("Nomination submitted successfully!");
             setSelectedEmployee(null);
             setSearchTerm("");
             setSelectedManagers([]);
@@ -361,9 +416,10 @@ const NominationForm = () => {
             setSelectedRole(null);
             setRoleSearchTerm("");
         } catch (err) {
-            setError("Something went wrong. Please try again.");
+            console.error("Submission Error:", err);
+            setError(err.message || "Something went wrong. Please try again.");
         } finally {
-            setLoading(false);
+            setLoading(false); // Ensure loading is reset
         }
     };
 
@@ -454,7 +510,7 @@ const NominationForm = () => {
                                     {userRole === "HR" ? (
                                         selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)"
                                             ? employee.teamName
-                                            : selectedRole === "Star of the Month"
+                                            : selectedRole === "Star Of The Month"
                                                 ? employee.user.name
                                                 : employee.name
                                     ) : employee.name}
