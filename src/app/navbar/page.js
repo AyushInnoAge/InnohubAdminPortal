@@ -64,8 +64,8 @@ export default function Navbar() {
       
             {isDropdownOpen === "awards" && (
               <div className="dropdown-content lower-dropdown">
-                <Link href="/awards/employee-month" className="dropdown-item">
-                  Employee of the Month
+                <Link href="/Nomination" className="dropdown-item">
+                 Nomination
                 </Link>
                 <Link href="/awards/top-performers" className="dropdown-item">
                   Top Performers

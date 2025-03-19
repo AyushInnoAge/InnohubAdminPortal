@@ -3,25 +3,11 @@ import { Bell } from "lucide-react";
 import { Card } from "../../Components/ui/card";
 
 export default function CommentBox({ comments = [] }) {
-  console.log("Comments: ", comments);
   return (
     <div className="w-full">
-      {/* Notification Header */}
+      {/* Comment Header */}
       <div className="flex items-center justify-between border-b p-2">
         <h2 className="text-lg font-semibold text-blue-700">Comment</h2>
-
-        {/* Animated Bell Icon */}
-        <motion.div
-          animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
-          transition={{
-            repeat: Infinity,
-            repeatType: "loop",
-            duration: 1.5,
-            ease: "easeInOut",
-          }}
-        >
-          <Bell className="w-6 h-6 text-gray-500" />
-        </motion.div>
       </div>
 
       {/* Comments List (Scrollable) */}
@@ -43,7 +29,9 @@ export default function CommentBox({ comments = [] }) {
                   <p className="text-sm font-semibold text-gray-800">
                     {comment.userId || "Anonymous"}
                   </p>
-                  <p className="text-xs text-gray-500">{comment.created_at || "Just now"}</p>
+                  <p className="text-xs text-gray-500">
+                    {comment.created_at || "Just now"}
+                  </p>
                 </div>
               </div>
 

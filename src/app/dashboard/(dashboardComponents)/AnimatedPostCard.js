@@ -7,29 +7,29 @@ import { PostContext } from "@/app/Components/ContextApi";
 import CommentBox from "@/app/dashboard/(dashboardComponents)/CommentSection";
 
 const AnimatedPostCard = ({
-  profileImage,
-  username,
-  profileUrl,
-  title,
-  description,
-  imageUrl,
   PostId,
-  like = [],
-  date,
-  commentDatas=[]
+  PostUser,
+  PostImageUrl,
+  PostLike,
+  PostComment,
+  PostType,
+  PostTitle,
+  PostDescription,
+  Postcreated_At,
 }) => {
   const { userData } = useContext(PostContext);
   const [hoverDirection, setHoverDirection] = useState({ x: 0, y: 0 });
-  const [Like, setLike] = useState(like);
-  const [commentsDisplay, setCommentsDisplay] = useState(commentDatas);
+  const [Like, setLike] = useState(PostLike?.[0]?.likes || []);
+  const [commentsDisplay, setCommentsDisplay] = useState(PostComment);
   const [commentValue, setCommentValue] = useState("");
-  const [comment, setComment] = useState(false);
+  const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
-  
 
   // Format date
-  const timing = new Date(date);
-  const time = `${timing.getDate()}-${timing.getMonth() + 1}-${timing.getFullYear()}`;
+  const timing = new Date(Postcreated_At);
+  const time = `${timing.getDate()}-${
+    timing.getMonth() + 1
+  }-${timing.getFullYear()}`;
 
   // Check if the user has already liked the post
   useEffect(() => {
@@ -39,7 +39,8 @@ const AnimatedPostCard = ({
   }, [Like, userData.userId]);
 
   const handleMouseMove = (e) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const { left, top, width, height } =
+      e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - left - width / 2) / (width / 2);
     const y = (e.clientY - top - height / 2) / (height / 2);
     setHoverDirection({ x, y });
@@ -50,7 +51,10 @@ const AnimatedPostCard = ({
     try {
       const likedData = { postId: PostId, userId: userData.userId };
       setLikeButtonDisable(true);
-      await axios.post("http://localhost:5279/apiDashboard/InsertLike", likedData);
+      await axios.post(
+        "http://localhost:5279/apiDashboard/InsertLike",
+        likedData
+      );
       setLike((prev) => [...prev, userData.userId]);
     } catch (error) {
       console.error(error);
@@ -61,20 +65,21 @@ const AnimatedPostCard = ({
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
-      
-     
-     var ImageUrl= `https://api.dicebear.com/7.x/initials/svg?seed=${userData.Name}`
-    
+      var ImageUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${userData.Name}`;
+
       const commentData = {
         postId: PostId,
         comment: commentValue,
         userId: userData.Name,
-        imageUrl: ImageUrl
+        imageUrl: ImageUrl,
       };
-      await axios.post("http://localhost:5279/apiDashboard/commentAdd", commentData);
-      setCommentsDisplay((prev) => [commentData, ...prev]);
+      setCommentsDisplay((prev=[]) => [commentData, ...prev]);
+      console.log(commentsDisplay);
+      await axios.post(
+        "http://localhost:5279/apiDashboard/commentAdd",
+        commentData
+      );
       setCommentValue(""); // Clear input after submission
-     
     } catch (error) {
       console.error(error);
     }
@@ -90,27 +95,36 @@ const AnimatedPostCard = ({
       >
         <div className="flex items-center space-x-4 mb-4">
           <button
-            onClick={() => window.open(profileUrl, "_blank")}
+            onClick={() =>
+              window.open(
+                PostUser?.image ||
+                  `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser?.name}`,
+                "_blank"
+              )
+            }
             className="focus:outline-none"
-            aria-label={`Visit ${username}'s profile`}
+            aria-label={`Visit ${""}'s profile`}
           >
             <img
-              src={profileImage}
-              alt={`${username}'s Profile`}
+              src={
+                PostUser?.image ||
+                `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser?.name}`
+              }
+              alt={`Profile`}
               className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover hover:scale-110 transition-transform"
             />
           </button>
           <div className="flex flex-col">
             <span className="text-gray-800 font-semibold text-base sm:text-lg">
-              {username}
+              {PostUser?.name || "Ayush"}
             </span>
             <span className="text-gray-500 text-sm sm:text-xs">{time}</span>
           </div>
         </div>
 
-        {imageUrl && (
+        {PostImageUrl && (
           <motion.img
-            src={imageUrl}
+            src={PostImageUrl}
             alt={PostId}
             className="w-full h-auto object-cover rounded-md"
             initial={{ scale: 1 }}
@@ -120,8 +134,12 @@ const AnimatedPostCard = ({
         )}
 
         <div className="p-4 sm:p-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-black">{title}</h2>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base">{description}</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-black">
+            {PostTitle}
+          </h2>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">
+            {PostDescription}
+          </p>
         </div>
 
         <div className="flex items-center justify-between mt-4">
@@ -139,14 +157,14 @@ const AnimatedPostCard = ({
           <button
             className="flex items-center space-x-2 text-gray-500 hover:text-gray-700 transition-colors"
             aria-label="Comment on post"
-            onClick={() => setComment(!comment)}
+            onClick={() => setComments(!comments)}
           >
             <MessageCircle size={24} />
             <span>Comment</span>
           </button>
         </div>
 
-        {comment && (
+        {comments && (
           <div className="p-4 bg-white shadow-md">
             <div className="flex items-center border rounded-md overflow-hidden">
               <input
