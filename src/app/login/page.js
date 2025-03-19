@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-
+  const { setUser } = useAuth()
   const formRef = useRef(null);
   const API_URL = "http://localhost:5279/login";
   const router = useRouter();

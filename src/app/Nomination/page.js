@@ -333,6 +333,46 @@ const NominationForm = () => {
                 console.error("No token found, user might be logged out.");
                 return;
             }
+            let UserId;
+            if (userRole === "HR") {
+                if (selectedRole === "Star Of The Month" || selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
+                    UserId = selectedEmployee.userId;  // Use `userId` for "Star Of The Month" and "Best Team Leader"
+                } else if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
+                    UserId = selectedEmployee.id; // Use `teamId` for "Best Team"
+                } else {
+                    UserId = selectedEmployee.id;  // Default to `id`
+                }
+            } else {
+                UserId = selectedEmployee.id; // Default for non-HR users
+            }
+
+            console.log("Submitting Data:", {
+                UserId,
+                ManagerIds: selectedManagers.map(m => m.id),
+                Nomination_Type: selectedRole,
+                Reason: reason
+            });
+
+            const obj = {
+                ManagerIds: selectedManagers.map(m => m.id),
+                Nomination_Type: selectedRole,
+                Reason: reason
+            }
+
+            if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
+                obj.TeamId = selectedEmployee.id;
+            }
+            else {
+                if(userRole === "HR" && selectedRole === "Star Of The Month"){
+                    obj.UserId = selectedEmployee.userId;
+                }
+                else{
+                    obj.UserId = selectedEmployee.id;
+                }
+                    
+            }
+
+
             const response = await fetch("http://localhost:5279/api/shoutout", {
                 method: "POST",
                 headers: {
