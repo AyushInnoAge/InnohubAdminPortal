@@ -5,6 +5,7 @@ import styles from "./NominationForm.module.css";
 import { GiTrophyCup } from "react-icons/gi";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import API_ENDPOINTS from "@/app/apiconfig";
 
 
 const NominationForm = () => {
@@ -44,7 +45,7 @@ const NominationForm = () => {
     ]);
 
     const [userRole, setUserRole] = useState("");
-
+ 
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -85,19 +86,20 @@ const NominationForm = () => {
                 else if (selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
                     api = "http://localhost:5279/user/fetch_all_TeamLeaders";
                 }
-                else{
-                     api = "http://localhost:5279/users/fetch_nominated_employees";
+                else {
+                    api = "http://localhost:5279/users/fetch_nominated_employees";
                 }
             }
-            else if(userRole === "TeamLeader" || userRole === "Employee"){ {
-                api = "http://localhost:5279/user/fetch_my_employees";
+            else if (userRole === "TeamLeader" || userRole === "Employee") {
+                {
+                    api = "http://localhost:5279/user/fetch_my_employees";
 
-            }
-        }
-            else{
-                api = "http://localhost:5279/teams/fetch_all_teams";
                 }
-          
+            }
+            else {
+                api = "http://localhost:5279/teams/fetch_all_teams";
+            }
+
 
             console.log("Fetching employees for role:", selectedRole, "and user role:", userRole);
 
@@ -137,8 +139,8 @@ const NominationForm = () => {
     }, [selectedRole], [userRole]); // Correct dependency array
 
 
-
-
+    console.log("API Base URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
+   
     // Filter employees based on search term
     useEffect(() => {
         if (!searchTerm.trim()) {
@@ -175,7 +177,6 @@ const NominationForm = () => {
         }
     }, [searchTerm, employees, selectedRole]);
 
-
     // Filter managers based on search term
     useEffect(() => {
         const fetchManagers = async () => {
@@ -185,7 +186,8 @@ const NominationForm = () => {
                     console.error("No token found, user might be logged out.");
                     return;
                 }
-                const response = await fetch("http://localhost:5279/user/fetch_all_TeamLeaders", {
+                console.log("Fetching from:", API_ENDPOINTS.FETCH_ALL_TEAM_LEADERS);
+                const response = await fetch(API_ENDPOINTS.FETCH_ALL_TEAM_LEADERS,{
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -248,40 +250,40 @@ const NominationForm = () => {
         if (userRole === "HR") {
             if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
                 setSearchTerm(employee.teamName);
-            } 
+            }
             else if (selectedRole === "Star of the Month") {
                 setSearchTerm(employee.user.name);
             }
-             else {
-                setSearchTerm(employee.name);
-            }
-        }
             else {
                 setSearchTerm(employee.name);
             }
+        }
+        else {
+            setSearchTerm(employee.name);
+        }
 
 
         setSelectedEmployee(employee);
         setShowEmployeeDropdown(false);
 
-       // console.log("Employee Manager:", employee.user.teamLeaderId);
+        // console.log("Employee Manager:", employee.user.teamLeaderId);
 
         // Get manager based on role condition
 
-        let employeeManager = null; 
-            if (userRole === "HR" && selectedRole === "Star of the Month") {
-                const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
-                console.log("Team Leader ID:", teamLeaderId);
-            
-                if (teamLeaderId) {
-                    employeeManager = managers.find(mgr => mgr.id === teamLeaderId);
-                } 
-                else{
-                  employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
-                }
+        let employeeManager = null;
+        if (userRole === "HR" && selectedRole === "Star of the Month") {
+            const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
+            console.log("Team Leader ID:", teamLeaderId);
+
+            if (teamLeaderId) {
+                employeeManager = managers.find(mgr => mgr.id === teamLeaderId);
             }
-       else {
+            else {
                 employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
+            }
+        }
+        else {
+            employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
         }
 
 
@@ -363,13 +365,13 @@ const NominationForm = () => {
                 obj.TeamId = selectedEmployee.id;
             }
             else {
-                if(userRole === "HR" && selectedRole === "Star Of The Month"){
+                if (userRole === "HR" && selectedRole === "Star Of The Month") {
                     obj.UserId = selectedEmployee.userId;
                 }
-                else{
+                else {
                     obj.UserId = selectedEmployee.id;
                 }
-                    
+
             }
 
 
