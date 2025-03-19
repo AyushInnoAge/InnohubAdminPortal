@@ -391,7 +391,13 @@ const NominationForm = () => {
                 obj.TeamId = selectedEmployee.id;
             }
             else {
-                obj.UserId = selectedEmployee.id;
+                if(userRole === "HR" && selectedRole === "Star Of The Month"){
+                    obj.UserId = selectedEmployee.userId;
+                }
+                else{
+                    obj.UserId = selectedEmployee.id;
+                }
+                    
             }
 
             const response = await fetch("http://localhost:5279/api/shoutout", {
@@ -407,7 +413,7 @@ const NominationForm = () => {
 
             if (!response.ok) throw new Error(result.message || "Failed to submit nomination");
 
-            setMessage("Nomination submitted successfully!");
+            setMessage(result.message);
             setSelectedEmployee(null);
             setSearchTerm("");
             setSelectedManagers([]);

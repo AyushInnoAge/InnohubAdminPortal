@@ -8,70 +8,123 @@ import axios from "axios";
 import { PostContext, UserDataContext } from "../Components/ContextApi";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
+import BirthdayCard from "./(dashboardComponents)/BirthdayCard";
+import AppreciationCard from "./(dashboardComponents)/EmployeeAward";
+import FestivalCard from "./(dashboardComponents)/Festivale";
+import { useAuth } from "../Components/AuthContext";
 export default function Home() {
-
-  const router= useRouter();
-
-const token= localStorage.getItem("token");
-if(token==null){
-return router.push("/login");
-}
-
-// console.log("token:  ",token);
-const decoded = jwtDecode(token);
-
-  const [userData, setUserData] = useState({
-    Name: decoded.Name ||"Ayush Raj Singh",
-    EmpID: decoded.EmployeeId || "170",
-    Role: decoded.Role || "Software Developer",
-    Team: decoded.Team || "Team Shubham",
-    Designation: decoded.Designation || "Intern",
-    Email: decoded.EmailId || "ayush123@gmail.com",
-    Phone: decoded.PhoneNo || "1234567890",
-    Address: decoded.Address || "Noida",
-    ProfilePicture:"/profile.jpg",
-    Image:
-     decoded.imageUrl || "https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI",
-    userId: decoded.userId ||"67c1743a237d2fe4aeb76ffd",
-  });
-
+  const router = useRouter();
+  const { user, setUser } = useAuth(); 
   const [dashboardData, setDashboardData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const observerRef = useRef(null);
   const lastPostRef = useRef(null);
- 
-
+  const [lastFetchedDate, setLastFetchedDate] = useState(null);
+  const [hasMoredata, setHasMoreData] = useState(true);
+  const [userData, setUserData]=useState({
+    Name:"",
+    userId:"",
+    Role:"",
+    Designation:"",
+    Image:"",
+    department:"",
+  })
+  //Token Arrangment
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    const storage=JSON.parse(localStorage.getItem("userData"));
+    setUser(storage);
+    console.log("token => ", token);
+    if (!token) return window.location.href = "/login";
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const expiry = payload.exp * 1000;
+
+      if (Date.now() > expiry) {
+        localStorage.removeItem("token");
+        return router.push("/login");
+      }
+
+      // setDecoded(jwtDecode(token)); // Decode after validation
+    } catch {
+      console.log("Invalid Token");
+      localStorage.removeItem("token");
+      return router.push("/login");
+    }
+  }, [])
+
+  //userInsert In Globle State
+useEffect(()=>{
+  if(user){
+    setUserData({
+      Name:user?.name || "...",
+      userId:user?.id || ".." ,
+      Role:user?.role || "Software devloper",
+      Designation:user?.designation || "..",
+      Image:`https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`,
+      department:user?.department || "IT",
+    })
+  }
+},[user]);
+
+  //if page change dashboar data call
+  useEffect(() => {
+    console.log("page: =>", page);
     fetchPosts();
   }, [page]);
 
   const fetchPosts = async () => {
+    if (loading || !hasMoredata) return;
     setLoading(true);
     try {
-      console.log("dashboard DataEnter")
-      const res = await axios.get(
-        `http://localhost:5279/apiDashboard/GetAllPosts?page=${page}&pageSize=10`
-      );
-      
-      setDashboardData((prev) => [...prev, ...res.data.value]);
+      const url = lastFetchedDate
+        ? `http://localhost:5279/apiDashboard/GetAllPostFromServices?lastFetchedDate=${lastFetchedDate}`
+        : `http://localhost:5279/apiDashboard/GetAllPostFromServices`;
+
+      console.log("url=> ", url);
+      console.log("dashboard DataEnter");
+      const res = await axios.get(url);
+      const data = res.data.message.value;
+      console.log("res=> ", res);
+      if (data.length > 0) {
+        setDashboardData((prev) => [...prev, ...data]);
+        setLastFetchedDate(data[data.length - 1]?.created_At); //update cursour
+      } else {
+        setHasMoreData(false)
+      }
     } catch (error) {
       console.error("API call failed:", error);
     }
     setLoading(false);
   };
 
+  //Page change cheak
   useEffect(() => {
     if (!observerRef.current) {
       observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && !loading) {  // Prevents API calls while still loading
           setPage((prev) => prev + 1);
         }
       });
     }
+
     if (lastPostRef.current) {
       observerRef.current.observe(lastPostRef.current);
     }
+
+    return () => {
+      if (lastPostRef.current) {
+        observerRef.current.unobserve(lastPostRef.current); // Cleanup observer
+      }
+    };
+  }, [dashboardData, loading]);
+
+
+  //dashboard data
+  useEffect(() => {
+    console.log(dashboardData);
+    console.log("UserData=>", userData);
   }, [dashboardData]);
 
   return (
@@ -86,7 +139,9 @@ const decoded = jwtDecode(token);
 
       <div className="flex flex-col w-full md:w-4/5 lg:w-5/6 p-4 overflow-y-auto h-screen space-y-6">
         <div className="w-full max-w-4xl mx-auto">
-          <PostContext.Provider value={{ dashboardData, setDashboardData, userData }}>
+          <PostContext.Provider
+            value={{ dashboardData, setDashboardData, userData }}
+          >
             <PostInput profileUrl={userData.Image} />
           </PostContext.Provider>
         </div>
@@ -95,39 +150,74 @@ const decoded = jwtDecode(token);
           {dashboardData.length === 0 ? (
             <h1 className="text-black size-max text-center">Loading...</h1>
           ) : (
-            <>
-              <PostContext.Provider value={{ userData }}>
-                {dashboardData.map((post, index) => (
-                  <div key={index} ref={index === dashboardData.length - 1 ? lastPostRef : null}>
-                    {post.type !== "Poll" ? (
-                      <AnimatedPostCard
-                        profileImage="https://media.licdn.com/dms/image/v2/C5103AQFTiwdba6bFqA/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1516274936348?e=1746057600&v=beta&t=vR_wHlnYK86TFKIAgENOAfXKzDkTZPTIluFKyGIaLMs"
-                        username="ABC"
-                        title={post.title}
-                        description={post.description}
-                        imageUrl={post.image}
-                        PostId={post.id}
-                        like={post.like}
-                        date={post.created_at}
-                        commentDatas={post.comment}
-                      />
-                    ) : (
-                      <PollCard
-                        profileImage="https://media.licdn.com/dms/image/v2/D5603AQEKM_w6uOQsUA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704348578073?e=1746057600&v=beta&t=AIAa378zWYb9x1tZkBCrJyALxTnjbuK3s-BQtDlgVAI"
-                        username="Ayush Raj Singh"
-                        title={post.title}
-                        description={post.description}
-                        totalVotes={post.totalVotes}
-                        postId={post.id}
-                        totalYes={post.totalYes}
-                        totalNo ={post.totalNo}
-                      />
-                    )}
-                  </div>
-                ))}
-              </PostContext.Provider>
-            </>
+            <PostContext.Provider value={{ userData }}>
+              {dashboardData.map((post, index) => (
+                <div
+                  key={index}
+                  ref={index === dashboardData.length - 1 ? lastPostRef : null}
+                >
+                  {post.type === "Post" ? (
+                    <AnimatedPostCard
+                      PostId={post.id}
+                      PostUser={post.user}
+                      PostImageUrl={post.imageUrl}
+                      PostLike={post.like}
+                      PostComment={post.comment?.[0]?.comment}
+                      PostType={post.type}
+                      PostTitle={post.title}
+                      PostDescription={post.description}
+                      Postcreated_At={post.created_At}
+                      post={post}
+                    />
+                  ) : post.type === "Poll" ? (
+                    <PollCard Post={post} />
+                  ) : post.type === "Birthday" || post.type === "Anniversary" ? (
+                    <BirthdayCard
+                      PostId={post.id}
+                      PostUser={post.user}
+                      PostImageUrl={post.imageUrl}
+                      PostLike={post.like}
+                      PostComment={post.comment?.[0]?.comment}
+                      PostType={post.type}
+                      PostTitle={post.title}
+                      PostDescription={post.description}
+                      Postcreated_At={post.created_At}
+                    />
+                  ) : post.type == "Festivale" ? (
+                    <FestivalCard
+                      PostId={post.id}
+                      PostUser={post.user}
+                      PostImageUrl={post.imageUrl}
+                      PostLike={post.like}
+                      PostComment={post.comment?.[0]?.comment}
+                      PostType={post.type}
+                      PostTitle={post.title}
+                      PostDescription={post.description}
+                      Postcreated_At={post.created_At}
+                      post={post}
+                    />
+                  ) : post.type == "Star of the month" ||
+                    post.type == "Shoutout" ||
+                    post.type == "Best team" ||
+                    post.type == "Best leader" ? (
+                    <AppreciationCard
+                      PostId={post.id}
+                      PostLike={post.like}
+                      PostComment={post.comment?.[0]?.comment}
+                      PostType={post.type}
+                      PostTitle={post.title}
+                      PostDescription={post.description}
+                      Postcreated_At={post.created_At}
+                      post={post}
+                    />
+                  ) : null}
+                </div>
+              ))}
+            </PostContext.Provider>
           )}
+
+          {/* <AppreciationCard />
+          <PollCard /> */}
         </div>
       </div>
       {loading && <h1 className="text-center">Loading more posts...</h1>}
