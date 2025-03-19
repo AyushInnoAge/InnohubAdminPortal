@@ -170,29 +170,74 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="profile-right">
+          <div className="profile-info">
             <h3 className="section-title">Personal Information</h3>
-            <div className="info-grid">
-              {Object.entries(profileData).map(([key, value]) => (
-                key !== "profilePicture" && key !== "Role" && key !== "designation" ? (
-                  <div key={key} className="info-item">
-                    <label>{key.replace(/([A-Z])/g, " $1").trim()}</label>
-                    {editMode ? (
-                      <input
-                        type="text"
-                        name={key}
-                        value={value}
-                        onChange={handleChange}
-                      />
-                    ) : (
-                      <p>{value}</p>
-                    )}
-                  </div>
-                ) : null
-              ))}
-            </div>
+            <div className="info-row">
+                <label>Full Name</label>
+                {editMode ? (
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={profileData.fullName}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <p>{profileData.fullName}</p>
+                )}
+              </div>
+              <div className="info-row">
+                <label>Employee ID</label>
+                <p>{profileData.EmpID}</p>
+              </div>
+              <div className="info-row">
+                <label>Team</label>
+                <p>{profileData.Team}</p>
+              </div>
+
+              <div className="info-row">
+                <label>Email</label>
+                {editMode ? (
+                  <input
+                    type="email"
+                    name="email"
+                    value={profileData.email}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <p>{profileData.email}</p>
+                )}
+              </div>
+              <div className="info-row">
+                <label>Phone</label>
+                {editMode ? (
+                  <input
+                    type="text"
+                    name="phone"
+                    value={profileData.phone}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <p>{profileData.phone}</p>
+                )}
+              </div>
+
+              <div className="info-row">
+                <label>Address</label>
+                {editMode ? (
+                  <input
+                    type="text"
+                    name="address"
+                    value={profileData.address}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <p>{profileData.address}</p>
+                )}
+              </div>
             <button className="edit-btn" onClick={handleEdit}>
               <FaEdit /> {editMode ? "Save" : "Edit"}
             </button>
+            </div>
             <div className="achievements">
               <h3 className="section-title">Achievements</h3>
               <ul className="achievements-list">
