@@ -5,7 +5,7 @@ import styles from "./NominationForm.module.css";
 import { GiTrophyCup } from "react-icons/gi";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import API_ENDPOINTS from "@/app/apiconfig";
+import API_ENDPOINTS from "@/app/config/apiconfig";
 
 
 const NominationForm = () => {
@@ -35,8 +35,8 @@ const NominationForm = () => {
     //Multiple Managers
     const [selectedManagers, setSelectedManagers] = useState([]);
     const [roles] = useState([
-        // "Employee of the Month",
-        "Star of the Month",
+        // "Employee Of The Month",
+        "Star Of The Month",
         "Best Team (yearly)",
         "Best Team Leader (yearly)",
         "Best Team (Half yearly)",
@@ -45,6 +45,17 @@ const NominationForm = () => {
     ]);
 
     const [userRole, setUserRole] = useState("");
+
+    //message display time
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(""); // Hide the message after 2 seconds
+      }, 2000);
+  
+      return () => clearTimeout(timer); // Cleanup function
+    }
+  }, [message]);
  
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -76,28 +87,28 @@ const NominationForm = () => {
 
 
             if (userRole === "HR") {
-                if (selectedRole === "Star of the Month") {
-                    api = "http://localhost:5279/users/fetch_nominated_employees";
+                if (selectedRole === "Star Of The Month") {
+                    api = API_ENDPOINTS.FETCH_NOMINATED_EMPLOYEES;
                 }
                 else if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
-                    api = "http://localhost:5279/teams/fetch_all_teams";
+                    api = API_ENDPOINTS.FETCH_ALL_TEAMS;
                 }
 
                 else if (selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
-                    api = "http://localhost:5279/user/fetch_all_TeamLeaders";
+                    api = API_ENDPOINTS.FETCH_ALL_TEAM_LEADERS;
                 }
                 else {
-                    api = "http://localhost:5279/users/fetch_nominated_employees";
+                    api = API_ENDPOINTS.FETCH_NOMINATED_EMPLOYEES;
                 }
             }
             else if (userRole === "TeamLeader" || userRole === "Employee") {
                 {
-                    api = "http://localhost:5279/user/fetch_my_employees";
+                    api = API_ENDPOINTS.FETCH_MY_EMPLOYEES;
 
                 }
             }
             else {
-                api = "http://localhost:5279/teams/fetch_all_teams";
+                api = API_ENDPOINTS.FETCH_ALL_TEAMS;
             }
 
 
@@ -155,8 +166,8 @@ const NominationForm = () => {
                     filtered = employees.filter(emp =>
                         emp.teamName?.toLowerCase().startsWith(searchTerm.toLowerCase())
                     );
-                } else if (selectedRole === "Star of the Month") {
-                    // Filter by userName for Star of the Month
+                } else if (selectedRole === "Star Of The Month") {
+                    // Filter by userName for Star Of The Month
                     filtered = employees.filter(emp =>
                         emp.user?.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
                     );
@@ -221,7 +232,7 @@ const NominationForm = () => {
 
         switch (userRole.toLowerCase()) {
             case "hr":
-                filtered = roles.filter(role => role.toLowerCase() !== "shoutout"); // HR sees all categories except "ShoutOut"
+                filtered = roles.filter(role => role.toLowerCase() !== "ShoutOut"); // HR sees all categories except "ShoutOut"
                 break;
             case "teamleader":
                 filtered = roles.filter(role => !role.toLowerCase().includes("team")); // TeamLeader can't see team-related categories
@@ -251,7 +262,7 @@ const NominationForm = () => {
             if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
                 setSearchTerm(employee.teamName);
             }
-            else if (selectedRole === "Star of the Month") {
+            else if (selectedRole === "Star Of The Month") {
                 setSearchTerm(employee.user.name);
             }
             else {
@@ -271,7 +282,7 @@ const NominationForm = () => {
         // Get manager based on role condition
 
         let employeeManager = null;
-        if (userRole === "HR" && selectedRole === "Star of the Month") {
+        if (userRole === "HR" && selectedRole === "Star Of The Month") {
             const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
             console.log("Team Leader ID:", teamLeaderId);
 
@@ -375,14 +386,15 @@ const NominationForm = () => {
             }
 
 
-            const response = await fetch("http://localhost:5279/api/shoutout", {
+            const response = await fetch(API_ENDPOINTS.SHOUTOUT_API, {
+                
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    UserId: selectedEmployee.id,
+                    UserId,
                     ManagerIds: selectedManagers.map(m => m.id),
                     Nomination_Type: selectedRole,
                     Reason: reason
@@ -496,7 +508,7 @@ const NominationForm = () => {
                                     {userRole === "HR" ? (
                                         selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)"
                                             ? employee.teamName
-                                            : selectedRole === "Star of the Month"
+                                            : selectedRole === "Star Of The Month"
                                                 ? employee.user.name
                                                 : employee.name
                                     ) : employee.name}

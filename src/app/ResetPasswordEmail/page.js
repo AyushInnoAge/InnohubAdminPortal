@@ -3,6 +3,8 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./resetpasswordemail.module.css";
+import API_ENDPOINTS from "@/app/config/apiconfig";
+
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
@@ -16,6 +18,17 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
 
   const formRef = useRef(null);
+
+  //message display time
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(""); // Hide the message after 2 seconds
+      }, 2000);
+  
+      return () => clearTimeout(timer); // Cleanup function
+    }
+  }, [message]);
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -39,7 +52,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5279/request-password-reset", {
+      const response = await fetch(API_ENDPOINTS.RESET_PASSWORD_PAGE_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Email: email }),
@@ -85,7 +98,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5279/reset-password", {
+      const response = await fetch(API_ENDPOINTS.RESET_PASSWORD_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Email: email, Token: otp, NewPassword: newPassword }),
