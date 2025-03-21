@@ -6,23 +6,23 @@ import { GiTrophyCup } from "react-icons/gi";
 import { motion } from "framer-motion";
 import API_ENDPOINTS from "@/app/config/apiconfig";
 import { useAuth } from "../Components/AuthContext";
-
-
+ 
+ 
 const NominationForm = () => {
     const [employees, setEmployees] = useState([]);
     const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-
+ 
     const [managers, setManagers] = useState([]);
     const [filteredManagers, setFilteredManagers] = useState([]);
     const [managerSearchTerm, setManagerSearchTerm] = useState("");
     const [employeeId, setEmployeeId] = useState([]);
     const [filteredRoles, setFilteredRoles] = useState([]);
     const [roleSearchTerm, setRoleSearchTerm] = useState("");
-
+ 
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [selectedManager, setSelectedManager] = useState(null);
-    const { user, setUser } = useAuth(); 
+    const { user, setUser } = useAuth();
     const [selectedRole, setSelectedRole] = useState(null);
     const [reason, setReason] = useState("");
     const [message, setMessage] = useState("");
@@ -31,10 +31,10 @@ const NominationForm = () => {
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
     const [showManagerDropdown, setShowManagerDropdown] = useState(false);
     const [showRoleDropdown, setShowRoleDropdown] = useState(false);
-
+ 
     //Multiple Managers
     const [selectedManagers, setSelectedManagers] = useState([]);
-
+ 
     // useEffect(()=>{
     //     if(user){
     //       setUserData({
@@ -46,7 +46,7 @@ const NominationForm = () => {
     //         department:user?.department || "IT",
     //       })
     //     }
-
+ 
     //     console.log("Updated Profile Data previous:", {
     //         FullName: user.name,
     //         EmpID: user.employeeId,
@@ -59,8 +59,8 @@ const NominationForm = () => {
      
     //     });
     //   },[user]);
-
-
+ 
+ 
     const [roles] = useState([
         // "Employee Of The Month",
         "Star Of The Month",
@@ -70,9 +70,9 @@ const NominationForm = () => {
         "Best Team Leader (Half yearly)",
         "ShoutOut"
     ]);
-
+ 
     const [userRole, setUserRole] = useState("");
-
+ 
     //hardcoded
     const [profileData, setProfileData] = useState({
         Name: "",
@@ -84,9 +84,9 @@ const NominationForm = () => {
         Email: "",
         Phone: "",
         Address: "",
-        
+       
       });
-    
+   
      
       useEffect(() => {
         const fetchUserProfile = async () => {
@@ -97,7 +97,7 @@ const NominationForm = () => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                Email: "singhakash6203@gmail.com",
+                Email: "sm@gmail.com",
                 Password: "manish123",
               }),
             });
@@ -141,18 +141,18 @@ const NominationForm = () => {
                 Address: user.address,
          
             });
-            
+           
             const role_obj = {
                 1:"Admin",
                 2:"HR",
                 3:"TeamLeader",
                 4:"Employee"
             }
-
+ 
             setUserRole(role_obj[user.userRole]);
             setEmployeeId(user.id);
-
-            } 
+ 
+            }
             else {
               console.error("Invalid response structure", data);
             }
@@ -164,19 +164,19 @@ const NominationForm = () => {
         fetchUserProfile();
       }, []);
    
-      console.log(employeeId);
-
+    //   console.log(employeeId);
+ 
       useEffect(() => {
         console.log("User Data in NominationForm:", user);
     }, [user]);
-
+ 
     //message display time
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {
         setMessage(""); // Hide the message after 2 seconds
       }, 2000);
-  
+ 
       return () => clearTimeout(timer); // Cleanup function
     }
   }, [message]);
@@ -187,29 +187,29 @@ const NominationForm = () => {
             console.error("No token found, user might be logged out.");
             return;
         }
-
+ 
         // try {
         //     const decodedToken = jwtDecode(token);
         //     //console.log("Decoded Token:", decodedToken);
-
+ 
         //     // Extract the role using the full claim URL
         //     const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
         //     const userRole = decodedToken[roleClaim] || "No role found";
         //     setUserRole(userRole);
         //     console.log("User Role:", userRole);
-
+ 
         // } catch (error) {
         //     console.error("Error decoding token:", error);
         // }
     }, []);
-
-
+ 
+ 
     // Fetch employees and managers from API
     useEffect(() => {
         const fetchData = async () => {
             let api = "";
-
-
+ 
+ 
             if (userRole === "HR") {
                 if (selectedRole === "Star Of The Month") {
                     api = API_ENDPOINTS.FETCH_NOMINATED_EMPLOYEES;
@@ -217,7 +217,7 @@ const NominationForm = () => {
                 else if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
                     api = API_ENDPOINTS.FETCH_ALL_TEAMS;
                 }
-
+ 
                 else if (selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
                     api = API_ENDPOINTS.FETCH_ALL_TEAM_LEADERS;
                 }
@@ -228,24 +228,24 @@ const NominationForm = () => {
             else if (userRole === "TeamLeader" || userRole === "Employee") {
                 {
                     api = API_ENDPOINTS.FETCH_MY_EMPLOYEES;
-
+ 
                 }
             }
             else {
                 api = API_ENDPOINTS.FETCH_ALL_TEAMS;
             }
-
-
+ 
+ 
             console.log("Fetching employees for role:", selectedRole, "and user role:", userRole);
-
+ 
             try {
-
+ 
                 const token = localStorage.getItem("token");
                 if (!token) {
                     console.error("No token found, user might be logged out.");
                     return;
                 }
-
+ 
                 const response = await fetch(api, {
                     method: "GET",
                     headers: {
@@ -254,27 +254,35 @@ const NominationForm = () => {
                     }
                 });
                 console.log("Response Status:", response.status);
-
+ 
                 if (!response.ok) throw new Error("Failed to fetch employees");
-
-                const data = await response.json();
+ 
+                let data = await response.json();
+               
+                if(userRole == "Employee" && selectedRole == "ShoutOut"){
+                    let data2 = data.filter((it)=>it.id !== employeeId);
+                    data = data2;
+                }
+ 
+               
+ 
                 console.log(data);
-
+ 
                 if (!Array.isArray(data)) {
                     throw new Error("No valid data available");
                 }
-
+ 
                 setEmployees(data);
             } catch (err) {
                 setError(err.message);
             }
         };
-
+ 
         fetchData();
     }, [selectedRole], [userRole]); // Correct dependency array
-
-
-    console.log("API Base URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
+ 
+ 
+    // console.log("API Base URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
    
     // Filter employees based on search term
     useEffect(() => {
@@ -283,7 +291,7 @@ const NominationForm = () => {
             setShowEmployeeDropdown(false);
         } else {
             let filtered = [];
-
+ 
             if (userRole === "HR") {
                 if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
                     // Filter by teamName for Best Team roles
@@ -306,15 +314,14 @@ const NominationForm = () => {
                     emp.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
                 );
             }
-
-            const filteredEmployees = employees.filter(emp => emp.Id !== employeeId);
-          // console.log("filtered",emp);
-
-            setFilteredEmployees(filteredEmployees);
+ 
+ 
+ 
+            setFilteredEmployees(filtered);
             setShowEmployeeDropdown(filtered.length > 0);
         }
     }, [searchTerm, employees, selectedRole]);
-
+ 
     // Filter managers based on search term
     useEffect(() => {
         const fetchManagers = async () => {
@@ -332,25 +339,25 @@ const NominationForm = () => {
                         "Authorization": `Bearer ${token}`
                     }
                 });
-
+ 
                 if (!response.ok) throw new Error("Failed to fetch managers");
-
+ 
                 const data = await response.json();
                 console.log("manager", data);
-
+ 
                 if (!Array.isArray(data) || data.length === 0) {
                     throw new Error("No valid managers available");
                 }
-
+ 
                 setManagers(data);
             } catch (err) {
                 setError(err.message);
             }
         };
-
+ 
         fetchManagers();
     }, []);
-
+ 
     // Filter managers based on search term
     useEffect(() => {
         if (!managerSearchTerm.trim()) {
@@ -367,9 +374,9 @@ const NominationForm = () => {
     // Filter  search term based on role login
     useEffect(() => {
         if (!userRole) return; // Ensure userRole is set before filtering
-
+ 
         let filtered = [];
-
+ 
         switch (userRole.toLowerCase()) {
             case "hr":
                 filtered = roles.filter(role => role.toLowerCase() !== "ShoutOut"); // HR sees all categories except "ShoutOut"
@@ -383,21 +390,21 @@ const NominationForm = () => {
             default:
                 filtered = []; // Default to empty if the role is unknown
         }
-
+ 
         // Apply search filtering
         if (roleSearchTerm.trim()) {
             filtered = filtered.filter(role =>
                 role.toLowerCase().includes(roleSearchTerm.toLowerCase())
             );
         }
-
+ 
         setFilteredRoles(filtered);
     }, [userRole, roleSearchTerm]);
-
-
+ 
+ 
     // Handle selections
     const handleSelectEmployee = (employee) => {
-
+ 
         if (userRole === "HR") {
             if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
                 setSearchTerm(employee.teamName);
@@ -412,19 +419,19 @@ const NominationForm = () => {
         else {
             setSearchTerm(employee.name);
         }
-
-
+ 
+ 
         setSelectedEmployee(employee);
         setShowEmployeeDropdown(false);
-
+ 
      
         // Get manager based on role condition
-
+ 
         let employeeManager = null;
         if (userRole === "HR" && selectedRole === "Star Of The Month") {
             const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
             console.log("Team Leader ID:", teamLeaderId);
-
+ 
             if (teamLeaderId) {
                 employeeManager = managers.find(mgr => mgr.id === teamLeaderId);
             }
@@ -432,12 +439,15 @@ const NominationForm = () => {
                 employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
             }
         }
+        else if(userRole=="HR" && (selectedRole === "Best Team (yearly)"|| selectedRole === "Best Team (Half yearly)" )) {
+            employeeManager = managers.find(mgr => mgr.id === employee.teamLeader.id);
+        }
         else {
             employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
         }
-
-
-
+ 
+ 
+ 
         if (employeeManager) {
             setSelectedManagers([employeeManager]);
             setManagerSearchTerm(employeeManager.name);  // Auto-select manager
@@ -447,7 +457,7 @@ const NominationForm = () => {
             setManagerSearchTerm("")
         }
     };
-
+ 
     const handleSelectManager = (manager) => {
         if (!selectedManagers.some(m => m.id === manager.id)) {
             setSelectedManagers([...selectedManagers, manager]);
@@ -455,29 +465,29 @@ const NominationForm = () => {
         setManagerSearchTerm("");
         setShowManagerDropdown(false);
     };
-
+ 
     const handleRemoveManager = (id) => {
         setSelectedManagers(selectedManagers.filter(m => m.id !== id));
     };
-
+ 
     const handleSelectRole = (role) => {
         setSelectedRole(role);
         setRoleSearchTerm(role);
         setShowRoleDropdown(false);
     };
-
-
+ 
+ 
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage("");
         setError("");
-
+ 
         if (!selectedEmployee || selectedManagers.length === 0 || !reason.trim()) {
             setError("Please select an employee, at least one manager, and provide a reason.");
             return;
         }
-
+ 
         setLoading(true);
         try {
             const token = localStorage.getItem("token");
@@ -497,20 +507,20 @@ const NominationForm = () => {
             } else {
                 UserId = selectedEmployee.id; // Default for non-HR users
             }
-
+ 
             console.log("Submitting Data:", {
                 UserId,
                 ManagerIds: selectedManagers.map(m => m.id),
                 Nomination_Type: selectedRole,
                 Reason: reason
             });
-
+ 
             const obj = {
                 ManagerIds: selectedManagers.map(m => m.id),
                 Nomination_Type: selectedRole,
                 Reason: reason
             }
-
+ 
             if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
                 obj.TeamId = selectedEmployee.id;
             }
@@ -521,12 +531,12 @@ const NominationForm = () => {
                 else {
                     obj.UserId = selectedEmployee.id;
                 }
-
+ 
             }
-
-
+ 
+ 
             const response = await fetch(API_ENDPOINTS.SHOUTOUT_API, {
-                
+               
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -534,12 +544,12 @@ const NominationForm = () => {
                 },
                 body: JSON.stringify(obj),
             });
-
+ 
             const result = await response.json();
-
+ 
             if (!response.ok) throw new Error("Failed to submit nomination");
             // console.log(response);
-
+ 
             setMessage(result.message);
             setSelectedEmployee(null);
             setSearchTerm("");
@@ -554,13 +564,13 @@ const NominationForm = () => {
             setLoading(false);
         }
     };
-
+ 
     return (
         <div className={styles.container}>
-
+ 
             <div className={`${styles.squareLine} ${styles.squareTopRight}`}></div>
             <div className={`${styles.squareLine} ${styles.squareBottomLeft}`}></div>
-
+ 
             <h2 className={styles.heading}>
                 <motion.span
                     animate={{ y: [0, -5, 0] }}
@@ -578,10 +588,10 @@ const NominationForm = () => {
                     <GiTrophyCup size={50} color="#FFD700" />
                 </motion.span>
             </h2>
-
+ 
             {error && <p className={styles.error}>{error}</p>}
             {message && <p className={styles.success}>{message}</p>}
-
+ 
             <form onSubmit={handleSubmit} className={styles.form}>
                 {/* Role Search */}
                 <label className={styles.label}>Nomination Category:</label>
@@ -594,7 +604,7 @@ const NominationForm = () => {
                         onChange={(e) => setRoleSearchTerm(e.target.value)}
                         onFocus={() => {
                             setShowRoleDropdown(true);
-
+ 
                         }}
                         onBlur={() => setTimeout(() => setShowRoleDropdown(false), 200)}
                     />
@@ -650,9 +660,9 @@ const NominationForm = () => {
                             ))}
                         </ul>
                     )}
-
+ 
                 </div>
-
+ 
                 {/* Manager Search */}
                 <label className={styles.label}>Search Managers:</label>
                 <div className={styles.searchContainer}>
@@ -673,7 +683,7 @@ const NominationForm = () => {
                                 setShowManagerDropdown(true);
                                 setFilteredManagers(managers);
                             }}
-
+ 
                             onBlur={() => setTimeout(() => setShowManagerDropdown(false), 200)}
                         />
                     </div>
@@ -689,8 +699,8 @@ const NominationForm = () => {
                         </ul>
                     )}
                 </div>
-
-
+ 
+ 
                 {/* Reason for Nomination */}
                 <label className={styles.label}>Reason for Nomination:</label>
                 <textarea
@@ -700,7 +710,7 @@ const NominationForm = () => {
                     maxLength={500}
                     placeholder="Write your reason here..."
                 ></textarea>
-
+ 
                 {/* Submit Button */}
                 <button
                     type="submit"
@@ -721,6 +731,5 @@ const NominationForm = () => {
         </div>
     );
 };
-
+ 
 export default NominationForm;
-
