@@ -19,17 +19,6 @@ export default function ResetPasswordPage() {
 
   const formRef = useRef(null);
 
-  //message display time
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage(""); // Hide the message after 2 seconds
-      }, 2000);
-  
-      return () => clearTimeout(timer); // Cleanup function
-    }
-  }, [message]);
-
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();

@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 import styles from "./NominationForm.module.css";
 import { GiTrophyCup } from "react-icons/gi";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import API_ENDPOINTS from "@/app/config/apiconfig";
+import { useAuth } from "../Components/AuthContext";
 
 
 const NominationForm = () => {
@@ -16,13 +16,13 @@ const NominationForm = () => {
     const [managers, setManagers] = useState([]);
     const [filteredManagers, setFilteredManagers] = useState([]);
     const [managerSearchTerm, setManagerSearchTerm] = useState("");
-
-    //  const [roles, setRoles] = useState([]);
+    const [employeeId, setEmployeeId] = useState([]);
     const [filteredRoles, setFilteredRoles] = useState([]);
     const [roleSearchTerm, setRoleSearchTerm] = useState("");
 
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [selectedManager, setSelectedManager] = useState(null);
+    const { user, setUser } = useAuth(); 
     const [selectedRole, setSelectedRole] = useState(null);
     const [reason, setReason] = useState("");
     const [message, setMessage] = useState("");
@@ -34,6 +34,33 @@ const NominationForm = () => {
 
     //Multiple Managers
     const [selectedManagers, setSelectedManagers] = useState([]);
+
+    // useEffect(()=>{
+    //     if(user){
+    //       setUserData({
+    //         Name:user?.name || "...",
+    //         userId:user?.id || ".." ,
+    //         Role:user?.role || "Software devloper",
+    //         Designation:user?.designation || "..",
+    //         Image:`https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`,
+    //         department:user?.department || "IT",
+    //       })
+    //     }
+
+    //     console.log("Updated Profile Data previous:", {
+    //         FullName: user.name,
+    //         EmpID: user.employeeId,
+    //         Role: user.userRole,
+    //         Team: user.department,
+    //         Designation: user.designation,
+    //         Email: user.email,
+    //         Phone: user.phoneNo,
+    //         Address: user.address,
+     
+    //     });
+    //   },[user]);
+
+
     const [roles] = useState([
         // "Employee Of The Month",
         "Star Of The Month",
@@ -45,6 +72,103 @@ const NominationForm = () => {
     ]);
 
     const [userRole, setUserRole] = useState("");
+
+    //hardcoded
+    const [profileData, setProfileData] = useState({
+        Name: "",
+        EmpID: "",
+        Role: "",
+        Team: "",
+        Department:"",
+        Designation: "",
+        Email: "",
+        Phone: "",
+        Address: "",
+        
+      });
+    
+     
+      useEffect(() => {
+        const fetchUserProfile = async () => {
+          try {
+            const response = await fetch("http://localhost:5279/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                Email: "singhakash6203@gmail.com",
+                Password: "manish123",
+              }),
+            });
+     
+            if (!response.ok) {
+              throw new Error("Failed to fetch user data");
+            }
+     
+            const data = await response.json();
+            console.log("Full API Response:", data);
+     
+            if (data.statusCode === 200 && data.message?.user) {
+              console.log("User data:", data.message.user);
+              const user = data.message.user;
+              console.log(user.email,">>>>>>>>>>>>>>>>>>>>>>");
+              const token = data.message.token;
+             
+              // Store token in localStorage
+              localStorage.setItem("token", token);
+     
+              // Update profile state with fetched data
+              setProfileData({
+                FullName: user.name || "N/A",
+                EmpID: user.employeeId || "N/A",
+                Role: user.userRole === 0 ? "Employee" : "Admin",
+                Team: user.department || "N/A",
+                Department: user.department || "N/A",
+                Designation: user.designation || "N/A",
+                Email: user.email || "N/A",
+                Phone: user.phoneNo || "N/A",
+                Address: user.address || "N/A",
+              });
+              console.log("Updated Profile Data:", {
+                FullName: user.name,
+                EmpID: user.employeeId,
+                Role: user.userRole,
+                Team: user.department,
+                Designation: user.designation,
+                Email: user.email,
+                Phone: user.phoneNo,
+                Address: user.address,
+         
+            });
+            
+            const role_obj = {
+                1:"Admin",
+                2:"HR",
+                3:"TeamLeader",
+                4:"Employee"
+            }
+
+            setUserRole(role_obj[user.userRole]);
+            setEmployeeId(user.id);
+
+            } 
+            else {
+              console.error("Invalid response structure", data);
+            }
+          } catch (error) {
+            console.error("Error fetching login:", error);
+          }
+        };
+     
+        fetchUserProfile();
+      }, []);
+   
+      console.log(employeeId);
+
+      useEffect(() => {
+        console.log("User Data in NominationForm:", user);
+    }, [user]);
 
     //message display time
   useEffect(() => {
@@ -64,19 +188,19 @@ const NominationForm = () => {
             return;
         }
 
-        try {
-            const decodedToken = jwtDecode(token);
-            //console.log("Decoded Token:", decodedToken);
+        // try {
+        //     const decodedToken = jwtDecode(token);
+        //     //console.log("Decoded Token:", decodedToken);
 
-            // Extract the role using the full claim URL
-            const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
-            const userRole = decodedToken[roleClaim] || "No role found";
-            setUserRole(userRole);
-            console.log("User Role:", userRole);
+        //     // Extract the role using the full claim URL
+        //     const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+        //     const userRole = decodedToken[roleClaim] || "No role found";
+        //     setUserRole(userRole);
+        //     console.log("User Role:", userRole);
 
-        } catch (error) {
-            console.error("Error decoding token:", error);
-        }
+        // } catch (error) {
+        //     console.error("Error decoding token:", error);
+        // }
     }, []);
 
 
@@ -183,7 +307,10 @@ const NominationForm = () => {
                 );
             }
 
-            setFilteredEmployees(filtered);
+            const filteredEmployees = employees.filter(emp => emp.Id !== employeeId);
+          // console.log("filtered",emp);
+
+            setFilteredEmployees(filteredEmployees);
             setShowEmployeeDropdown(filtered.length > 0);
         }
     }, [searchTerm, employees, selectedRole]);
@@ -224,6 +351,19 @@ const NominationForm = () => {
         fetchManagers();
     }, []);
 
+    // Filter managers based on search term
+    useEffect(() => {
+        if (!managerSearchTerm.trim()) {
+            setFilteredManagers([]);
+            setShowManagerDropdown(false);
+        } else {
+            const filtered = managers.filter(manager =>
+                manager.name?.toLowerCase().startsWith(managerSearchTerm.toLowerCase())
+            );
+            setFilteredManagers(filtered);
+            setShowManagerDropdown(filtered.length > 0);
+        }
+    }, [managerSearchTerm, managers]);
     // Filter  search term based on role login
     useEffect(() => {
         if (!userRole) return; // Ensure userRole is set before filtering
@@ -277,8 +417,7 @@ const NominationForm = () => {
         setSelectedEmployee(employee);
         setShowEmployeeDropdown(false);
 
-        // console.log("Employee Manager:", employee.user.teamLeaderId);
-
+     
         // Get manager based on role condition
 
         let employeeManager = null;
@@ -393,12 +532,7 @@ const NominationForm = () => {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    UserId,
-                    ManagerIds: selectedManagers.map(m => m.id),
-                    Nomination_Type: selectedRole,
-                    Reason: reason
-                }),
+                body: JSON.stringify(obj),
             });
 
             const result = await response.json();
