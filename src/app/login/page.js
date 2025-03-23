@@ -6,13 +6,14 @@ import styles from "./login.module.css";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../Components/AuthContext";
 import API_ENDPOINTS from "@/app/config/apiconfig";
+import { loginUser } from "@/_api_/loginapi";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");  // ✅ Added this
+  const [message, setMessage] = useState("");  // Added this
   const { setUser } = useAuth();
   const formRef = useRef(null);
   const API_URL = API_ENDPOINTS.LOGIN_API;
@@ -56,33 +57,29 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Email: email, Password: password }),
-      });
-
-      const data = await response.json();
+      const data = await loginUser(email, password); // Call API from separate folder
       console.log(data);
-
 
       if (data.statusCode === 200 && data.message?.token) {
         const token = data.message.token;
         const userdata = data.message.user;
+        
+        // Store results in main folder context/storage
         localStorage.setItem("userData", JSON.stringify(userdata));
         localStorage.setItem("token", token);
+        setUser(userdata); // Update auth context
+        
         console.log("Token from Login: ", token);
-
-        setMessage("Login successful! Redirecting..."); // Set success message
+        setMessage("Login successful! Redirecting...");
 
         setTimeout(() => {
-          router.push("/dashboard"); // Redirect after showing message
+          router.push("/dashboard");
         }, 1500);
       } else {
         setError("Invalid email or password");
       }
     } catch (error) {
-      setError("Network error. Please try again.");
+      setError(error.message);
       console.error("Login failed:", error);
     }
   };

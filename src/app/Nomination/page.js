@@ -4,9 +4,8 @@ import React, { useState, useEffect } from "react";
 import styles from "./NominationForm.module.css";
 import { GiTrophyCup } from "react-icons/gi";
 import { motion } from "framer-motion";
-import API_ENDPOINTS from "@/app/config/apiconfig";
 import { useAuth } from "../Components/AuthContext";
- 
+import { fetchManagers, submitNomination, fetchEmployees } from "@/_api_/nominationapi";  //Import data form api
  
 const NominationForm = () => {
     const [employees, setEmployees] = useState([]);
@@ -97,8 +96,8 @@ const NominationForm = () => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                Email: "sm@gmail.com",
-                Password: "manish123",
+                Email: "singhakash6203@gmail.com",
+                Password: "manish1234",
               }),
             });
      
@@ -181,108 +180,21 @@ const NominationForm = () => {
     }
   }, [message]);
  
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            console.error("No token found, user might be logged out.");
-            return;
-        }
- 
-        // try {
-        //     const decodedToken = jwtDecode(token);
-        //     //console.log("Decoded Token:", decodedToken);
- 
-        //     // Extract the role using the full claim URL
-        //     const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
-        //     const userRole = decodedToken[roleClaim] || "No role found";
-        //     setUserRole(userRole);
-        //     console.log("User Role:", userRole);
- 
-        // } catch (error) {
-        //     console.error("Error decoding token:", error);
-        // }
-    }, []);
- 
- 
     // Fetch employees and managers from API
     useEffect(() => {
-        const fetchData = async () => {
-            let api = "";
- 
- 
-            if (userRole === "HR") {
-                if (selectedRole === "Star Of The Month") {
-                    api = API_ENDPOINTS.FETCH_NOMINATED_EMPLOYEES;
-                }
-                else if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
-                    api = API_ENDPOINTS.FETCH_ALL_TEAMS;
-                }
- 
-                else if (selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
-                    api = API_ENDPOINTS.FETCH_ALL_TEAM_LEADERS;
-                }
-                else {
-                    api = API_ENDPOINTS.FETCH_NOMINATED_EMPLOYEES;
-                }
-            }
-            else if (userRole === "TeamLeader" || userRole === "Employee") {
-                {
-                    api = API_ENDPOINTS.FETCH_MY_EMPLOYEES;
- 
-                }
-            }
-            else {
-                api = API_ENDPOINTS.FETCH_ALL_TEAMS;
-            }
- 
- 
-            console.log("Fetching employees for role:", selectedRole, "and user role:", userRole);
- 
-            try {
- 
-                const token = localStorage.getItem("token");
-                if (!token) {
-                    console.error("No token found, user might be logged out.");
-                    return;
-                }
- 
-                const response = await fetch(api, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    }
-                });
-                console.log("Response Status:", response.status);
- 
-                if (!response.ok) throw new Error("Failed to fetch employees");
- 
-                let data = await response.json();
-               
-                if(userRole == "Employee" && selectedRole == "ShoutOut"){
-                    let data2 = data.filter((it)=>it.id !== employeeId);
-                    data = data2;
-                }
- 
-               
- 
-                console.log(data);
- 
-                if (!Array.isArray(data)) {
-                    throw new Error("No valid data available");
-                }
- 
-                setEmployees(data);
-            } catch (err) {
-                setError(err.message);
-            }
+        const loadEmployees = async () => {
+          try {
+            const data = await fetchEmployees(userRole, selectedRole, employeeId); // Call the API method
+            setEmployees(data);
+          } catch (err) {
+            setError(err.message);
+          }
         };
- 
-        fetchData();
-    }, [selectedRole], [userRole]); // Correct dependency array
- 
- 
-    // console.log("API Base URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
+    
+        if (userRole && selectedRole) { // Ensure dependencies are set before fetching
+          loadEmployees();
+        }
+      }, [userRole, selectedRole, employeeId]); // Correct dependency array
    
     // Filter employees based on search term
     useEffect(() => {
@@ -324,38 +236,15 @@ const NominationForm = () => {
  
     // Filter managers based on search term
     useEffect(() => {
-        const fetchManagers = async () => {
+        const loadManagers = async () => {
             try {
-                const token = localStorage.getItem("token");
-                if (!token) {
-                    console.error("No token found, user might be logged out.");
-                    return;
-                }
-                console.log("Fetching from:", API_ENDPOINTS.FETCH_ALL_TEAM_LEADERS);
-                const response = await fetch(API_ENDPOINTS.FETCH_ALL_TEAM_LEADERS,{
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    }
-                });
- 
-                if (!response.ok) throw new Error("Failed to fetch managers");
- 
-                const data = await response.json();
-                console.log("manager", data);
- 
-                if (!Array.isArray(data) || data.length === 0) {
-                    throw new Error("No valid managers available");
-                }
- 
-                setManagers(data);
+              const data = await fetchManagers(); // Call the API method
+              setManagers(data);
             } catch (err) {
-                setError(err.message);
+              setError(err.message);
             }
-        };
- 
-        fetchManagers();
+          };
+          loadManagers();
     }, []);
  
     // Filter managers based on search term
@@ -482,88 +371,35 @@ const NominationForm = () => {
         e.preventDefault();
         setMessage("");
         setError("");
- 
+    
         if (!selectedEmployee || selectedManagers.length === 0 || !reason.trim()) {
-            setError("Please select an employee, at least one manager, and provide a reason.");
-            return;
+          setError("Please select an employee, at least one manager, and provide a reason.");
+          return;
         }
- 
+    
         setLoading(true);
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                console.error("No token found, user might be logged out.");
-                return;
-            }
-            let UserId;
-            if (userRole === "HR") {
-                if (selectedRole === "Star Of The Month" || selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
-                    UserId = selectedEmployee.userId;  // Use `userId` for "Star Of The Month" and "Best Team Leader"
-                } else if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
-                    UserId = selectedEmployee.id; // Use `teamId` for "Best Team"
-                } else {
-                    UserId = selectedEmployee.id;  // Default to `id`
-                }
-            } else {
-                UserId = selectedEmployee.id; // Default for non-HR users
-            }
- 
-            console.log("Submitting Data:", {
-                UserId,
-                ManagerIds: selectedManagers.map(m => m.id),
-                Nomination_Type: selectedRole,
-                Reason: reason
-            });
- 
-            const obj = {
-                ManagerIds: selectedManagers.map(m => m.id),
-                Nomination_Type: selectedRole,
-                Reason: reason
-            }
- 
-            if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
-                obj.TeamId = selectedEmployee.id;
-            }
-            else {
-                if (userRole === "HR" && selectedRole === "Star Of The Month") {
-                    obj.UserId = selectedEmployee.userId;
-                }
-                else {
-                    obj.UserId = selectedEmployee.id;
-                }
- 
-            }
- 
- 
-            const response = await fetch(API_ENDPOINTS.SHOUTOUT_API, {
-               
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(obj),
-            });
- 
-            const result = await response.json();
- 
-            if (!response.ok) throw new Error("Failed to submit nomination");
-            // console.log(response);
- 
-            setMessage(result.message);
-            setSelectedEmployee(null);
-            setSearchTerm("");
-            setSelectedManagers([]);
-            setManagerSearchTerm("");
-            setReason("");
-            setSelectedRole(null);
-            setRoleSearchTerm("");
+          const resultMessage = await submitNomination(
+            selectedEmployee,
+            selectedManagers,
+            selectedRole,
+            reason,
+            userRole
+          );
+          setMessage(resultMessage);
+          setSelectedEmployee(null);
+          setSearchTerm("");
+          setSelectedManagers([]);
+          setManagerSearchTerm("");
+          setReason("");
+          setSelectedRole(null);
+          setRoleSearchTerm("");
         } catch (err) {
-            setError("Something went wrong. Please try again.");
+          setError("Something went wrong. Please try again.");
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    };
+      };
  
     return (
         <div className={styles.container}>

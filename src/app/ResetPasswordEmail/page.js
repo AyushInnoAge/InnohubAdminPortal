@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./resetpasswordemail.module.css";
-import API_ENDPOINTS from "@/app/config/apiconfig";
+import { sendResetPasswordOtp, verifyOtpAndUpdatePassword } from "@/_api_/resetpasswordEmail";
 
 
 export default function ResetPasswordPage() {
@@ -41,17 +41,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const response = await fetch(API_ENDPOINTS.RESET_PASSWORD_PAGE_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Email: email }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to send OTP.");
-      }
-
+      await sendResetPasswordOtp(email); // Call API from separate folder
       setMessage("OTP sent to your email. Enter OTP and set a new password.");
       setStep("otp-password");
     } catch (error) {
@@ -61,7 +51,7 @@ export default function ResetPasswordPage() {
     }
   };
 
-  // Step 2: Verify OTP & Update Password (Combined)
+  // Step 2: Verify OTP & Update Password
   const handleVerifyOtpAndUpdatePassword = async (event) => {
     event.preventDefault();
     setError("");
@@ -87,17 +77,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const response = await fetch(API_ENDPOINTS.RESET_PASSWORD_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Email: email, Token: otp, NewPassword: newPassword }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to update password.");
-      }
-
+      await verifyOtpAndUpdatePassword(email, otp, newPassword); // Call API from separate folder
       setMessage("Password updated successfully! Redirecting to login...");
       setTimeout(() => {
         window.location.href = "/login"; // Redirect to login page
