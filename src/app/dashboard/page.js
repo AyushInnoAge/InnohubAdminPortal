@@ -2,19 +2,23 @@
 import AnimatedPostCard from "./(dashboardComponents)/AnimatedPostCard";
 import PostInput from "./(dashboardComponents)/PostInputSection";
 import SidebarProfile from "./(dashboardComponents)/SlideBar";
-import { useEffect, useState, useContext, useRef } from "react";
+import { useEffect, useState, useContext, useRef, createContext } from "react";
 import PollCard from "./(dashboardComponents)/PollCard";
 import axios from "axios";
-import { PostContext, UserDataContext } from "../Components/ContextApi";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 import BirthdayCard from "./(dashboardComponents)/BirthdayCard";
-import AppreciationCard from "./(dashboardComponents)/EmployeeAward";
+import AppreciationCard from "./(dashboardComponents)/AppreciationCard";
 import FestivalCard from "./(dashboardComponents)/Festivale";
-import { useAuth } from "../Components/AuthContext";
+import { DashboardDataFetch } from "@/_api_/dashboard";
+import { AuthContext } from "@/context/AuthContext";
+
+export const DashboardStatus = createContext();
 export default function Home() {
+  const { user } = useContext(AuthContext);
+
+  // const { user } = auth;
   const router = useRouter();
-  const { user, setUser } = useAuth(); 
   const [dashboardData, setDashboardData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -22,21 +26,12 @@ export default function Home() {
   const lastPostRef = useRef(null);
   const [lastFetchedDate, setLastFetchedDate] = useState(null);
   const [hasMoredata, setHasMoreData] = useState(true);
-  const [userData, setUserData]=useState({
-    Name:"",
-    userId:"",
-    Role:"",
-    Designation:"",
-    Image:"",
-    department:"",
-  })
   //Token Arrangment
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const storage=JSON.parse(localStorage.getItem("userData"));
-    setUser(storage);
+    console.log("user from contextApi=>", user);
     console.log("token => ", token);
-    if (!token) return window.location.href = "/login";
+    if (!token) return (window.location.href = "/login");
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       const expiry = payload.exp * 1000;
@@ -52,23 +47,9 @@ export default function Home() {
       localStorage.removeItem("token");
       return router.push("/login");
     }
-  }, [])
+  }, []);
 
-  //userInsert In Globle State
-useEffect(()=>{
-  if(user){
-    setUserData({
-      Name:user?.name || "...",
-      userId:user?.id || ".." ,
-      Role:user?.role || "Software devloper",
-      Designation:user?.designation || "..",
-      Image:`https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`,
-      department:user?.department || "IT",
-    })
-  }
-},[user]);
-
-  //if page change dashboar data call
+  //Fetch Data For Dashboard Data By USing Api Call
   useEffect(() => {
     console.log("page: =>", page);
     fetchPosts();
@@ -78,20 +59,17 @@ useEffect(()=>{
     if (loading || !hasMoredata) return;
     setLoading(true);
     try {
-      const url = lastFetchedDate
-        ? `http://localhost:5279/apiDashboard/GetAllPostFromServices?lastFetchedDate=${lastFetchedDate}`
-        : `http://localhost:5279/apiDashboard/GetAllPostFromServices`;
+      const response = await DashboardDataFetch(lastFetchedDate);
+      console.log("res=> ", response);
 
-      console.log("url=> ", url);
-      console.log("dashboard DataEnter");
-      const res = await axios.get(url);
-      const data = res.data.message.value;
-      console.log("res=> ", res);
-      if (data.length > 0) {
-        setDashboardData((prev) => [...prev, ...data]);
-        setLastFetchedDate(data[data.length - 1]?.created_At); //update cursour
+      if (response.length > 0) {
+        setDashboardData((prev) => [...prev, ...response]);
+        let time = response[response.length - 1]?.nominationData
+          ? response[response.length - 1]?.nominationData?.verifiedAt
+          : response[response.length - 1]?.postData?.created_at;
+        setLastFetchedDate(time);
       } else {
-        setHasMoreData(false)
+        setHasMoreData(false);
       }
     } catch (error) {
       console.error("API call failed:", error);
@@ -103,12 +81,12 @@ useEffect(()=>{
   useEffect(() => {
     if (!observerRef.current) {
       observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !loading) {  // Prevents API calls while still loading
+        if (entries[0].isIntersecting && !loading) {
+          // Prevents API calls while still loading
           setPage((prev) => prev + 1);
         }
       });
     }
-
     if (lastPostRef.current) {
       observerRef.current.observe(lastPostRef.current);
     }
@@ -120,102 +98,115 @@ useEffect(()=>{
     };
   }, [dashboardData, loading]);
 
-
   //dashboard data
   useEffect(() => {
-    console.log(dashboardData);
-    console.log("UserData=>", userData);
+    console.log("Dashboard Data: ", dashboardData);
   }, [dashboardData]);
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
       <div className="hidden md:flex md:w-1/5 lg:w-1/6 p-4 bg-white shadow-md flex-col">
         <SidebarProfile
-          imageUrl={userData.Image}
-          UserName={userData.Name}
-          Designation={userData.Designation}
+          UserProfileImage={
+            user?.image?.trim()
+              ? user.image
+              : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
+          }
+          UserName={user?.name || ""}
+          Designation={user?.designation || ""}
         />
       </div>
 
       <div className="flex flex-col w-full md:w-4/5 lg:w-5/6 p-4 overflow-y-auto h-screen space-y-6">
         <div className="w-full max-w-4xl mx-auto">
-          <PostContext.Provider
-            value={{ dashboardData, setDashboardData, userData }}
-          >
-            <PostInput profileUrl={userData.Image} />
-          </PostContext.Provider>
+          <DashboardStatus.Provider value={{ setDashboardData, setLoading }}>
+            <PostInput
+              UserProfileImage={
+                user?.image?.trim()
+                  ? user.image
+                  : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
+              }
+            />
+          </DashboardStatus.Provider>
         </div>
 
         <div className="w-full max-w-4xl mx-auto space-y-6">
-          {dashboardData.length === 0 ? (
-            <h1 className="text-black size-max text-center">Loading...</h1>
+          {dashboardData.length == 0 ? (
+            <h1 className="text-black size-max text-center">Loading..</h1>
           ) : (
-            <PostContext.Provider value={{ userData }}>
-              {dashboardData.map((post, index) => (
-                <div
-                  key={index}
-                  ref={index === dashboardData.length - 1 ? lastPostRef : null}
-                >
-                  {post.type === "Post" ? (
-                    <AnimatedPostCard
-                      PostId={post.id}
-                      PostUser={post.user}
-                      PostImageUrl={post.imageUrl}
-                      PostLike={post.like}
-                      PostComment={post.comment?.[0]?.comment}
-                      PostType={post.type}
-                      PostTitle={post.title}
-                      PostDescription={post.description}
-                      Postcreated_At={post.created_At}
-                      post={post}
-                    />
-                  ) : post.type === "Poll" ? (
-                    <PollCard Post={post} />
-                  ) : post.type === "Birthday" || post.type === "Anniversary" ? (
-                    <BirthdayCard
-                      PostId={post.id}
-                      PostUser={post.user}
-                      PostImageUrl={post.imageUrl}
-                      PostLike={post.like}
-                      PostComment={post.comment?.[0]?.comment}
-                      PostType={post.type}
-                      PostTitle={post.title}
-                      PostDescription={post.description}
-                      Postcreated_At={post.created_At}
-                    />
-                  ) : post.type == "Festivale" ? (
-                    <FestivalCard
-                      PostId={post.id}
-                      PostUser={post.user}
-                      PostImageUrl={post.imageUrl}
-                      PostLike={post.like}
-                      PostComment={post.comment?.[0]?.comment}
-                      PostType={post.type}
-                      PostTitle={post.title}
-                      PostDescription={post.description}
-                      Postcreated_At={post.created_At}
-                      post={post}
-                    />
-                  ) : post.type == "Star of the month" ||
-                    post.type == "Shoutout" ||
-                    post.type == "Best team" ||
-                    post.type == "Best leader" ? (
-                    <AppreciationCard
-                      PostId={post.id}
-                      PostLike={post.like}
-                      PostComment={post.comment?.[0]?.comment}
-                      PostType={post.type}
-                      PostTitle={post.title}
-                      PostDescription={post.description}
-                      Postcreated_At={post.created_At}
-                      post={post}
-                    />
-                  ) : null}
-                </div>
-              ))}
-            </PostContext.Provider>
+            dashboardData.map((post, index) => (
+              <div
+                key={index}
+                ref={index === dashboardData.length - 1 ? lastPostRef : null}
+              >
+                {post.postData != null && post.postData?.type === "Post" ? (
+                  <AnimatedPostCard
+                    PostId={post.postData?.id}
+                    PostUser={post.userData?.userName}
+                    PostUserProfile={post.userData?.profileImage}
+                    PostImageUrl={post.postData?.image}
+                    PostLike={post.postData?.postLikes}
+                    PostComment={post.postData?.postComments}
+                    PostType={post.postData?.type}
+                    PostTitle={post.postData?.title}
+                    PostDescription={post.postData?.description}
+                    Postcreated_At={post.postData?.created_at}
+                  />
+                ) : post.postData != null && post.postData?.type === "Poll" ? (
+                  <PollCard
+                    PostId={post.postData?.id}
+                    PostUser={post?.userData?.userName}
+                    PostUserProfile={post?.userData?.profileImage}
+                    PostTotalYes={post?.postData?.totalYes}
+                    PostTotalNo={post?.postData?.totalNo}
+                    PostType={post.postData?.type}
+                    PostTitle={post.postData.title}
+                    Postcreated_At={post.postData?.created_at}
+                  />
+                ) : post.postData != null &&
+                  (post.postData?.type === "Birthday" ||
+                    post.postData?.type === "Anniversary") ? (
+                  <BirthdayCard
+                    PostId={post.postData?.id}
+                    PostImageUrl={post.postData?.image}
+                    PostLike={post.postData?.postLikes}
+                    PostComment={post.postData?.postComments}
+                    PostType={post.postData?.type}
+                    PostTitle={post.postData?.title}
+                    PostDescription={post.postData?.description}
+                    Postcreated_At={post.postData?.created_at}
+                  />
+                ) : post.postData != null &&
+                  post.postData?.type == "Festival" ? (
+                  <FestivalCard
+                    PostId={post.postData?.id}
+                    PostImageUrl={post?.postData?.image}
+                    PostLike={post.postData?.postLikes}
+                    PostComment={post.postData?.postComments}
+                    PostType={post.postData?.type}
+                    PostTitle={post.postData?.title}
+                    PostDescription={post.postData?.description}
+                    Postcreated_At={post.postData?.created_at}
+                  />
+                ) : post.nominationData != null &&
+                  (post.nominationData?.nomination_Type ===
+                    "Star of the month" ||
+                    post.nominationData?.nomination_Type === "Shoutout" ||
+                    post.nominationData?.nomination_Type == "Best team" ||
+                    post.nominationData?.nomination_Type == "Best leader") ? (
+                  <AppreciationCard
+                    PostId={post.nominationData?.id}
+                    NominatedUser={post.nominationData?.userId}
+                    NominatedBy={post.nominationData?.nominated_By}
+                    PostType={post.nominationData?.nomination_Type}
+                    PostDescription={post.nominationData?.reason}
+                    PostLike={post.nominationData?.postLikes}
+                    PostComment={post.nominationData?.postComments}
+                  />
+                ) : null}
+              </div>
+            ))
           )}
-
           {/* <AppreciationCard />
           <PollCard /> */}
         </div>

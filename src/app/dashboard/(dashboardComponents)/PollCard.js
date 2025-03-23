@@ -1,34 +1,53 @@
-import { PostContext } from "@/app/Components/ContextApi";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useState, useContext, useEffect } from "react";
-
-const PollCard = (Post) => {
-  const { id, type, title, description, totalYes, totalNo, user, created_At } = Post.Post;
-    // Format date
-    const timing = new Date(created_At);
-    const time = `${timing.getDate()}-${
-      timing.getMonth() + 1
-    }-${timing.getFullYear()}`;
+import { AuthContext } from "@/context/AuthContext";
+import { PollUpdate } from "@/_api_/dashboard";
+const PollCard = (
+  PostId
+  // PostUser,
+  // PostUserProfile,
+  // PostTotalYes,
+  // PostTotalNo,
+  // PostType,
+  // PostTitle,
+  // Postcreated_At,
+  // Post
+) => {
+  const {
+    PostTitle,
+    PostUser,
+    PostTotalYes,
+    PostTotalNo,
+    PostType,
+    Postcreated_At,
+    PostUserProfile,
+  } = PostId;
+  // console.log("Post",PostId)
+  const { user } = useContext(AuthContext);
+  // Format date
+  const timing = new Date(Postcreated_At);
+  const time = `${timing.getDate()}-${
+    timing.getMonth() + 1
+  }-${timing.getFullYear()}`;
   const [options, setOptions] = useState([
     { label: "Yes", votes: 0, voted: false },
     { label: "No", votes: 0, voted: false },
   ]);
-  const [totalyes, setTotalYes] = useState(totalYes?.length || 0);
-  const [totalno, setTotalNo] = useState(totalNo?.length || 0);
-  const [totalYesSet, setTotalYesSet] = useState(totalYes);
-  const [totalNoSet, setTotalNoSet] = useState(totalNo);
-  const [totalVotes, setTotalVotes] = useState(
-    (totalYes?.length || 0) + (totalNo?.length || 0)
-  );
 
-  const { userData } = useContext(PostContext);
+  const [totalYesSet, setTotalYesSet] = useState(PostTotalYes);
+  const [totalNoSet, setTotalNoSet] = useState(PostTotalNo);
+  const [totalyes, setTotalYes] = useState(totalYesSet?.length || 0);
+  const [totalno, setTotalNo] = useState(totalNoSet?.length || 0);
+  const [totalVotes, setTotalVotes] = useState(
+    (PostTotalYes?.length || 0) + (PostTotalNo?.length || 0)
+  ); //total vote may be we remove in future
 
   //if user Already select any poll
   useEffect(() => {
-    if (totalYes?.length > 0 || totalNo?.length > 0) {
-      const yes = totalYes.some((item) => item.userId === userData?.userId);
-      const no = totalNo.some((item) => item.userId === userData?.userId);
+    if (PostTotalNo?.length > 0 || PostTotalYes?.length > 0) {
+      const yes = PostTotalYes.some((item) => item.userId === user.id);
+      const no = PostTotalNo.some((item) => item.userId === user.id);
       setOptions((prevOptions) =>
         prevOptions.map((option) =>
           option.label === "Yes"
@@ -37,32 +56,34 @@ const PollCard = (Post) => {
         )
       );
     }
-  }, [userData, totalYes, totalNo]);
+  }, []);
 
+  //update poll
   const updatePollData = (index) => {
-    if (totalYes?.length > 0 || totalNo?.length > 0) {
-      const yes = totalYesSet.some((item) => item.userId === userData?.userId);
-      const no = totalNoSet.some((item) => item.userId === userData?.userId);
+    console.log("inside");
 
-      if (index == 1 && yes) {
-        setTotalYes((prev) => prev - 1);
-        setTotalYesSet((prev) =>
-          prev.filter((item) => item.userId !== userData.userId)
-        );
-      }
-      if (index == 0 && no) {
-        setTotalNo((prev) => prev - 1);
-        setTotalNoSet((prev) =>
-          prev.filter((item) => item.userId !== userData.userId)
-        );
-      }
+    const yes =
+      totalYesSet.length > 0
+        ? totalYesSet.some((item) => item.userId === user.id)
+        : false;
+    const no =
+      totalNoSet.length > 0
+        ? totalNoSet.some((item) => item.userId === user.id)
+        : false;
+
+    if (index == 1 && yes) {
+      setTotalYes((prev) => prev - 1);
+      setTotalYesSet((prev) => prev.filter((item) => item.userId !== user.id));
     }
+    if (index == 0 && no) {
+      setTotalNo((prev) => prev - 1);
+      setTotalNoSet((prev) => prev.filter((item) => item.userId !== user.id));
+    }
+    // setTotalYes(totalYesSet.length);
+    // setTotalNo(totalNoSet.length);
+    // console.log("totalYes=>",totalyes);
+    // console.log("totalNo=>",totalno);
   };
-
-  // console.log("userData: ", userData);
-  const profileImage = "https://via.placeholder.com/50";
-  const username = "John Doe";
-  // const title = "Select your meal March 11";
 
   const handleVote = async (index) => {
     if (options[index].voted) return;
@@ -76,31 +97,46 @@ const PollCard = (Post) => {
       })
     );
 
+    const userIdData = { userId: user.id };
+
     //Update Yes And No Value
     if (options[index].label === "No") {
+      // setTotalNo((prev) => prev + 1);
+
+      setTotalNoSet((prev) => [...prev, userIdData]);
       setTotalNo((prev) => prev + 1);
-      var userIdData = { userId: userData.userId };
-      setTotalNoSet((prev=[]) => [...prev, userIdData]);
-      updatePollData(index);
+      const yes =
+        totalYesSet.length > 0
+          ? totalYesSet.some((item) => item.userId === user.id)
+          : false;
+      if (yes) {
+        setTotalYesSet((prev) =>
+          prev.filter((item) => item.userId !== user.id)
+        );
+        setTotalYes((prev) => (prev > 0 ? prev - 1 : 0));
+      }
     } else {
-      var userIdData = { userId: userData.userId };
+      setTotalYesSet((prev) => [...prev, userIdData]);
       setTotalYes((prev) => prev + 1);
-      setTotalYesSet((prev=[]) => [...prev, userIdData]);
-      updatePollData(index);
+      const no =
+        totalNoSet.length > 0
+          ? totalNoSet.some((item) => item.userId === user.id)
+          : false;
+      if (no) {
+        setTotalNoSet((prev) => prev.filter((item) => item.userId !== user.id));
+        setTotalNo((prev) => (prev > 0 ? prev - 1 : 0));
+      }
     }
 
     //yha se value send ho gi
     const data = {
-      userId: userData.userId,
-      postId: id,
+      userId: user.id,
+      postId: PostId.PostId,
       voteType: index === 0 ? "Yes" : "No",
     };
 
     try {
-      const response = await axios.patch(
-        "http://localhost:5279/apiDashboard/Updatepoll",
-        data
-      );
+      await PollUpdate(data);
     } catch (error) {
       console.error("Vote update failed: ", error);
     }
@@ -117,22 +153,22 @@ const PollCard = (Post) => {
         <div className="flex items-center space-x-4 mb-4">
           <img
             src={
-              user?.image ||
-              `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
+              PostUserProfile ||
+              `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser}`
             }
             alt={`Profile`}
             className="w-10 h-10 rounded-full object-cover border border-gray-400"
           />
           <div className="flex flex-col">
             <span className="text-gray-800 font-semibold text-base sm:text-lg">
-              {user?.name || "Ayush"}
+              {PostUser}
             </span>
             <span className="text-gray-500 text-sm sm:text-xs">{time}</span>
           </div>
         </div>
 
         {/* Poll Title */}
-        <h2 className="text-lg font-bold text-black mb-2">{title}</h2>
+        <h2 className="text-lg font-bold text-black mb-2">{PostTitle}</h2>
 
         {/* Total Votes */}
         <p className="text-gray-600 text-sm mb-2">Total Yes: {totalyes}</p>
@@ -156,7 +192,7 @@ const PollCard = (Post) => {
               <div className="w-full">
                 <div className="flex justify-between text-sm text-gray-700 mb-1">
                   <span>{option.label}</span>
-                  <span>{option.voted ? "100%" : "0%"}</span>
+                  <span>{option.voted ? "" : ""}</span>
                 </div>
                 <div className="w-full bg-gray-300 rounded-full h-2">
                   <div

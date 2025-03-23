@@ -2,9 +2,9 @@ import { motion } from "framer-motion";
 import { useState, useEffect, useContext } from "react";
 import { ThumbsUp, MessageCircle } from "lucide-react";
 import CommentBox from "./CommentSection";
-import { PostContext } from "@/app/Components/ContextApi";
 import axios from "axios";
-
+import { AuthContext } from "@/context/AuthContext";
+import { CommentAdd, LikeSubmite } from "@/_api_/dashboard";
 const balloonVariants = {
   initial: { y: 300, opacity: 0 },
   animate: {
@@ -39,29 +39,27 @@ const FestivalCard = ({
   PostDescription,
   Postcreated_At,
 }) => {
+  const { user } = useContext(AuthContext);
   const [Like, setLike] = useState(PostLike?.[0]?.likes || []);
   const [commentValue, setCommentValue] = useState("");
   const [commentsDisplay, setCommentsDisplay] = useState(PostComment);
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
-  const { userData } = useContext(PostContext);
+
+  // Check if the user has already liked the post
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.includes(userData.userId));
+      setLikeButtonDisable(Like.some((like) => like.userId == PostId));
     }
-  }, [Like, userData.userId]);
+  }, []); //userId Add akrna Hai  ❎
 
   // Submit Like Button
   const setLikeSubmit = async () => {
     try {
       setLikeButtonDisable(true);
-      const likedData = { postId: PostId, userId: userData.userId };
-      console.log(likedData);
-      await axios.post(
-        "http://localhost:5279/apiDashboard/InsertLike",
-        likedData
-      );
-      setLike((prev) => [...prev, userData.userId]);
+      const likedData = { postId: PostId, userId: user.id }; //userId Add akrna Hai  ❎
+      await LikeSubmite(likedData);
+      setLike((prev) => [...prev, user.id]); // userId provide karna ho ga   ❎
     } catch (error) {
       console.error(error);
     }
@@ -71,20 +69,14 @@ const FestivalCard = ({
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
-      var ImageUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${userData.Name}`;
-
       const commentData = {
         postId: PostId,
-        comment: commentValue,
-        userId: userData.Name || "Ayush",
-        imageUrl: ImageUrl,
+        commentMessage: commentValue,
+        userName: user.name, //Add User Name ❎
       };
-      await axios.post(
-        "http://localhost:5279/apiDashboard/commentAdd",
-        commentData
-      );
       setCommentsDisplay((prev = []) => [commentData, ...prev]);
-      setCommentValue(""); // Clear input after submission
+      await CommentAdd(commentData);
+      setCommentValue("");
     } catch (error) {
       console.error(error);
     }

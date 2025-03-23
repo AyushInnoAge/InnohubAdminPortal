@@ -1,17 +1,17 @@
-import { Card } from "../../Components/ui/card";
-import { Avatar } from "../../Components/ui/avatar";
-import { Button } from "../../Components/ui/button";
-import { Badge } from "../../Components/ui/badge";
+import { Card } from "../../../components/ui/card";
+import { Avatar } from "../../../components/ui/avatar";
+import { Button } from "../../../components/ui/button";
+import { Badge } from "../../../components/ui/badge";
 import { Linkedin } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
-} from "../../Components/ui/tooltip";
+} from "../../../components/ui/tooltip";
 
 export default function SidebarProfile2({
-  imageUrl,
+  UserProfileImage,
   UserName,
   Designation,
   achievements = [],
@@ -21,7 +21,7 @@ export default function SidebarProfile2({
       <Card className="w-full p-5 shadow-lg rounded-2xl bg-white">
         <div className="flex flex-col items-center text-center">
           <Avatar
-            src={imageUrl}
+            src={UserProfileImage}
             className="w-16 h-16 mb-3 border-4 border-gray-300"
           />
           <h2 className="text-lg font-semibold text-black">{UserName}</h2>

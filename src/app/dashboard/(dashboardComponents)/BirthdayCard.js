@@ -2,9 +2,9 @@ import { motion } from "framer-motion";
 import { useContext, useState, useEffect } from "react";
 import { ThumbsUp, MessageCircle, PersonStanding } from "lucide-react";
 import CommentBox from "./CommentSection";
-import { PostContext } from "@/app/Components/ContextApi";
 import axios from "axios";
-
+import { AuthContext } from "@/context/AuthContext";
+import { CommentAdd, LikeSubmite } from "@/_api_/dashboard";
 const balloonVariants = {
   initial: { y: 300, opacity: 0 },
   animate: {
@@ -39,8 +39,8 @@ const BirthdayCard = ({
   PostDescription,
   Postcreated_At,
 }) => {
-  const { userData } = useContext(PostContext);
-  const [Like, setLike] = useState(PostLike?.[0]?.likes || []);
+  const { user } = useContext(AuthContext);
+  const [Like, setLike] = useState(PostLike);
   const [commentsDisplay, setCommentsDisplay] = useState(PostComment);
   const [commentValue, setCommentValue] = useState("");
   const [comments, setComments] = useState(false);
@@ -48,20 +48,17 @@ const BirthdayCard = ({
 
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.includes(userData.userId));
+      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); //userId Add karna ho ga user.userId ❎
     }
-  }, [Like, userData.userId]);
+  }, []); //userId add karna hai ❎
 
   // Submit Like Button
   const setLikeSubmit = async () => {
     try {
-      const likedData = { postId: PostId, userId: userData.userId };
       setLikeButtonDisable(true);
-      await axios.post(
-        "http://localhost:5279/apiDashboard/InsertLike",
-        likedData
-      );
-      setLike((prev) => [...prev, userData.userId]);
+      const likeData = { postId: PostId, userId: user.id }; //userId Add karna ho ga user.userId ❎
+      await LikeSubmite(likeData);
+      setLike((prev) => [...prev, user.id]); //userId Add karna ho ga user.userId ❎
     } catch (error) {
       console.error(error);
     }
@@ -71,19 +68,14 @@ const BirthdayCard = ({
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
-      var ImageUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${userData.Name}`;
-
       const commentData = {
         postId: PostId,
-        comment: commentValue,
-        userId: userData.Name,
-        imageUrl: ImageUrl,
+        commentMessage: commentValue,
+        userName: user?.name,
       };
-      await axios.post(
-        "http://localhost:5279/apiDashboard/commentAdd",
-        commentData
-      );
-      setCommentsDisplay((prev=[]) => [commentData, ...prev]);
+      setCommentsDisplay((prev = []) => [commentData, ...prev]);
+      await CommentAdd(commentData);
+
       setCommentValue(""); // Clear input after submission
     } catch (error) {
       console.error(error);
@@ -131,7 +123,9 @@ const BirthdayCard = ({
 
       <div className="flex items-center justify-between mt-4">
         <button
-          className="flex items-center space-x-2 text-blue-500 disabled:opacity-50"
+          className={`flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors ${
+            likeButtonDisable && "cursor-not-allowed opacity-50"
+          }`}
           disabled={likeButtonDisable}
           onClick={setLikeSubmit}
         >

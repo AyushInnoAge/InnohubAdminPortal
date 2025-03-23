@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Bell } from "lucide-react";
-import { Card } from "../../Components/ui/card";
+import { Card } from "../../../components/ui/card";
 
 export default function CommentBox({ comments = [] }) {
   return (
@@ -21,22 +21,24 @@ export default function CommentBox({ comments = [] }) {
               {/* Profile Image and Name */}
               <div className="flex items-center space-x-3">
                 <img
-                  src={comment.imageUrl || "/default-profile.png"}
+                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${comment.userName}`}
                   alt="Profile"
                   className="w-8 h-8 rounded-full object-cover"
                 />
                 <div>
                   <p className="text-sm font-semibold text-gray-800">
-                    {comment.userId || "Anonymous"}
+                    {comment.userName}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {comment.created_at || "Just now"}
+                    {comment?.created_at || "Just now"}
                   </p>
                 </div>
               </div>
 
               {/* Comment Text */}
-              <p className="text-sm text-gray-700 mt-2">{comment.comment}</p>
+              <p className="text-sm text-gray-700 mt-2">
+                {comment?.commentMessage}
+              </p>
             </Card>
           ))
         ) : (

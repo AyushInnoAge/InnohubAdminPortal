@@ -1,16 +1,16 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef , useContext} from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./login.module.css";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../Components/AuthContext";
+import { AuthContext } from "@/context/AuthContext";
 export default function LoginPage() {
+  const {login}= useContext(AuthContext)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const { setUser } = useAuth()
   const formRef = useRef(null);
   const API_URL = "http://localhost:5279/login";
   const router = useRouter();
@@ -54,13 +54,13 @@ export default function LoginPage() {
       }
 
       if (data.statusCode == 200) {
-        const token = data.message.token
+        const token = data.message.token;
         const userdata = data.message.user;
-        localStorage.setItem("userData", JSON.stringify(userdata));
+        // localStorage.setItem("userData", JSON.stringify(userdata));
         localStorage.setItem("token", token); // Store token in localStorage
+        login(userdata);
         console.log("Token from Login: ", token);
         router.push("/dashboard");
-
       }
     } catch (error) {
       alert("Network error. Please try again.");
@@ -110,7 +110,9 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className={`${styles.button} ${!(email && password) ? styles.disabledButton : ""}`}
+            className={`${styles.button} ${
+              !(email && password) ? styles.disabledButton : ""
+            }`}
             disabled={!(email && password)}
           >
             Login
@@ -119,7 +121,9 @@ export default function LoginPage() {
 
         <p className={styles.footerText}>
           Forgot Your Password?{" "}
-          <Link href="/ResetPasswordEmail" className={styles.link}>Forgot Password</Link>
+          <Link href="/ResetPasswordEmail" className={styles.link}>
+            Forgot Password
+          </Link>
         </p>
       </div>
     </div>

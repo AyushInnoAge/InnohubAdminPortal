@@ -3,9 +3,18 @@ import { Image, X, Smile } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { PostContext } from "../../Components/ContextApi";
+import { AuthContext } from "@/context/AuthContext";
+import { DashboardStatus } from "../page.js";
+import {
+  DashboardDataFetch,
+  UploadPoll,
+  UploadPost,
+} from "@/_api_/dashboard.js";
+import { createServerSearchParamsForMetadata } from "next/dist/server/request/search-params.js";
 
-const PostInput = ({ profileUrl }) => {
+const PostInput = ({ UserProfileImage }) => {
+  const { user } = useContext(AuthContext);
+  const { setDashboardData, setLoading } = useContext(DashboardStatus);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
   const [postDescription, setPostDescription] = useState("");
@@ -14,10 +23,8 @@ const PostInput = ({ profileUrl }) => {
   const [pollDescription, setPollDescription] = useState("");
   const [image, setImage] = useState(null);
   const [actualImageFile, setActualImageFile] = useState(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [value, setValue] = useState("");
-
-  const { dashboardData, setDashboardData, userData } = useContext(PostContext);
+  const [postButtonDisable, setPostButtonDisable] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -25,7 +32,6 @@ const PostInput = ({ profileUrl }) => {
     setPostTitle("");
     setPostDescription("");
     setImage(null);
-    setShowEmojiPicker(false);
   };
 
   const openPollModal = () => setIsPollModalOpen(true);
@@ -43,82 +49,58 @@ const PostInput = ({ profileUrl }) => {
     }
   };
 
+  //upload image
   const handleSavePost = async () => {
-    var data = {
-      type: "Post",
-      image: image,
-      title: postTitle,
-      description: postDescription,
-      userId: userData.userId,
-      created_At: new Date().toISOString(),
-    };
-
+    setPostButtonDisable(true);
     const formData = new FormData();
     formData.append("type", "Post");
     formData.append("type", "Post");
     formData.append("title", postTitle);
     formData.append("description", postDescription);
-    formData.append("userId", userData.userId);
+    formData.append("userId", user.id);
     formData.append("created_at", new Date().toISOString());
-
     if (actualImageFile) {
-      console.log("Image: ", actualImageFile);
       formData.append("image", actualImageFile); // Ensure image is stored as a file
     }
 
-    console.log("userData", userData);
-    console.log("underEntry");
-    var response = await axios.post(
-      "http://localhost:5279/apiDashboard/InsertPost",
-      formData
-    );
-    console.log(response);
-    setDashboardData((preData) => [data, ...preData]);
-    closeModal();
+    try {
+      await UploadPost(formData);
+      closeModal();
+      setDashboardData([]);
+      const response = await DashboardDataFetch();
+      setDashboardData(response);
+    } catch (error) {
+      throw new error.message();
+    }
   };
 
   const handelSavePoll = async () => {
-    var data = {
-      type: "Poll",
-      title: pollTitle,
-      poll: pollDescription,
-      userId: userData.userId,
-      created_At: new Date().toISOString(),
-    };
-
+    console.log("Pollinside");
     const formDataToSend = new FormData();
     formDataToSend.append("Type", "Poll");
     formDataToSend.append("image", "");
     formDataToSend.append("title", pollTitle);
     formDataToSend.append("description", pollDescription);
-    formDataToSend.append("userId", userData.userId);
+    formDataToSend.append("userId", user.id);
     formDataToSend.append("created_at", new Date().toISOString());
 
     try {
-      var response = await axios.post(
-        "http://localhost:5279/apiDashboard/InsertPost",
-        formDataToSend
-      );
-
-      setDashboardData((preData) => [data, ...preData]);
-      // console.log("Poll Saved: ", data);
+      await UploadPoll(formDataToSend);
       closePollModal();
+      setDashboardData([]);
+      const response = await DashboardDataFetch();
+      setDashboardData(response);
     } catch (error) {
-      return error;
+      throw new error.message();
     }
-
-  };
-
-  const handleEmojiClick = (emojiObject) => {
-    setPostText((prev) => prev + emojiObject.emoji);
   };
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4 w-full max-w-lg mx-auto">
       <div className="flex items-center space-x-4">
-        <button onClick={() => window.open(profileUrl, "_blank")}>
+        <button onClick={() => window.open(UserProfileImage, "_blank")}>
           <img
-            src={profileUrl}
+            src={UserProfileImage}
             alt="Profile"
             className="w-10 h-10 rounded-full object-cover"
           />
@@ -188,20 +170,6 @@ const PostInput = ({ profileUrl }) => {
                 className="w-full mt-4 p-2 border rounded-lg resize-none text-black"
               />
 
-              <button
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="flex items-center space-x-2 text-yellow-500 mt-2"
-              >
-                <Smile size={20} />
-                <span>Emoji</span>
-              </button>
-
-              {showEmojiPicker && (
-                <div className="absolute mt-2 z-50">
-                  <EmojiPicker onEmojiClick={handleEmojiClick} />
-                </div>
-              )}
-
               {image && (
                 <div className="mt-4">
                   <img
@@ -225,11 +193,15 @@ const PostInput = ({ profileUrl }) => {
               <div className="flex space-x-2 mt-4">
                 <button
                   onClick={handleSavePost}
-                  disabled={!postTitle && !postDescription && !image}
-                  className={`px-4 py-2 rounded-lg w-full ${!postTitle && !postDescription && !image
+                  disabled={
+                    (!postTitle && !postDescription && !image) ||
+                    postButtonDisable
+                  }
+                  className={`px-4 py-2 rounded-lg w-full ${
+                    !postTitle && !postDescription && !image
                       ? "bg-gray-500 text-white cursor-not-allowed"
                       : "bg-blue-500 text-white"
-                    }`}
+                  }`}
                 >
                   Post
                 </button>
@@ -278,22 +250,15 @@ const PostInput = ({ profileUrl }) => {
                 placeholder="Description"
               />
 
-              {/* <input
-                type="text"
-                value={pollDescription}
-                onChange={(e) => setPollDescription(e.target.value)}
-                className="w-full p-2 mb-2 border border-gray-300 rounded text-black"
-                placeholder="Query"
-              /> */}
-
               <div className="flex space-x-2 mt-4">
                 <button
                   onClick={handelSavePoll}
                   disabled={!pollTitle && !pollDescription}
-                  className={`px-4 py-2 rounded-lg w-full ${!pollTitle && !pollDescription
+                  className={`px-4 py-2 rounded-lg w-full ${
+                    !pollTitle && !pollDescription
                       ? "bg-gray-500 text-white cursor-not-allowed"
                       : "bg-blue-500 text-white"
-                    }`}
+                  }`}
                 >
                   Post
                 </button>

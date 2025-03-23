@@ -2,14 +2,14 @@ import { motion } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { ThumbsUp, MessageCircle } from "lucide-react";
 import axios from "axios";
-
-import { PostContext } from "@/app/Components/ContextApi";
 import CommentBox from "@/app/dashboard/(dashboardComponents)/CommentSection";
-
+import { LikeSubmite, CommentAdd } from "@/_api_/dashboard";
+import { AuthContext } from "@/context/AuthContext";
 const AnimatedPostCard = ({
   PostId,
   PostUser,
   PostImageUrl,
+  PostUserProfile,
   PostLike,
   PostComment,
   PostType,
@@ -17,15 +17,14 @@ const AnimatedPostCard = ({
   PostDescription,
   Postcreated_At,
 }) => {
-  const { userData } = useContext(PostContext);
+  const { user } = useContext(AuthContext);
   const [hoverDirection, setHoverDirection] = useState({ x: 0, y: 0 });
-  const [Like, setLike] = useState(PostLike?.[0]?.likes || []);
-  const [commentsDisplay, setCommentsDisplay] = useState(PostComment);
+  const [Like, setLike] = useState(PostLike);
+  const [commentsDisplay, setCommentsDisplay] = useState(PostComment); //handeled Comment  ❎
   const [commentValue, setCommentValue] = useState("");
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
 
-  // Format date
   const timing = new Date(Postcreated_At);
   const time = `${timing.getDate()}-${
     timing.getMonth() + 1
@@ -34,9 +33,9 @@ const AnimatedPostCard = ({
   // Check if the user has already liked the post
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.includes(userData.userId));
+      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); //userId Add akrna Hai   ❎
     }
-  }, [Like, userData.userId]);
+  }, []); // userId provide karna ho ga   ❎
 
   const handleMouseMove = (e) => {
     const { left, top, width, height } =
@@ -49,13 +48,10 @@ const AnimatedPostCard = ({
   // Submit Like Button
   const setLikeSubmit = async () => {
     try {
-      const likedData = { postId: PostId, userId: userData.userId };
       setLikeButtonDisable(true);
-      await axios.post(
-        "http://localhost:5279/apiDashboard/InsertLike",
-        likedData
-      );
-      setLike((prev) => [...prev, userData.userId]);
+      const likedData = { postId: PostId, userId: user.id }; //userId Add akrna Hai  ❎
+      await LikeSubmite(likedData);
+      setLike((prev = []) => [...prev, user.id]); //userId Add akrna Hai  ❎
     } catch (error) {
       console.error(error);
     }
@@ -65,21 +61,14 @@ const AnimatedPostCard = ({
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
-      var ImageUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${userData.Name}`;
-
       const commentData = {
         postId: PostId,
-        comment: commentValue,
-        userId: userData.Name,
-        imageUrl: ImageUrl,
+        commentMessage: commentValue,
+        userName: user?.name, //Add User Name ❎
       };
-      setCommentsDisplay((prev=[]) => [commentData, ...prev]);
-      console.log(commentsDisplay);
-      await axios.post(
-        "http://localhost:5279/apiDashboard/commentAdd",
-        commentData
-      );
-      setCommentValue(""); // Clear input after submission
+      setCommentsDisplay((prev = []) => [commentData, ...prev]);
+      await CommentAdd(commentData);
+      setCommentValue("");
     } catch (error) {
       console.error(error);
     }
@@ -98,7 +87,7 @@ const AnimatedPostCard = ({
             onClick={() =>
               window.open(
                 PostUser?.image ||
-                  `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser?.name}`,
+                  `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser}`,
                 "_blank"
               )
             }
@@ -107,8 +96,9 @@ const AnimatedPostCard = ({
           >
             <img
               src={
-                PostUser?.image ||
-                `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser?.name}`
+                PostUserProfile.length > 0
+                  ? PostUserProfile
+                  : `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser}`
               }
               alt={`Profile`}
               className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover hover:scale-110 transition-transform"
@@ -116,7 +106,7 @@ const AnimatedPostCard = ({
           </button>
           <div className="flex flex-col">
             <span className="text-gray-800 font-semibold text-base sm:text-lg">
-              {PostUser?.name || "Ayush"}
+              {PostUser}
             </span>
             <span className="text-gray-500 text-sm sm:text-xs">{time}</span>
           </div>
@@ -125,7 +115,7 @@ const AnimatedPostCard = ({
         {PostImageUrl && (
           <motion.img
             src={PostImageUrl}
-            alt={PostId}
+            alt="img"
             className="w-full h-auto object-cover rounded-md"
             initial={{ scale: 1 }}
             whileHover={{ scale: 1.05 }}
