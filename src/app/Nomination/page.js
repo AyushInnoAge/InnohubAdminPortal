@@ -6,19 +6,19 @@ import { GiTrophyCup } from "react-icons/gi";
 import { motion } from "framer-motion";
 import { AuthContext } from "@/context/AuthContext";
 import { fetchManagers, submitNomination, fetchEmployees } from "@/_api_/nominationapi";  //Import data form api
- 
+
 const NominationForm = () => {
     const [employees, setEmployees] = useState([]);
     const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
- 
+
     const [managers, setManagers] = useState([]);
     const [filteredManagers, setFilteredManagers] = useState([]);
     const [managerSearchTerm, setManagerSearchTerm] = useState("");
     const [employeeId, setEmployeeId] = useState([]);
     const [filteredRoles, setFilteredRoles] = useState([]);
     const [roleSearchTerm, setRoleSearchTerm] = useState("");
- 
+
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [selectedManager, setSelectedManager] = useState(null);
     const [selectedRole, setSelectedRole] = useState(null);
@@ -30,6 +30,7 @@ const NominationForm = () => {
     const [showManagerDropdown, setShowManagerDropdown] = useState(false);
     const [showRoleDropdown, setShowRoleDropdown] = useState(false);
     const { user } = useContext(AuthContext);
+    const [userRole, setUserRole] = useState("");
     //Multiple Managers
     const [selectedManagers, setSelectedManagers] = useState([]);
 
@@ -42,150 +43,50 @@ const NominationForm = () => {
         "Best Team Leader (Half yearly)",
         "ShoutOut"
     ]);
- 
-    const [userRole, setUserRole] = useState("");
- 
-    // //hardcoded
-    // const [profileData, setProfileData] = useState({
-    //     Name: "",
-    //     EmpID: "",
-    //     Role: "",
-    //     Team: "",
-    //     Department:"",
-    //     Designation: "",
-    //     Email: "",
-    //     Phone: "",
-    //     Address: "",
-       
-    //   });
-   
-     
-    //   useEffect(() => {
-    //     const fetchUserProfile = async () => {
-    //       try {
-    //         const response = await fetch("http://localhost:5279/login", {
-    //           method: "POST",
-    //           headers: {
-    //             "Content-Type": "application/json",
-    //           },
-    //           body: JSON.stringify({
-    //             Email: "singhakash6203@gmail.com",
-    //             Password: "manish1234",
-    //           }),
-    //         });
-     
-    //         if (!response.ok) {
-    //           throw new Error("Failed to fetch user data");
-    //         }
-     
-    //         const data = await response.json();
-    //         console.log("Full API Response:", data);
-     
-    //         if (data.statusCode === 200 && data.message?.user) {
-    //           console.log("User data:", data.message.user);
-    //           const user = data.message.user;
-    //           console.log(user.email,">>>>>>>>>>>>>>>>>>>>>>");
-    //           const token = data.message.token;
-             
-    //           // Store token in localStorage
-    //           localStorage.setItem("token", token);
-     
-    //           // Update profile state with fetched data
-    //           setProfileData({
-    //             FullName: user.name || "N/A",
-    //             EmpID: user.employeeId || "N/A",
-    //             Role: user.userRole === 0 ? "Employee" : "Admin",
-    //             Team: user.department || "N/A",
-    //             Department: user.department || "N/A",
-    //             Designation: user.designation || "N/A",
-    //             Email: user.email || "N/A",
-    //             Phone: user.phoneNo || "N/A",
-    //             Address: user.address || "N/A",
-    //           });
-    //           console.log("Updated Profile Data:", {
-    //             FullName: user.name,
-    //             EmpID: user.employeeId,
-    //             Role: user.userRole,
-    //             Team: user.department,
-    //             Designation: user.designation,
-    //             Email: user.email,
-    //             Phone: user.phoneNo,
-    //             Address: user.address,
-         
-    //         });
-           
-    //         const role_obj = {
-    //             1:"Admin",
-    //             2:"HR",
-    //             3:"TeamLeader",
-    //             4:"Employee"
-    //         }
- 
-    //         setUserRole(role_obj[user.userRole]);
-    //         setEmployeeId(user.id);
- 
-    //         }
-    //         else {
-    //           console.error("Invalid response structure", data);
-    //         }
-    //       } catch (error) {
-    //         console.error("Error fetching login:", error);
-    //       }
-    //     };
-     
-    //     fetchUserProfile();
-    //   }, []);
-   
-    //   console.log(employeeId);
+    useEffect(() => {
+        if (user) { // Ensure user is available before setting state
+            const roleMap = {
+                1: "Admin",
+                2: "HR",
+                3: "TeamLeader",
+                4: "Employee"
+            };
+            setUserRole(roleMap[user.userRole] || "Unknown");
+            setEmployeeId(user.id);
+        }
+    }, [user]); // Dependency on `user` ensures it updates correctly
 
+    useEffect(() => {
+        console.log("Updated User Data in NominationForm:", { userRole, employeeId });
+    }, [userRole, employeeId]);
 
-
-    useEffect(() => {   
-        const role_obj = {
-                        1:"Admin",
-                        2:"HR",
-                        3:"TeamLeader",
-                        4:"Employee"
-                    }
-         
-
-             setUserRole(role_obj[user.userRole]);
-             setEmployeeId(user.id);
-             console.log("User Data in NominationForm:", userRole);
-
-           }, []);
- 
-      useEffect(() => {
-        console.log("User Data in NominationForm:", user);
-    }, [user]);
- 
     //message display time
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage(""); // Hide the message after 2 seconds
-      }, 2000);
- 
-      return () => clearTimeout(timer); // Cleanup function
-    }
-  }, [message]);
- 
+    useEffect(() => {
+        if (message) {
+            const timer = setTimeout(() => {
+                setMessage(""); // Hide the message after 2 seconds
+            }, 2000);
+
+            return () => clearTimeout(timer); // Cleanup function
+        }
+    }, [message]);
+
     // Fetch employees and managers from API
     useEffect(() => {
         const loadEmployees = async () => {
-          try {
-            const data = await fetchEmployees(userRole, selectedRole, employeeId); // Call the API method
-            setEmployees(data);
-          } catch (err) {
-            setError(err.message);
-          }
+            try {
+                const data = await fetchEmployees(userRole, selectedRole, employeeId); // Call the API method
+                setEmployees(data);
+            } catch (err) {
+                setError(err.message);
+            }
         };
-    
+
         if (userRole && selectedRole) { // Ensure dependencies are set before fetching
-          loadEmployees();
+            loadEmployees();
         }
-      }, [userRole, selectedRole, employeeId]); // Correct dependency array
-   
+    }, [userRole, selectedRole, employeeId]); // Correct dependency array
+
     // Filter employees based on search term
     useEffect(() => {
         if (!searchTerm.trim()) {
@@ -193,7 +94,7 @@ const NominationForm = () => {
             setShowEmployeeDropdown(false);
         } else {
             let filtered = [];
- 
+
             if (userRole === "HR") {
                 if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
                     // Filter by teamName for Best Team roles
@@ -216,27 +117,27 @@ const NominationForm = () => {
                     emp.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
                 );
             }
- 
- 
- 
+
+
+
             setFilteredEmployees(filtered);
             setShowEmployeeDropdown(filtered.length > 0);
         }
     }, [searchTerm, employees, selectedRole]);
- 
+
     // Filter managers based on search term
     useEffect(() => {
         const loadManagers = async () => {
             try {
-              const data = await fetchManagers(); // Call the API method
-              setManagers(data);
+                const data = await fetchManagers(); // Call the API method
+                setManagers(data);
             } catch (err) {
-              setError(err.message);
+                setError(err.message);
             }
-          };
-          loadManagers();
+        };
+        loadManagers();
     }, []);
- 
+
     // Filter managers based on search term
     useEffect(() => {
         if (!managerSearchTerm.trim()) {
@@ -253,9 +154,9 @@ const NominationForm = () => {
     // Filter  search term based on role login
     useEffect(() => {
         if (!userRole) return; // Ensure userRole is set before filtering
- 
+
         let filtered = [];
- 
+
         switch (userRole.toLowerCase()) {
             case "hr":
                 filtered = roles.filter(role => role.toLowerCase() !== "ShoutOut"); // HR sees all categories except "ShoutOut"
@@ -269,21 +170,21 @@ const NominationForm = () => {
             default:
                 filtered = []; // Default to empty if the role is unknown
         }
- 
+
         // Apply search filtering
         if (roleSearchTerm.trim()) {
             filtered = filtered.filter(role =>
                 role.toLowerCase().includes(roleSearchTerm.toLowerCase())
             );
         }
- 
+
         setFilteredRoles(filtered);
     }, [userRole, roleSearchTerm]);
- 
- 
+
+
     // Handle selections
     const handleSelectEmployee = (employee) => {
- 
+
         if (userRole === "HR") {
             if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
                 setSearchTerm(employee.teamName);
@@ -298,19 +199,19 @@ const NominationForm = () => {
         else {
             setSearchTerm(employee.name);
         }
- 
- 
+
+
         setSelectedEmployee(employee);
         setShowEmployeeDropdown(false);
- 
-     
+
+
         // Get manager based on role condition
- 
+
         let employeeManager = null;
         if (userRole === "HR" && selectedRole === "Star Of The Month") {
             const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
             console.log("Team Leader ID:", teamLeaderId);
- 
+
             if (teamLeaderId) {
                 employeeManager = managers.find(mgr => mgr.id === teamLeaderId);
             }
@@ -318,15 +219,15 @@ const NominationForm = () => {
                 employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
             }
         }
-        else if(userRole=="HR" && (selectedRole === "Best Team (yearly)"|| selectedRole === "Best Team (Half yearly)" )) {
+        else if (userRole == "HR" && (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)")) {
             employeeManager = managers.find(mgr => mgr.id === employee.teamLeader.id);
         }
         else {
             employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
         }
- 
- 
- 
+
+
+
         if (employeeManager) {
             setSelectedManagers([employeeManager]);
             setManagerSearchTerm(employeeManager.name);  // Auto-select manager
@@ -336,7 +237,7 @@ const NominationForm = () => {
             setManagerSearchTerm("")
         }
     };
- 
+
     const handleSelectManager = (manager) => {
         if (!selectedManagers.some(m => m.id === manager.id)) {
             setSelectedManagers([...selectedManagers, manager]);
@@ -344,59 +245,59 @@ const NominationForm = () => {
         setManagerSearchTerm("");
         setShowManagerDropdown(false);
     };
- 
+
     const handleRemoveManager = (id) => {
         setSelectedManagers(selectedManagers.filter(m => m.id !== id));
     };
- 
+
     const handleSelectRole = (role) => {
         setSelectedRole(role);
         setRoleSearchTerm(role);
         setShowRoleDropdown(false);
     };
- 
- 
+
+
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage("");
         setError("");
-    
+
         if (!selectedEmployee || selectedManagers.length === 0 || !reason.trim()) {
-          setError("Please select an employee, at least one manager, and provide a reason.");
-          return;
+            setError("Please select an employee, at least one manager, and provide a reason.");
+            return;
         }
-    
+
         setLoading(true);
         try {
-          const resultMessage = await submitNomination(
-            selectedEmployee,
-            selectedManagers,
-            selectedRole,
-            reason,
-            userRole
-          );
-          setMessage(resultMessage);
-          setSelectedEmployee(null);
-          setSearchTerm("");
-          setSelectedManagers([]);
-          setManagerSearchTerm("");
-          setReason("");
-          setSelectedRole(null);
-          setRoleSearchTerm("");
+            const resultMessage = await submitNomination(
+                selectedEmployee,
+                selectedManagers,
+                selectedRole,
+                reason,
+                userRole
+            );
+            setMessage(resultMessage);
+            setSelectedEmployee(null);
+            setSearchTerm("");
+            setSelectedManagers([]);
+            setManagerSearchTerm("");
+            setReason("");
+            setSelectedRole(null);
+            setRoleSearchTerm("");
         } catch (err) {
-          setError("Something went wrong. Please try again.");
+            setError("Something went wrong. Please try again.");
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
- 
+    };
+
     return (
         <div className={styles.container}>
- 
+
             <div className={`${styles.squareLine} ${styles.squareTopRight}`}></div>
             <div className={`${styles.squareLine} ${styles.squareBottomLeft}`}></div>
- 
+
             <h2 className={styles.heading}>
                 <motion.span
                     animate={{ y: [0, -5, 0] }}
@@ -414,10 +315,10 @@ const NominationForm = () => {
                     <GiTrophyCup size={50} color="#FFD700" />
                 </motion.span>
             </h2>
- 
+
             {error && <p className={styles.error}>{error}</p>}
             {message && <p className={styles.success}>{message}</p>}
- 
+
             <form onSubmit={handleSubmit} className={styles.form}>
                 {/* Role Search */}
                 <label className={styles.label}>Nomination Category:</label>
@@ -430,7 +331,7 @@ const NominationForm = () => {
                         onChange={(e) => setRoleSearchTerm(e.target.value)}
                         onFocus={() => {
                             setShowRoleDropdown(true);
- 
+
                         }}
                         onBlur={() => setTimeout(() => setShowRoleDropdown(false), 200)}
                     />
@@ -486,9 +387,9 @@ const NominationForm = () => {
                             ))}
                         </ul>
                     )}
- 
+
                 </div>
- 
+
                 {/* Manager Search */}
                 <label className={styles.label}>Search Managers:</label>
                 <div className={styles.searchContainer}>
@@ -509,7 +410,7 @@ const NominationForm = () => {
                                 setShowManagerDropdown(true);
                                 setFilteredManagers(managers);
                             }}
- 
+
                             onBlur={() => setTimeout(() => setShowManagerDropdown(false), 200)}
                         />
                     </div>
@@ -525,8 +426,8 @@ const NominationForm = () => {
                         </ul>
                     )}
                 </div>
- 
- 
+
+
                 {/* Reason for Nomination */}
                 <label className={styles.label}>Reason for Nomination:</label>
                 <textarea
@@ -536,7 +437,7 @@ const NominationForm = () => {
                     maxLength={500}
                     placeholder="Write your reason here..."
                 ></textarea>
- 
+
                 {/* Submit Button */}
                 <button
                     type="submit"
@@ -557,5 +458,5 @@ const NominationForm = () => {
         </div>
     );
 };
- 
+
 export default NominationForm;

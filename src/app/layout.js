@@ -7,7 +7,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="bg-gray-100">
         <AuthProvider>
-          <Navbar />
+         
           <div className="pt-16">
             {/* Adjust padding to avoid overlap */}
             {children}

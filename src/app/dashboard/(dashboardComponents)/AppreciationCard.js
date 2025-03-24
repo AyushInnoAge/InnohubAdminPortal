@@ -2,26 +2,28 @@ import { motion } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { ThumbsUp, MessageCircle, Award, Star } from "lucide-react";
 import axios from "axios";
-import { PostContext } from "@/app/Components/ContextApi";
 import CommentBox from "@/app/dashboard/(dashboardComponents)/CommentSection";
+import { AuthContext } from "@/context/AuthContext";
+import { CommentAdd, LikeSubmite } from "@/_api_/dashboard";
 
 const AppreciationCard = ({
   PostId,
   PostLike,
   PostComment,
   PostType,
-  PostTitle,
   PostDescription,
   Postcreated_At,
+  NominatedUser,
+  NominatedBy
 }) => {
-  // console.log(post);
+  const { user } = useContext(AuthContext);
   const badge = PostType;
-  const [Like, setLike] = useState(PostLike?.[0]?.likes || []);
+  const [Like, setLike] = useState(PostLike);
   const [commentsDisplay, setCommentsDisplay] = useState(PostComment);
   const [commentValue, setCommentValue] = useState("");
   const [comment, setComment] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
-  const { userData } = useContext(PostContext);
+
   const [PostImageUrl, setPostImageUrl] = useState("");
 
   const timing = new Date(Postcreated_At);
@@ -53,21 +55,20 @@ const AppreciationCard = ({
   // Check if the user has already liked the post
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.includes(userData.userId));
+      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); //userId required ❎
     }
-  }, [Like, userData.userId]);
+  }, []); //userId required ❎
 
   // Submit Like Button
   const setLikeSubmit = async () => {
     try {
-      const likedData = { postId: PostId, userId: userData.userId };
-      console.log("Hello Like");
       setLikeButtonDisable(true);
-      await axios.post(
-        "http://localhost:5279/apiDashboard/InsertLike",
-        likedData
-      );
-      setLike((prev) => [...prev, userData.userId]);
+      const likedData = { postId: PostId, userId: user.id };
+
+      
+      await LikeSubmite(likedData);
+
+      setLike((prev=[]) => [...prev, user.id]); //userId required ❎
     } catch (error) {
       console.error(error);
     }
@@ -77,20 +78,16 @@ const AppreciationCard = ({
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
-      var ImageUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${userData.Name}`;
 
       const commentData = {
         postId: PostId,
-        comment: commentValue,
-        userId: userData.Name,
-        imageUrl: ImageUrl,
+        commentMessage: commentValue,
+        userName: user.name,    //userId required ❎
       };
-      await axios.post(
-        "http://localhost:5279/apiDashboard/commentAdd",
-        commentData
-      );
-      setCommentsDisplay((prev=[]) => [commentData, ...prev]);
-      setCommentValue(""); // Clear input after submission
+
+      await CommentAdd(commentData);
+      setCommentsDisplay((prev = []) => [commentData, ...prev]);
+      setCommentValue("");
     } catch (error) {
       console.error(error);
     }
@@ -118,7 +115,7 @@ const AppreciationCard = ({
       {PostImageUrl && (
         <motion.img
           src={PostImageUrl}
-          alt={PostId}
+          alt="img"
           className="w-full h-auto object-cover rounded-md shadow-md"
           initial={{ scale: 1 }}
           whileHover={{ scale: 1.05 }}
@@ -127,7 +124,7 @@ const AppreciationCard = ({
       )}
 
       <div className="p-4">
-        <h2 className="text-2xl font-bold text-gray-900">{PostTitle}</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{`${PostType} goes to ${NominatedUser}, present by ${NominatedBy}`}</h2>
         <p className="text-gray-700 mt-2 text-base">{PostDescription}</p>
       </div>
 

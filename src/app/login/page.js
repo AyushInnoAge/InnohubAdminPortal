@@ -9,17 +9,17 @@ import API_ENDPOINTS from "@/app/config/apiconfig";
 import { loginUser } from "@/_api_/loginapi";
 
 export default function LoginPage() {
-  const {login}= useContext(AuthContext);
+  const { login } = useContext(AuthContext); // Ensure AuthContext is defined
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");  // Added this
+  const [message, setMessage] = useState(""); // Added this
   const formRef = useRef(null);
   const API_URL = API_ENDPOINTS.LOGIN_API;
   const router = useRouter();
 
-  // Hide message after 3 seconds
+  // Hide message after 2 seconds
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {
@@ -63,13 +63,10 @@ export default function LoginPage() {
       if (data.statusCode === 200 && data.message?.token) {
         const token = data.message.token;
         const userdata = data.message.user;
-        // localStorage.setItem("userData", JSON.stringify(userdata));
+
         localStorage.setItem("token", token); // Store token in localStorage
         login(userdata);
         console.log("Token from Login: ", token);
-        router.push("/dashboard");;
-        setMessage("Login successful! Redirecting...");
-
         setTimeout(() => {
           router.push("/dashboard");
         }, 1500);
@@ -77,19 +74,20 @@ export default function LoginPage() {
         setError("Invalid email or password");
       }
     } catch (error) {
-      setError(error.message);
+      setError(error.message || "Something went wrong");
       console.error("Login failed:", error);
     }
   };
+
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-
         <img src="/logo.svg" alt="Innoage Logo" className={styles.logo} />
         <h2 className={styles.title}>Welcome To Inno Age</h2>
         <p className={styles.subtitle}>Sign in to your account</p>
 
         {error && <p className={styles.error}>{error}</p>}
+        {message && <p className={styles.success}>{message}</p>} {/* Fixed success message rendering */}
 
         <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
           <input
@@ -123,11 +121,11 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {/* {message && <p className={styles.success}>{message}</p>} */}
-
           <button
             type="submit"
-            className={`${styles.button} ${!(email && password && password.length >= 6) ? styles.disabledButton : ""}`}
+            className={`${styles.button} ${
+              !(email && password && password.length >= 6) ? styles.disabledButton : ""
+            }`}
             disabled={!(email && password && password.length >= 6)}
           >
             Login
@@ -136,7 +134,9 @@ export default function LoginPage() {
 
         <p className={styles.footerText}>
           Forgot Your Password?{" "}
-          <Link href="/ResetPasswordEmail" className={styles.link}>Forgot Password</Link>
+          <Link href="/ResetPasswordEmail" className={styles.link}>
+            Forgot Password
+          </Link>
         </p>
       </div>
     </div>
