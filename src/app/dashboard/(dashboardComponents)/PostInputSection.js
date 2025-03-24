@@ -1,8 +1,6 @@
 import { useState, useContext } from "react";
 import { Image, X, Smile } from "lucide-react";
-import EmojiPicker from "emoji-picker-react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { DashboardStatus } from "../page.js";
 import {
@@ -10,11 +8,10 @@ import {
   UploadPoll,
   UploadPost,
 } from "@/_api_/dashboard.js";
-import { createServerSearchParamsForMetadata } from "next/dist/server/request/search-params.js";
 
 const PostInput = ({ UserProfileImage }) => {
   const { user } = useContext(AuthContext);
-  const { setDashboardData, setLoading } = useContext(DashboardStatus);
+  const { setDashboardData, setLoading, setLastFetchedDate } = useContext(DashboardStatus);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
   const [postDescription, setPostDescription] = useState("");
@@ -23,8 +20,8 @@ const PostInput = ({ UserProfileImage }) => {
   const [pollDescription, setPollDescription] = useState("");
   const [image, setImage] = useState(null);
   const [actualImageFile, setActualImageFile] = useState(null);
-  const [value, setValue] = useState("");
   const [postButtonDisable, setPostButtonDisable] = useState(false);
+  const [pollButtonDisable, setPollButtonDisable] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -49,7 +46,7 @@ const PostInput = ({ UserProfileImage }) => {
     }
   };
 
-  //upload image
+
   const handleSavePost = async () => {
     setPostButtonDisable(true);
     const formData = new FormData();
@@ -60,7 +57,7 @@ const PostInput = ({ UserProfileImage }) => {
     formData.append("userId", user.id);
     formData.append("created_at", new Date().toISOString());
     if (actualImageFile) {
-      formData.append("image", actualImageFile); // Ensure image is stored as a file
+      formData.append("image", actualImageFile);
     }
 
     try {
@@ -69,13 +66,20 @@ const PostInput = ({ UserProfileImage }) => {
       setDashboardData([]);
       const response = await DashboardDataFetch();
       setDashboardData(response);
+      let time = response[response.length - 1]?.nominationData
+        ? response[response.length - 1]?.nominationData?.verifiedAt
+        : response[response.length - 1]?.postData?.created_at;
+      setLastFetchedDate(time);
+      
     } catch (error) {
       throw new error.message();
+    }finally{
+      setPostButtonDisable(false);
     }
   };
 
   const handelSavePoll = async () => {
-    console.log("Pollinside");
+    setPollButtonDisable(true);
     const formDataToSend = new FormData();
     formDataToSend.append("Type", "Poll");
     formDataToSend.append("image", "");
@@ -90,8 +94,14 @@ const PostInput = ({ UserProfileImage }) => {
       setDashboardData([]);
       const response = await DashboardDataFetch();
       setDashboardData(response);
+      let time = response[response.length - 1]?.nominationData
+        ? response[response.length - 1]?.nominationData?.verifiedAt
+        : response[response.length - 1]?.postData?.created_at;
+      setLastFetchedDate(time);
     } catch (error) {
       throw new error.message();
+    }finally{
+      setPollButtonDisable(false);
     }
   };
 
@@ -197,11 +207,10 @@ const PostInput = ({ UserProfileImage }) => {
                     (!postTitle && !postDescription && !image) ||
                     postButtonDisable
                   }
-                  className={`px-4 py-2 rounded-lg w-full ${
-                    !postTitle && !postDescription && !image
+                  className={`px-4 py-2 rounded-lg w-full ${((!postTitle && !postDescription && !image) ||postButtonDisable)
                       ? "bg-gray-500 text-white cursor-not-allowed"
                       : "bg-blue-500 text-white"
-                  }`}
+                    }`}
                 >
                   Post
                 </button>
@@ -253,12 +262,11 @@ const PostInput = ({ UserProfileImage }) => {
               <div className="flex space-x-2 mt-4">
                 <button
                   onClick={handelSavePoll}
-                  disabled={!pollTitle && !pollDescription}
-                  className={`px-4 py-2 rounded-lg w-full ${
-                    !pollTitle && !pollDescription
+                  disabled={(!pollTitle && !pollDescription)||pollButtonDisable}
+                  className={`px-4 py-2 rounded-lg w-full ${((!pollTitle && !pollDescription)|| pollButtonDisable)
                       ? "bg-gray-500 text-white cursor-not-allowed"
                       : "bg-blue-500 text-white"
-                  }`}
+                    }`}
                 >
                   Post
                 </button>

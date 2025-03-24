@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { useContext, useState, useEffect } from "react";
 import { ThumbsUp, MessageCircle, PersonStanding } from "lucide-react";
 import CommentBox from "./CommentSection";
-import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { CommentAdd, LikeSubmite } from "@/_api_/dashboard";
 const balloonVariants = {
@@ -48,23 +47,23 @@ const BirthdayCard = ({
 
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); //userId Add karna ho ga user.userId ❎
+      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); 
     }
-  }, []); //userId add karna hai ❎
+  }, []); 
 
-  // Submit Like Button
+ 
   const setLikeSubmit = async () => {
     try {
       setLikeButtonDisable(true);
-      const likeData = { postId: PostId, userId: user.id }; //userId Add karna ho ga user.userId ❎
+      const likeData = { postId: PostId, userId: user.id }; 
       await LikeSubmite(likeData);
-      setLike((prev) => [...prev, user.id]); //userId Add karna ho ga user.userId ❎
+      setLike((prev) => [...prev, user.id]);
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Submit Comment Button
+ 
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
@@ -76,7 +75,7 @@ const BirthdayCard = ({
       setCommentsDisplay((prev = []) => [commentData, ...prev]);
       await CommentAdd(commentData);
 
-      setCommentValue(""); // Clear input after submission
+      setCommentValue(""); 
     } catch (error) {
       console.error(error);
     }

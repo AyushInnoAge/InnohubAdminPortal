@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { ThumbsUp, MessageCircle, Award, Star } from "lucide-react";
-import axios from "axios";
 import CommentBox from "@/app/dashboard/(dashboardComponents)/CommentSection";
 import { AuthContext } from "@/context/AuthContext";
 import { CommentAdd, LikeSubmite } from "@/_api_/dashboard";
@@ -52,12 +51,12 @@ const AppreciationCard = ({
     }
   }, [PostType]);
 
-  // Check if the user has already liked the post
+ 
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); //userId required ❎
+      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); 
     }
-  }, []); //userId required ❎
+  }, []); 
 
   // Submit Like Button
   const setLikeSubmit = async () => {
@@ -68,13 +67,13 @@ const AppreciationCard = ({
       
       await LikeSubmite(likedData);
 
-      setLike((prev=[]) => [...prev, user.id]); //userId required ❎
+      setLike((prev=[]) => [...prev, user.id]); 
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Submit Comment Button
+ 
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
@@ -82,7 +81,7 @@ const AppreciationCard = ({
       const commentData = {
         postId: PostId,
         commentMessage: commentValue,
-        userName: user.name,    //userId required ❎
+        userName: user.name,   
       };
 
       await CommentAdd(commentData);

@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { useState, useEffect, useContext } from "react";
 import { ThumbsUp, MessageCircle } from "lucide-react";
 import CommentBox from "./CommentSection";
-import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { CommentAdd, LikeSubmite } from "@/_api_/dashboard";
 const balloonVariants = {

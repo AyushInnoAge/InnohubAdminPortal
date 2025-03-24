@@ -1,18 +1,11 @@
-import axios from "axios";
+
 import { motion } from "framer-motion";
 import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import { PollUpdate } from "@/_api_/dashboard";
 const PollCard = (
   PostId
-  // PostUser,
-  // PostUserProfile,
-  // PostTotalYes,
-  // PostTotalNo,
-  // PostType,
-  // PostTitle,
-  // Postcreated_At,
-  // Post
+ 
 ) => {
   const {
     PostTitle,
@@ -23,9 +16,9 @@ const PollCard = (
     Postcreated_At,
     PostUserProfile,
   } = PostId;
-  // console.log("Post",PostId)
+  
   const { user } = useContext(AuthContext);
-  // Format date
+ 
   const timing = new Date(Postcreated_At);
   const time = `${timing.getDate()}-${
     timing.getMonth() + 1
@@ -41,9 +34,9 @@ const PollCard = (
   const [totalno, setTotalNo] = useState(totalNoSet?.length || 0);
   const [totalVotes, setTotalVotes] = useState(
     (PostTotalYes?.length || 0) + (PostTotalNo?.length || 0)
-  ); //total vote may be we remove in future
+  ); 
 
-  //if user Already select any poll
+  
   useEffect(() => {
     if (PostTotalNo?.length > 0 || PostTotalYes?.length > 0) {
       const yes = PostTotalYes.some((item) => item.userId === user.id);
@@ -58,33 +51,7 @@ const PollCard = (
     }
   }, []);
 
-  //update poll
-  const updatePollData = (index) => {
-    console.log("inside");
-
-    const yes =
-      totalYesSet.length > 0
-        ? totalYesSet.some((item) => item.userId === user.id)
-        : false;
-    const no =
-      totalNoSet.length > 0
-        ? totalNoSet.some((item) => item.userId === user.id)
-        : false;
-
-    if (index == 1 && yes) {
-      setTotalYes((prev) => prev - 1);
-      setTotalYesSet((prev) => prev.filter((item) => item.userId !== user.id));
-    }
-    if (index == 0 && no) {
-      setTotalNo((prev) => prev - 1);
-      setTotalNoSet((prev) => prev.filter((item) => item.userId !== user.id));
-    }
-    // setTotalYes(totalYesSet.length);
-    // setTotalNo(totalNoSet.length);
-    // console.log("totalYes=>",totalyes);
-    // console.log("totalNo=>",totalno);
-  };
-
+  
   const handleVote = async (index) => {
     if (options[index].voted) return;
 
@@ -99,9 +66,9 @@ const PollCard = (
 
     const userIdData = { userId: user.id };
 
-    //Update Yes And No Value
+    
     if (options[index].label === "No") {
-      // setTotalNo((prev) => prev + 1);
+     
 
       setTotalNoSet((prev) => [...prev, userIdData]);
       setTotalNo((prev) => prev + 1);
@@ -128,7 +95,7 @@ const PollCard = (
       }
     }
 
-    //yha se value send ho gi
+   
     const data = {
       userId: user.id,
       postId: PostId.PostId,

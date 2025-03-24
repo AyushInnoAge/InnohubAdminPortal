@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { ThumbsUp, MessageCircle } from "lucide-react";
-import axios from "axios";
 import CommentBox from "@/app/dashboard/(dashboardComponents)/CommentSection";
 import { LikeSubmite, CommentAdd } from "@/_api_/dashboard";
 import { AuthContext } from "@/context/AuthContext";
@@ -20,7 +19,7 @@ const AnimatedPostCard = ({
   const { user } = useContext(AuthContext);
   const [hoverDirection, setHoverDirection] = useState({ x: 0, y: 0 });
   const [Like, setLike] = useState(PostLike);
-  const [commentsDisplay, setCommentsDisplay] = useState(PostComment); //handeled Comment  ❎
+  const [commentsDisplay, setCommentsDisplay] = useState(PostComment);
   const [commentValue, setCommentValue] = useState("");
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
@@ -30,12 +29,11 @@ const AnimatedPostCard = ({
     timing.getMonth() + 1
   }-${timing.getFullYear()}`;
 
-  // Check if the user has already liked the post
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); //userId Add akrna Hai   ❎
+      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); 
     }
-  }, []); // userId provide karna ho ga   ❎
+  }, []);
 
   const handleMouseMove = (e) => {
     const { left, top, width, height } =
@@ -45,26 +43,26 @@ const AnimatedPostCard = ({
     setHoverDirection({ x, y });
   };
 
-  // Submit Like Button
+ 
   const setLikeSubmit = async () => {
     try {
       setLikeButtonDisable(true);
-      const likedData = { postId: PostId, userId: user.id }; //userId Add akrna Hai  ❎
+      const likedData = { postId: PostId, userId: user.id };
       await LikeSubmite(likedData);
-      setLike((prev = []) => [...prev, user.id]); //userId Add akrna Hai  ❎
+      setLike((prev = []) => [...prev, user.id]); 
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Submit Comment Button
+ 
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
       const commentData = {
         postId: PostId,
         commentMessage: commentValue,
-        userName: user?.name, //Add User Name ❎
+        userName: user?.name,
       };
       setCommentsDisplay((prev = []) => [commentData, ...prev]);
       await CommentAdd(commentData);
