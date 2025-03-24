@@ -1,10 +1,11 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+// import { jwtDecode } from "jwt-decode";
 import styles from "./NominationForm.module.css";
 import { GiTrophyCup } from "react-icons/gi";
 import { motion } from "framer-motion";
-import Image from "next/image";
-
+import { AuthContext } from "@/context/AuthContext";
+import { fetchManagers, submitNomination, fetchEmployees } from "@/_api_/nominationapi";  //Import data form api
 
 const NominationForm = () => {
     const [employees, setEmployees] = useState([]);
@@ -14,8 +15,7 @@ const NominationForm = () => {
     const [managers, setManagers] = useState([]);
     const [filteredManagers, setFilteredManagers] = useState([]);
     const [managerSearchTerm, setManagerSearchTerm] = useState("");
-
-    //  const [roles, setRoles] = useState([]);
+    const [employeeId, setEmployeeId] = useState([]);
     const [filteredRoles, setFilteredRoles] = useState([]);
     const [roleSearchTerm, setRoleSearchTerm] = useState("");
 
@@ -29,54 +29,63 @@ const NominationForm = () => {
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
     const [showManagerDropdown, setShowManagerDropdown] = useState(false);
     const [showRoleDropdown, setShowRoleDropdown] = useState(false);
-
+    const { user } = useContext(AuthContext);
+    const [userRole, setUserRole] = useState("");
     //Multiple Managers
     const [selectedManagers, setSelectedManagers] = useState([]);
+
     const [roles] = useState([
-        "Employee of the Month",
-        "Star of the Month",
-        "Best Team Leader",
-        "Employee of the Year",
-        "Employee of the Quarter",
-        "Rising Star",
-        "Problem Solver",
-        "Best Mentor",
-        "ShoutOut"
+        // "Employee Of The Month",
+        "Star of the month",
+        "Best Team (yearly)",
+        "Best Team Leader (yearly)",
+        "Best Team (Half yearly)",
+        "Best Team Leader (Half yearly)",
+        "Shoutout"
     ]);
+    useEffect(() => {
+        if (user) { // Ensure user is available before setting state
+            const roleMap = {
+                1: "Admin",
+                2: "HR",
+                3: "TeamLeader",
+                4: "Employee"
+            };
+            setUserRole(roleMap[user.userRole] || "Unknown");
+            setEmployeeId(user.id);
+        }
+    }, [user]); // Dependency on `user` ensures it updates correctly
+
+    useEffect(() => {
+        console.log("Updated User Data in NominationForm:", { userRole, employeeId });
+    }, [userRole, employeeId]);
+
+    //message display time
+    useEffect(() => {
+        if (message) {
+            const timer = setTimeout(() => {
+                setMessage(""); // Hide the message after 2 seconds
+            }, 2000);
+
+            return () => clearTimeout(timer); // Cleanup function
+        }
+    }, [message]);
+
     // Fetch employees and managers from API
     useEffect(() => {
-        const fetchData = async () => {
+        const loadEmployees = async () => {
             try {
-                const token = localStorage.getItem("token");
-                if (!token) {
-                    console.error("No token found, user might be logged out.");
-                    return;
-                }
-                const response = await fetch("http://localhost:5279/user/fetch_users", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    }
-                });
-                if (!response.ok) throw new Error("Failed to fetch employees");
-
-                const data = await response.json();
-                console.log(data);
-
-                if (!Array.isArray(data) || data.length === 0) {
-                    throw new Error("No valid data available");
-                }
-
+                const data = await fetchEmployees(userRole, selectedRole, employeeId); // Call the API method
                 setEmployees(data);
-                setManagers(data);
-                //  setRoles([...new Set(data.map(emp => emp.role))]); // Assuming `role` exists in the API
             } catch (err) {
                 setError(err.message);
             }
         };
-        fetchData();
-    }, []);
+
+        if (userRole && selectedRole) { // Ensure dependencies are set before fetching
+            loadEmployees();
+        }
+    }, [userRole, selectedRole, employeeId]); // Correct dependency array
 
     // Filter employees based on search term
     useEffect(() => {
@@ -84,13 +93,48 @@ const NominationForm = () => {
             setFilteredEmployees([]);
             setShowEmployeeDropdown(false);
         } else {
-            const filtered = employees.filter(emp =>
-                emp.name.toLowerCase().startsWith(searchTerm.toLowerCase())
-            );
+            let filtered = [];
+
+            if (userRole === "HR") {
+                if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
+                    // Filter by teamName for Best Team roles
+                    filtered = employees.filter(emp =>
+                        emp.teamName?.toLowerCase().startsWith(searchTerm.toLowerCase())
+                    );
+                } else if (selectedRole === "Star of the month") {
+                    // Filter by userName for Star of the month
+                    filtered = employees.filter(emp =>
+                        emp.user?.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
+                    );
+                } else {
+                    // Default behavior: filter by employee name
+                    filtered = employees.filter(emp =>
+                        emp.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
+                    );
+                }
+            } else {
+                filtered = employees.filter(emp =>
+                    emp.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
+                );
+            }
+
             setFilteredEmployees(filtered);
             setShowEmployeeDropdown(filtered.length > 0);
         }
-    }, [searchTerm, employees]);
+    }, [searchTerm, employees, selectedRole]);
+
+    // Filter managers based on search term
+    useEffect(() => {
+        const loadManagers = async () => {
+            try {
+                const data = await fetchManagers(); // Call the API method
+                setManagers(data);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+        loadManagers();
+    }, []);
 
     // Filter managers based on search term
     useEffect(() => {
@@ -98,43 +142,96 @@ const NominationForm = () => {
             setFilteredManagers([]);
             setShowManagerDropdown(false);
         } else {
-            const filtered = managers.filter(mgr =>
-                mgr.name.toLowerCase().startsWith(managerSearchTerm.toLowerCase())
+            const filtered = managers.filter(manager =>
+                manager.name?.toLowerCase().startsWith(managerSearchTerm.toLowerCase())
             );
             setFilteredManagers(filtered);
             setShowManagerDropdown(filtered.length > 0);
         }
     }, [managerSearchTerm, managers]);
-
-
-    // Filter roles based on search term
+    // Filter  search term based on role login
     useEffect(() => {
-        if (!roleSearchTerm.trim()) {
-            setFilteredRoles([]);
-            setShowRoleDropdown(false);
-        } else {
-            const filtered = roles.filter(role =>
-                role.toLowerCase().startsWith(roleSearchTerm.toLowerCase()) // Ensures it starts with the input
-            );
-            setFilteredRoles(filtered);
-            setShowRoleDropdown(filtered.length > 0);
+        if (!userRole) return; // Ensure userRole is set before filtering
+
+        let filtered = [];
+
+        switch (userRole.toLowerCase()) {
+            case "hr":
+                filtered = roles.filter(role => role.toLowerCase() !== "Shoutout"); // HR sees all categories except "Shoutout"
+                break;
+            case "teamleader":
+                filtered = roles.filter(role => !role.toLowerCase().includes("team")); // TeamLeader can't see team-related categories
+                break;
+            case "employee":
+                filtered = ["Shoutout"]; // Employee can only see "Shoutout"
+                break;
+            default:
+                filtered = []; // Default to empty if the role is unknown
         }
-    }, [roleSearchTerm, roles]);
+
+        // Apply search filtering
+        if (roleSearchTerm.trim()) {
+            filtered = filtered.filter(role =>
+                role.toLowerCase().includes(roleSearchTerm.toLowerCase())
+            );
+        }
+
+        setFilteredRoles(filtered);
+    }, [userRole, roleSearchTerm]);
 
 
     // Handle selections
     const handleSelectEmployee = (employee) => {
+
+        if (userRole === "HR") {
+            if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
+                setSearchTerm(employee.teamName);
+            }
+            else if (selectedRole === "Star of the month") {
+                setSearchTerm(employee.user.name);
+            }
+            else {
+                setSearchTerm(employee.name);
+            }
+        }
+        else {
+            setSearchTerm(employee.name);
+        }
+
+
         setSelectedEmployee(employee);
-        setSearchTerm(employee.name);
         setShowEmployeeDropdown(false);
 
-        // Assuming each employee has a `managerId` field
-        const employeeManager = managers.find(mgr => mgr.id === employee.managerId);
+
+        // Get manager based on role condition
+
+        let employeeManager = null;
+        if (userRole === "HR" && selectedRole === "Star of the month") {
+            const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
+
+            if (teamLeaderId) {
+                employeeManager = managers.find(mgr => mgr.id === teamLeaderId);
+            }
+            else {
+                employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
+            }
+        }
+        else if (userRole == "HR" && (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)")) {
+            employeeManager = managers.find(mgr => mgr.id === employee.teamLeader.id);
+        }
+        else {
+            employeeManager = managers.find(mgr => mgr.id === employee.teamLeaderId);
+        }
+
+
 
         if (employeeManager) {
-            setSelectedManagers([employeeManager]);  // Auto-select manager
+            setSelectedManagers([employeeManager]);
+            setManagerSearchTerm(employeeManager.name);  // Auto-select manager
+            setManagerSearchTerm("")
         } else {
-            setSelectedManagers([]);  // Clear if no manager is found
+            setSelectedManagers([]); // Clear if no manager is found
+            setManagerSearchTerm("")
         }
     };
 
@@ -170,31 +267,14 @@ const NominationForm = () => {
 
         setLoading(true);
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                console.error("No token found, user might be logged out.");
-                return;
-            }
-            const response = await fetch("http://localhost:5279/api/shoutout", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    UserId: selectedEmployee.id,
-                    ManagerIds: selectedManagers.map(m => m.id),
-                    Nomination_Type: selectedRole,
-                    Reason: reason
-                }),
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) throw new Error("Failed to submit nomination");
-            // console.log(response);
-
-            setMessage(result.message);
+            const resultMessage = await submitNomination(
+                selectedEmployee,
+                selectedManagers,
+                selectedRole,
+                reason,
+                userRole
+            );
+            setMessage(resultMessage);
             setSelectedEmployee(null);
             setSearchTerm("");
             setSelectedManagers([]);
@@ -238,7 +318,7 @@ const NominationForm = () => {
 
             <form onSubmit={handleSubmit} className={styles.form}>
                 {/* Role Search */}
-                <label className={styles.label}>Search Role:</label>
+                <label className={styles.label}>Nomination Category:</label>
                 <div className={styles.searchContainer}>
                     <input
                         type="text"
@@ -248,7 +328,7 @@ const NominationForm = () => {
                         onChange={(e) => setRoleSearchTerm(e.target.value)}
                         onFocus={() => {
                             setShowRoleDropdown(true);
-                            setFilteredRoles(roles);
+
                         }}
                         onBlur={() => setTimeout(() => setShowRoleDropdown(false), 200)}
                     />
@@ -256,7 +336,9 @@ const NominationForm = () => {
                     {showRoleDropdown && (
                         <ul className={styles.dropdown}>
                             {filteredRoles.map((role, index) => (
-                                <li key={index} onClick={() => handleSelectRole(role)}>
+                                <li key={index}
+                                    className={userRole === userRole ? styles.dropdownItem : ''}
+                                    onClick={() => handleSelectRole(role)}>
                                     {role}
                                 </li>
                             ))}
@@ -264,7 +346,13 @@ const NominationForm = () => {
                     )}
                 </div>
                 {/* Employee Search */}
-                <label className={styles.label}>Search Employee:</label>
+                <label className={styles.label}>
+                    {selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)"
+                        ? "Search Team:"
+                        : selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)"
+                            ? "Search Team Leader:"
+                            : "Search Employee:"}
+                </label>
                 <div className={styles.searchContainer}>
                     <input
                         type="text"
@@ -281,8 +369,17 @@ const NominationForm = () => {
                     {showEmployeeDropdown && (
                         <ul className={styles.dropdown}>
                             {filteredEmployees.map(employee => (
-                                <li key={employee.id} onMouseDown={() => handleSelectEmployee(employee)}>
-                                    {employee.name}
+                                <li key={employee.id}
+                                    className={employees === employees ? styles.dropdownItem : ''}
+                                    onMouseDown={() => handleSelectEmployee(employee)}
+                                >
+                                    {userRole === "HR" ? (
+                                        selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)"
+                                            ? employee.teamName
+                                            : selectedRole === "Star of the month"
+                                                ? employee.user.name
+                                                : employee.name
+                                    ) : employee.name}
                                 </li>
                             ))}
                         </ul>
@@ -317,7 +414,9 @@ const NominationForm = () => {
                     {showManagerDropdown && (
                         <ul className={styles.dropdown}>
                             {filteredManagers.map(manager => (
-                                <li key={manager.id} onMouseDown={() => handleSelectManager(manager)}>
+                                <li key={manager.id}
+                                    className={managers === managers ? styles.dropdownItem : ''}
+                                    onMouseDown={() => handleSelectManager(manager)}>
                                     {manager.name}
                                 </li>
                             ))}
@@ -358,4 +457,3 @@ const NominationForm = () => {
 };
 
 export default NominationForm;
-

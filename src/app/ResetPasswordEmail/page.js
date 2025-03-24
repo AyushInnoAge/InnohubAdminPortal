@@ -3,6 +3,8 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./resetpasswordemail.module.css";
+import { sendResetPasswordOtp, verifyOtpAndUpdatePassword } from "@/_api_/resetpasswordEmail";
+
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
@@ -24,7 +26,7 @@ export default function ResetPasswordPage() {
     }
   };
 
-  // ✅ Step 1: Request OTP
+  //  Step 1: Request OTP
   const handleSendOtp = async (event) => {
     event.preventDefault();
     setError("");
@@ -39,17 +41,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5279/request-password-reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Email: email }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to send OTP.");
-      }
-
+      await sendResetPasswordOtp(email); // Call API from separate folder
       setMessage("OTP sent to your email. Enter OTP and set a new password.");
       setStep("otp-password");
     } catch (error) {
@@ -59,7 +51,7 @@ export default function ResetPasswordPage() {
     }
   };
 
-  // ✅ Step 2: Verify OTP & Update Password (Combined)
+  // Step 2: Verify OTP & Update Password
   const handleVerifyOtpAndUpdatePassword = async (event) => {
     event.preventDefault();
     setError("");
@@ -85,17 +77,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5279/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Email: email, Token: otp, NewPassword: newPassword }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to update password.");
-      }
-
+      await verifyOtpAndUpdatePassword(email, otp, newPassword); // Call API from separate folder
       setMessage("Password updated successfully! Redirecting to login...");
       setTimeout(() => {
         window.location.href = "/login"; // Redirect to login page
@@ -109,10 +91,13 @@ export default function ResetPasswordPage() {
 
   return (
     <div className={styles.container}>
+        
       <div className={styles.card}>
         <img src="/logo.svg" alt="Innoage Logo" className={styles.logo} />
         <h2 className={styles.title}>Welcome To Inno Age</h2>
         <p className={styles.subtitle}>Trouble logging in?</p>
+
+        {error && <p className={styles.error}>{error}</p>}
 
         <form
           ref={formRef}
@@ -161,13 +146,6 @@ export default function ResetPasswordPage() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
                 />
-                {/* <button
-                  type="button"
-                  className={styles.eyeButton}
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button> */}
               </div>
 
               {/* Confirm Password Input */}
@@ -196,8 +174,8 @@ export default function ResetPasswordPage() {
           )}
         </form>
 
-        {/* ✅ Display Messages */}
-        {error && <p className={styles.error}>{error}</p>}
+        {/* Display Messages */}
+      
         {message && <p className={styles.success}>{message}</p>}
 
         <p className={styles.footerText}>
