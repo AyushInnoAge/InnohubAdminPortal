@@ -118,6 +118,8 @@ const NominationForm = () => {
                 );
             }
 
+
+
             setFilteredEmployees(filtered);
             setShowEmployeeDropdown(filtered.length > 0);
         }
@@ -208,6 +210,7 @@ const NominationForm = () => {
         let employeeManager = null;
         if (userRole === "HR" && selectedRole === "Star of the month") {
             const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
+            console.log("Team Leader ID:", teamLeaderId);
 
             if (teamLeaderId) {
                 employeeManager = managers.find(mgr => mgr.id === teamLeaderId);
