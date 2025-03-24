@@ -146,13 +146,6 @@ export default function ResetPasswordPage() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
                 />
-                {/* <button
-                  type="button"
-                  className={styles.eyeButton}
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button> */}
               </div>
 
               {/* Confirm Password Input */}
