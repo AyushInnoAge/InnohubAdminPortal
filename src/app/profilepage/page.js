@@ -45,8 +45,8 @@ export default function ProfilePage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            Email: "itsmanish0001@gmail.com",
-            Password: "manish123",
+            Email: "",
+            Password: "",
           }),
         });
   
