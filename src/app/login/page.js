@@ -1,20 +1,20 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./login.module.css";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../Components/AuthContext";
+import { AuthContext } from "@/context/AuthContext";
 import API_ENDPOINTS from "@/app/config/apiconfig";
 import { loginUser } from "@/_api_/loginapi";
 
 export default function LoginPage() {
+  const {login}= useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");  // Added this
-  const { setUser } = useAuth();
   const formRef = useRef(null);
   const API_URL = API_ENDPOINTS.LOGIN_API;
   const router = useRouter();
@@ -63,13 +63,11 @@ export default function LoginPage() {
       if (data.statusCode === 200 && data.message?.token) {
         const token = data.message.token;
         const userdata = data.message.user;
-        
-        // Store results in main folder context/storage
-        localStorage.setItem("userData", JSON.stringify(userdata));
-        localStorage.setItem("token", token);
-        setUser(userdata); // Update auth context
-        
+        // localStorage.setItem("userData", JSON.stringify(userdata));
+        localStorage.setItem("token", token); // Store token in localStorage
+        login(userdata);
         console.log("Token from Login: ", token);
+        router.push("/dashboard");;
         setMessage("Login successful! Redirecting...");
 
         setTimeout(() => {

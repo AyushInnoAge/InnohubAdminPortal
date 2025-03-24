@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 // import { jwtDecode } from "jwt-decode";
 import styles from "./NominationForm.module.css";
 import { GiTrophyCup } from "react-icons/gi";
 import { motion } from "framer-motion";
-import { useAuth } from "../Components/AuthContext";
+import { AuthContext } from "@/context/AuthContext";
 import { fetchManagers, submitNomination, fetchEmployees } from "@/_api_/nominationapi";  //Import data form api
  
 const NominationForm = () => {
@@ -21,7 +21,6 @@ const NominationForm = () => {
  
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [selectedManager, setSelectedManager] = useState(null);
-    const { user, setUser } = useAuth();
     const [selectedRole, setSelectedRole] = useState(null);
     const [reason, setReason] = useState("");
     const [message, setMessage] = useState("");
@@ -30,36 +29,10 @@ const NominationForm = () => {
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
     const [showManagerDropdown, setShowManagerDropdown] = useState(false);
     const [showRoleDropdown, setShowRoleDropdown] = useState(false);
- 
+    const { user } = useContext(AuthContext);
     //Multiple Managers
     const [selectedManagers, setSelectedManagers] = useState([]);
- 
-    // useEffect(()=>{
-    //     if(user){
-    //       setUserData({
-    //         Name:user?.name || "...",
-    //         userId:user?.id || ".." ,
-    //         Role:user?.role || "Software devloper",
-    //         Designation:user?.designation || "..",
-    //         Image:`https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`,
-    //         department:user?.department || "IT",
-    //       })
-    //     }
- 
-    //     console.log("Updated Profile Data previous:", {
-    //         FullName: user.name,
-    //         EmpID: user.employeeId,
-    //         Role: user.userRole,
-    //         Team: user.department,
-    //         Designation: user.designation,
-    //         Email: user.email,
-    //         Phone: user.phoneNo,
-    //         Address: user.address,
-     
-    //     });
-    //   },[user]);
- 
- 
+
     const [roles] = useState([
         // "Employee Of The Month",
         "Star Of The Month",
@@ -72,98 +45,115 @@ const NominationForm = () => {
  
     const [userRole, setUserRole] = useState("");
  
-    //hardcoded
-    const [profileData, setProfileData] = useState({
-        Name: "",
-        EmpID: "",
-        Role: "",
-        Team: "",
-        Department:"",
-        Designation: "",
-        Email: "",
-        Phone: "",
-        Address: "",
+    // //hardcoded
+    // const [profileData, setProfileData] = useState({
+    //     Name: "",
+    //     EmpID: "",
+    //     Role: "",
+    //     Team: "",
+    //     Department:"",
+    //     Designation: "",
+    //     Email: "",
+    //     Phone: "",
+    //     Address: "",
        
-      });
+    //   });
    
      
-      useEffect(() => {
-        const fetchUserProfile = async () => {
-          try {
-            const response = await fetch("http://localhost:5279/login", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                Email: "singhakash6203@gmail.com",
-                Password: "manish1234",
-              }),
-            });
+    //   useEffect(() => {
+    //     const fetchUserProfile = async () => {
+    //       try {
+    //         const response = await fetch("http://localhost:5279/login", {
+    //           method: "POST",
+    //           headers: {
+    //             "Content-Type": "application/json",
+    //           },
+    //           body: JSON.stringify({
+    //             Email: "singhakash6203@gmail.com",
+    //             Password: "manish1234",
+    //           }),
+    //         });
      
-            if (!response.ok) {
-              throw new Error("Failed to fetch user data");
-            }
+    //         if (!response.ok) {
+    //           throw new Error("Failed to fetch user data");
+    //         }
      
-            const data = await response.json();
-            console.log("Full API Response:", data);
+    //         const data = await response.json();
+    //         console.log("Full API Response:", data);
      
-            if (data.statusCode === 200 && data.message?.user) {
-              console.log("User data:", data.message.user);
-              const user = data.message.user;
-              console.log(user.email,">>>>>>>>>>>>>>>>>>>>>>");
-              const token = data.message.token;
+    //         if (data.statusCode === 200 && data.message?.user) {
+    //           console.log("User data:", data.message.user);
+    //           const user = data.message.user;
+    //           console.log(user.email,">>>>>>>>>>>>>>>>>>>>>>");
+    //           const token = data.message.token;
              
-              // Store token in localStorage
-              localStorage.setItem("token", token);
+    //           // Store token in localStorage
+    //           localStorage.setItem("token", token);
      
-              // Update profile state with fetched data
-              setProfileData({
-                FullName: user.name || "N/A",
-                EmpID: user.employeeId || "N/A",
-                Role: user.userRole === 0 ? "Employee" : "Admin",
-                Team: user.department || "N/A",
-                Department: user.department || "N/A",
-                Designation: user.designation || "N/A",
-                Email: user.email || "N/A",
-                Phone: user.phoneNo || "N/A",
-                Address: user.address || "N/A",
-              });
-              console.log("Updated Profile Data:", {
-                FullName: user.name,
-                EmpID: user.employeeId,
-                Role: user.userRole,
-                Team: user.department,
-                Designation: user.designation,
-                Email: user.email,
-                Phone: user.phoneNo,
-                Address: user.address,
+    //           // Update profile state with fetched data
+    //           setProfileData({
+    //             FullName: user.name || "N/A",
+    //             EmpID: user.employeeId || "N/A",
+    //             Role: user.userRole === 0 ? "Employee" : "Admin",
+    //             Team: user.department || "N/A",
+    //             Department: user.department || "N/A",
+    //             Designation: user.designation || "N/A",
+    //             Email: user.email || "N/A",
+    //             Phone: user.phoneNo || "N/A",
+    //             Address: user.address || "N/A",
+    //           });
+    //           console.log("Updated Profile Data:", {
+    //             FullName: user.name,
+    //             EmpID: user.employeeId,
+    //             Role: user.userRole,
+    //             Team: user.department,
+    //             Designation: user.designation,
+    //             Email: user.email,
+    //             Phone: user.phoneNo,
+    //             Address: user.address,
          
-            });
+    //         });
            
-            const role_obj = {
-                1:"Admin",
-                2:"HR",
-                3:"TeamLeader",
-                4:"Employee"
-            }
+    //         const role_obj = {
+    //             1:"Admin",
+    //             2:"HR",
+    //             3:"TeamLeader",
+    //             4:"Employee"
+    //         }
  
-            setUserRole(role_obj[user.userRole]);
-            setEmployeeId(user.id);
+    //         setUserRole(role_obj[user.userRole]);
+    //         setEmployeeId(user.id);
  
-            }
-            else {
-              console.error("Invalid response structure", data);
-            }
-          } catch (error) {
-            console.error("Error fetching login:", error);
-          }
-        };
+    //         }
+    //         else {
+    //           console.error("Invalid response structure", data);
+    //         }
+    //       } catch (error) {
+    //         console.error("Error fetching login:", error);
+    //       }
+    //     };
      
-        fetchUserProfile();
-      }, []);
+    //     fetchUserProfile();
+    //   }, []);
    
     //   console.log(employeeId);
+
+
+
+    useEffect(() => {   
+        const role_obj = {
+                        1:"Admin",
+                        2:"HR",
+                        3:"TeamLeader",
+                        4:"Employee"
+                    }
+         
+
+             setUserRole(role_obj[user.userRole]);
+             setEmployeeId(user.id);
+             console.log("User Data in NominationForm:", userRole);
+
+           }, []);
  
       useEffect(() => {
         console.log("User Data in NominationForm:", user);
