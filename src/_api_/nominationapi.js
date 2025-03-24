@@ -12,7 +12,7 @@ export const fetchEmployees = async (userRole, selectedRole, employeeId) => {
     let api = "";
   
     if (userRole === "HR") {
-      if (selectedRole === "Star Of The Month") {
+      if (selectedRole === "Star of the month") {
         api = API_ENDPOINTS.FETCH_NOMINATED_EMPLOYEES;
       } else if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
         api = API_ENDPOINTS.FETCH_ALL_TEAMS;
@@ -46,7 +46,7 @@ export const fetchEmployees = async (userRole, selectedRole, employeeId) => {
   
       let data = await response.json();
   
-      if (userRole === "Employee" && selectedRole === "ShoutOut") {
+      if (userRole === "Employee" && selectedRole === "Shoutout") {
         data = data.filter(emp => emp.id !== employeeId);
       }
   
@@ -102,7 +102,7 @@ export const submitNomination = async (selectedEmployee, selectedManagers, selec
   
       let UserId;
       if (userRole === "HR") {
-        if (selectedRole === "Star Of The Month" || selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
+        if (selectedRole === "Star of the month" || selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
           UserId = selectedEmployee.userId; // Use `userId` for "Star Of The Month" and "Best Team Leader"
         } else if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
           UserId = selectedEmployee.id; // Use `teamId` for "Best Team"
@@ -129,7 +129,7 @@ export const submitNomination = async (selectedEmployee, selectedManagers, selec
       if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
         obj.TeamId = selectedEmployee.id;
       } else {
-        if (userRole === "HR" && selectedRole === "Star Of The Month") {
+        if (userRole === "HR" && selectedRole === "Star of the month") {
           obj.UserId = selectedEmployee.userId;
         } else {
           obj.UserId = selectedEmployee.id;

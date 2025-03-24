@@ -36,12 +36,12 @@ const NominationForm = () => {
 
     const [roles] = useState([
         // "Employee Of The Month",
-        "Star Of The Month",
+        "Star of the month",
         "Best Team (yearly)",
         "Best Team Leader (yearly)",
         "Best Team (Half yearly)",
         "Best Team Leader (Half yearly)",
-        "ShoutOut"
+        "Shoutout"
     ]);
     useEffect(() => {
         if (user) { // Ensure user is available before setting state
@@ -101,8 +101,8 @@ const NominationForm = () => {
                     filtered = employees.filter(emp =>
                         emp.teamName?.toLowerCase().startsWith(searchTerm.toLowerCase())
                     );
-                } else if (selectedRole === "Star Of The Month") {
-                    // Filter by userName for Star Of The Month
+                } else if (selectedRole === "Star of the month") {
+                    // Filter by userName for Star of the month
                     filtered = employees.filter(emp =>
                         emp.user?.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
                     );
@@ -159,13 +159,13 @@ const NominationForm = () => {
 
         switch (userRole.toLowerCase()) {
             case "hr":
-                filtered = roles.filter(role => role.toLowerCase() !== "ShoutOut"); // HR sees all categories except "ShoutOut"
+                filtered = roles.filter(role => role.toLowerCase() !== "Shoutout"); // HR sees all categories except "Shoutout"
                 break;
             case "teamleader":
                 filtered = roles.filter(role => !role.toLowerCase().includes("team")); // TeamLeader can't see team-related categories
                 break;
             case "employee":
-                filtered = ["ShoutOut"]; // Employee can only see "ShoutOut"
+                filtered = ["Shoutout"]; // Employee can only see "Shoutout"
                 break;
             default:
                 filtered = []; // Default to empty if the role is unknown
@@ -189,7 +189,7 @@ const NominationForm = () => {
             if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
                 setSearchTerm(employee.teamName);
             }
-            else if (selectedRole === "Star Of The Month") {
+            else if (selectedRole === "Star of the month") {
                 setSearchTerm(employee.user.name);
             }
             else {
@@ -208,7 +208,7 @@ const NominationForm = () => {
         // Get manager based on role condition
 
         let employeeManager = null;
-        if (userRole === "HR" && selectedRole === "Star Of The Month") {
+        if (userRole === "HR" && selectedRole === "Star of the month") {
             const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
             console.log("Team Leader ID:", teamLeaderId);
 
@@ -379,7 +379,7 @@ const NominationForm = () => {
                                     {userRole === "HR" ? (
                                         selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)"
                                             ? employee.teamName
-                                            : selectedRole === "Star Of The Month"
+                                            : selectedRole === "Star of the month"
                                                 ? employee.user.name
                                                 : employee.name
                                     ) : employee.name}
