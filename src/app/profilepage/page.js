@@ -59,7 +59,7 @@ export default function ProfilePage() {
         if (data.statusCode === 200 && data.message?.user) {
           console.log("User data:", data.message.user);
           const user = data.message.user;
-          console.log(user.email,">>>>>>>>>>>>>>>>>>>>>>"); 
+         
           const token = data.message.token;
           
           // Store token in localStorage
