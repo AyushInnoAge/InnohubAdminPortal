@@ -1,13 +1,24 @@
+
 import axios from "axios";
+
+const getToken = () => {
+  return typeof window !== "undefined" ? localStorage.getItem("token") : null;
+};
+
 
 const DashboardDataFetch = async (lastFetchedDate) => {
   try {
+    const token = getToken();
     const url = lastFetchedDate
       ? `apiDashboard/GetAllPostFromServices?lastFetchedDate=${lastFetchedDate}`
       : `apiDashboard/GetAllPostFromServices`;
 
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}${url}`
+      `${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, 
+      },
+    }
     );
     return response.data.message;
   } catch (error) {
@@ -17,9 +28,14 @@ const DashboardDataFetch = async (lastFetchedDate) => {
 
 const LikeSubmite = async (likeData) => {
   try {
+    const token = getToken();
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}apiDashboard/InsertLike`,
-      likeData
+      likeData, {
+      headers: {
+        Authorization: `Bearer ${token}`, 
+      },
+    }
     );
     return response;
   } catch (error) {
@@ -29,9 +45,14 @@ const LikeSubmite = async (likeData) => {
 
 const CommentAdd = async (commentData) => {
   try {
+    const token = getToken();
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}apiDashboard/commentAdd`,
-      commentData
+      commentData, {
+      headers: {
+        Authorization: `Bearer ${token}`, 
+      },
+    }
     );
     return response;
   } catch (error) {
@@ -41,9 +62,14 @@ const CommentAdd = async (commentData) => {
 
 const PollUpdate = async (PollData) => {
   try {
+    const token = getToken();
     const response = await axios.patch(
       `${process.env.NEXT_PUBLIC_API_URL}apiDashboard/Updatepoll`,
-      PollData
+      PollData, {
+      headers: {
+        Authorization: `Bearer ${token}`, 
+      },
+    }
     );
     return response;
   } catch (error) {
@@ -53,9 +79,14 @@ const PollUpdate = async (PollData) => {
 
 const UploadPost = async (formData) => {
   try {
+    const token = getToken();
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}apiDashboard/InsertPost`,
-      formData
+      formData, {
+      headers: {
+        Authorization: `Bearer ${token}`, 
+      },
+    }
     );
     return response;
   } catch (error) {
@@ -65,9 +96,14 @@ const UploadPost = async (formData) => {
 
 const UploadPoll = async (formDataToSend) => {
   try {
+    const token = getToken();
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}apiDashboard/InsertPost`,
-      formDataToSend
+      formDataToSend, {
+      headers: {
+        Authorization: `Bearer ${token}`, 
+      },
+    }
     );
     return response;
   } catch (error) {

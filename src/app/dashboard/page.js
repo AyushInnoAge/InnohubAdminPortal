@@ -4,9 +4,6 @@ import PostInput from "./(dashboardComponents)/PostInputSection";
 import SidebarProfile from "./(dashboardComponents)/SlideBar";
 import { useEffect, useState, useContext, useRef, createContext } from "react";
 import PollCard from "./(dashboardComponents)/PollCard";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { useRouter } from "next/navigation";
 import BirthdayCard from "./(dashboardComponents)/BirthdayCard";
 import AppreciationCard from "./(dashboardComponents)/AppreciationCard";
 import FestivalCard from "./(dashboardComponents)/Festivale";
@@ -16,9 +13,6 @@ import { AuthContext } from "@/context/AuthContext";
 export const DashboardStatus = createContext();
 export default function Home() {
   const { user } = useContext(AuthContext);
-
-  // const { user } = auth;
-  const router = useRouter();
   const [dashboardData, setDashboardData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -26,32 +20,8 @@ export default function Home() {
   const lastPostRef = useRef(null);
   const [lastFetchedDate, setLastFetchedDate] = useState(null);
   const [hasMoredata, setHasMoreData] = useState(true);
-  //Token Arrangment
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log("user from contextApi=>", user);
-    console.log("token => ", token);
-    if (!token) return (window.location.href = "/login");
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const expiry = payload.exp * 1000;
-
-      if (Date.now() > expiry) {
-        localStorage.removeItem("token");
-        return router.push("/login");
-      }
-
-      // setDecoded(jwtDecode(token)); // Decode after validation
-    } catch {
-      console.log("Invalid Token");
-      localStorage.removeItem("token");
-      return router.push("/login");
-    }
-  }, []);
-
-  //Fetch Data For Dashboard Data By USing Api Call
-  useEffect(() => {
-    console.log("page: =>", page);
     fetchPosts();
   }, [page]);
 
@@ -60,7 +30,6 @@ export default function Home() {
     setLoading(true);
     try {
       const response = await DashboardDataFetch(lastFetchedDate);
-      console.log("res=> ", response);
 
       if (response.length > 0) {
         setDashboardData((prev) => [...prev, ...response]);
@@ -77,12 +46,11 @@ export default function Home() {
     setLoading(false);
   };
 
-  //Page change cheak
+ 
   useEffect(() => {
     if (!observerRef.current) {
       observerRef.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && !loading) {
-          // Prevents API calls while still loading
           setPage((prev) => prev + 1);
         }
       });
@@ -93,18 +61,15 @@ export default function Home() {
 
     return () => {
       if (lastPostRef.current) {
-        observerRef.current.unobserve(lastPostRef.current); // Cleanup observer
+        observerRef.current.unobserve(lastPostRef.current); 
       }
     };
   }, [dashboardData, loading]);
 
-  //dashboard data
-  useEffect(() => {
-    console.log("Dashboard Data: ", dashboardData);
-  }, [dashboardData]);
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
+      
       <div className="hidden md:flex md:w-1/5 lg:w-1/6 p-4 bg-white shadow-md flex-col">
         <SidebarProfile
           UserProfileImage={
@@ -119,7 +84,7 @@ export default function Home() {
 
       <div className="flex flex-col w-full md:w-4/5 lg:w-5/6 p-4 overflow-y-auto h-screen space-y-6">
         <div className="w-full max-w-4xl mx-auto">
-          <DashboardStatus.Provider value={{ setDashboardData, setLoading }}>
+          <DashboardStatus.Provider value={{ setDashboardData, setLoading, setLastFetchedDate }}>
             <PostInput
               UserProfileImage={
                 user?.image?.trim()
@@ -207,8 +172,6 @@ export default function Home() {
               </div>
             ))
           )}
-          {/* <AppreciationCard />
-          <PollCard /> */}
         </div>
       </div>
       {loading && <h1 className="text-center">Loading more posts...</h1>}
