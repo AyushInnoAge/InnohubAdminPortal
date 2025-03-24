@@ -1,24 +1,27 @@
 import { useState, useContext } from "react";
 import { Image, X, Smile } from "lucide-react";
-import EmojiPicker from "emoji-picker-react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
-import { PostContext } from "../../Components/ContextApi";
+import { AuthContext } from "@/context/AuthContext";
+import { DashboardStatus } from "../page.js";
+import {
+  DashboardDataFetch,
+  UploadPoll,
+  UploadPost,
+} from "@/_api_/dashboard.js";
 
-
-const PostInput = ({ profileUrl }) => {
+const PostInput = ({ UserProfileImage }) => {
+  const { user } = useContext(AuthContext);
+  const { setDashboardData, setLoading, setLastFetchedDate } = useContext(DashboardStatus);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
   const [postDescription, setPostDescription] = useState("");
   const [postTitle, setPostTitle] = useState("");
-  const [pollTitle, setPollTitle] = useState("")
-  const [pollDescription, setPollDescription] = useState("")
+  const [pollTitle, setPollTitle] = useState("");
+  const [pollDescription, setPollDescription] = useState("");
   const [image, setImage] = useState(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [value, setValue] = useState("");
-
-  const { dashboardData, setDashboardData, userData } = useContext(PostContext)
-
+  const [actualImageFile, setActualImageFile] = useState(null);
+  const [postButtonDisable, setPostButtonDisable] = useState(false);
+  const [pollButtonDisable, setPollButtonDisable] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -26,7 +29,6 @@ const PostInput = ({ profileUrl }) => {
     setPostTitle("");
     setPostDescription("");
     setImage(null);
-    setShowEmojiPicker(false);
   };
 
   const openPollModal = () => setIsPollModalOpen(true);
@@ -34,87 +36,81 @@ const PostInput = ({ profileUrl }) => {
     setIsPollModalOpen(false);
     setPollTitle("");
     setPollDescription("");
-  }
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImage(URL.createObjectURL(file));
+      setActualImageFile(file);
     }
   };
 
+
   const handleSavePost = async () => {
-    var data = {
-      type: "Post",
-      image: image,
-      title: postTitle,
-      description: postDescription,
-      userId: userData.userId,
-      created_at: new Date().toISOString()
+    setPostButtonDisable(true);
+    const formData = new FormData();
+    formData.append("type", "Post");
+    formData.append("type", "Post");
+    formData.append("title", postTitle);
+    formData.append("description", postDescription);
+    formData.append("userId", user.id);
+    formData.append("created_at", new Date().toISOString());
+    if (actualImageFile) {
+      formData.append("image", actualImageFile);
     }
 
-    var file = "";
-    if (image != null) {
-      file = new File([image], "default-name.jpg", { type: image.type })
-      console.log(file)
+    try {
+      await UploadPost(formData);
+      closeModal();
+      setDashboardData([]);
+      const response = await DashboardDataFetch();
+      setDashboardData(response);
+      let time = response[response.length - 1]?.nominationData
+        ? response[response.length - 1]?.nominationData?.verifiedAt
+        : response[response.length - 1]?.postData?.created_at;
+      setLastFetchedDate(time);
+      
+    } catch (error) {
+      throw new error.message();
+    }finally{
+      setPostButtonDisable(false);
     }
-
-    const formDataToSend = new FormData();
-    formDataToSend.append("Type", "Post");
-    formDataToSend.append("image", file);
-    formDataToSend.append("title", postTitle);
-    formDataToSend.append("description", postDescription)
-    formDataToSend.append("userId", userData.userId)
-    formDataToSend.append("created_at", new Date().toISOString());
-    // setDashboardData(data);
-    for (let pair of formDataToSend.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
-    }
-    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", formDataToSend);
-
-    setDashboardData(preData => [data, ...preData]);
-    console.log(data);
-    closeModal();
   };
 
   const handelSavePoll = async () => {
-
-    var data= {
-      type:"Poll",
-      title:pollTitle,
-      poll:pollDescription,
-      userId:userData.userId,
-      created_at:new Date().toISOString()
-    }
-
+    setPollButtonDisable(true);
     const formDataToSend = new FormData();
     formDataToSend.append("Type", "Poll");
     formDataToSend.append("image", "");
     formDataToSend.append("title", pollTitle);
-    formDataToSend.append("description", pollDescription)
-    formDataToSend.append("userId", userData.userId)
+    formDataToSend.append("description", pollDescription);
+    formDataToSend.append("userId", user.id);
     formDataToSend.append("created_at", new Date().toISOString());
 
-    var response = await axios.post("http://localhost:5279/apiDashboard/InsertPost", formDataToSend);
-
-    setDashboardData(preData => [data, ...preData]);
-    console.log("Poll Saved: ", data);
-    closePollModal();
-  }
-
-  const handleEmojiClick = (emojiObject) => {
-    setPostText((prev) => prev + emojiObject.emoji);
-
+    try {
+      await UploadPoll(formDataToSend);
+      closePollModal();
+      setDashboardData([]);
+      const response = await DashboardDataFetch();
+      setDashboardData(response);
+      let time = response[response.length - 1]?.nominationData
+        ? response[response.length - 1]?.nominationData?.verifiedAt
+        : response[response.length - 1]?.postData?.created_at;
+      setLastFetchedDate(time);
+    } catch (error) {
+      throw new error.message();
+    }finally{
+      setPollButtonDisable(false);
+    }
   };
-
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4 w-full max-w-lg mx-auto">
-
       <div className="flex items-center space-x-4">
-        <button onClick={() => window.open(profileUrl, "_blank")}>
+        <button onClick={() => window.open(UserProfileImage, "_blank")}>
           <img
-            src={profileUrl}
+            src={UserProfileImage}
             alt="Profile"
             className="w-10 h-10 rounded-full object-cover"
           />
@@ -159,7 +155,6 @@ const PostInput = ({ profileUrl }) => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
             >
-
               <button
                 onClick={closeModal}
                 className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-all"
@@ -185,21 +180,6 @@ const PostInput = ({ profileUrl }) => {
                 className="w-full mt-4 p-2 border rounded-lg resize-none text-black"
               />
 
-              <button
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="flex items-center space-x-2 text-yellow-500 mt-2"
-              >
-                <Smile size={20} />
-                <span>Emoji</span>
-              </button>
-
-              {showEmojiPicker && (
-                <div className="absolute mt-2 z-50">
-                  <EmojiPicker onEmojiClick={handleEmojiClick} />
-                </div>
-              )}
-
-
               {image && (
                 <div className="mt-4">
                   <img
@@ -209,7 +189,6 @@ const PostInput = ({ profileUrl }) => {
                   />
                 </div>
               )}
-
 
               <label className="flex items-center space-x-2 cursor-pointer text-blue-500 mt-4">
                 <Image size={20} />
@@ -221,14 +200,16 @@ const PostInput = ({ profileUrl }) => {
                 />
               </label>
 
-
               <div className="flex space-x-2 mt-4">
                 <button
                   onClick={handleSavePost}
-                  disabled={(!postTitle && !postDescription) && !image}
-                  className={`px-4 py-2 rounded-lg w-full ${(!postTitle && !postDescription) && !image
-                    ? "bg-gray-500 text-white cursor-not-allowed"
-                    : "bg-blue-500 text-white"
+                  disabled={
+                    (!postTitle && !postDescription && !image) ||
+                    postButtonDisable
+                  }
+                  className={`px-4 py-2 rounded-lg w-full ${((!postTitle && !postDescription && !image) ||postButtonDisable)
+                      ? "bg-gray-500 text-white cursor-not-allowed"
+                      : "bg-blue-500 text-white"
                     }`}
                 >
                   Post
@@ -243,10 +224,7 @@ const PostInput = ({ profileUrl }) => {
             </motion.div>
           </motion.div>
         )}
-
       </AnimatePresence>
-
-
 
       <AnimatePresence>
         {isPollModalOpen && (
@@ -262,14 +240,12 @@ const PostInput = ({ profileUrl }) => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
             >
-
               <button
                 onClick={closePollModal}
                 className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-all"
               >
                 <X size={24} />
               </button>
-
 
               <h2 className="text-lg font-semibold text-center text-black">
                 Create Polls and Surveys:
@@ -280,25 +256,16 @@ const PostInput = ({ profileUrl }) => {
                 value={pollTitle}
                 onChange={(e) => setPollTitle(e.target.value)}
                 className="w-full p-2 mb-2 border border-gray-300 rounded text-black"
-                placeholder="Query"
+                placeholder="Description"
               />
-
-              <input
-                type="text"
-                value={pollDescription}
-                onChange={(e) => setPollDescription(e.target.value)}
-                className="w-full p-2 mb-2 border border-gray-300 rounded text-black"
-                placeholder="Query"
-              />
-
 
               <div className="flex space-x-2 mt-4">
                 <button
                   onClick={handelSavePoll}
-                  disabled={!pollTitle && !pollDescription}
-                  className={`px-4 py-2 rounded-lg w-full ${(!pollTitle && !pollDescription)
-                    ? "bg-gray-500 text-white cursor-not-allowed"
-                    : "bg-blue-500 text-white"
+                  disabled={(!pollTitle && !pollDescription)||pollButtonDisable}
+                  className={`px-4 py-2 rounded-lg w-full ${((!pollTitle && !pollDescription)|| pollButtonDisable)
+                      ? "bg-gray-500 text-white cursor-not-allowed"
+                      : "bg-blue-500 text-white"
                     }`}
                 >
                   Post
