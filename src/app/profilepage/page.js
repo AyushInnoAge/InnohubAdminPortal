@@ -16,6 +16,7 @@ export default function ProfilePage() {
     EmpID: "",
     Role: "",
     Team: "",
+    Department:"",
     Designation: "",
     Email: "",
     Phone: "",
@@ -36,7 +37,7 @@ export default function ProfilePage() {
   }, []);
   
   useEffect(() => {
-    const login = async () => {
+    const fetchUserProfile = async () => {
       try {
         const response = await fetch("http://localhost:5279/login", {
           method: "POST",
@@ -44,40 +45,50 @@ export default function ProfilePage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email: "shahivedant1@gmail.com",
-            password: "ved@123",
+            Email: "itsmanish0001@gmail.com",
+            Password: "manish123",
           }),
         });
-        console.log(response.response)
-
+  
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+  
         const data = await response.json();
-
-        if (data.success) {
-          console.log(data);
-          const token = data.response.token;
+  
+        if (data.statusCode === 200 && data.message?.user) {
+          console.log("User data:", data.message.user);
+          const user = data.message.user;
+          console.log(user.email,">>>>>>>>>>>>>>>>>>>>>>"); 
+          const token = data.message.token;
+          
+          // Store token in localStorage
           localStorage.setItem("token", token);
-          const decoded = jwtDecode(token);
-
+  
+          // Update profile state with fetched data
           setProfileData({
-            FullName: decoded.Name || "",
-            EmpID: decoded.EmployeeId || "",
-            Role: decoded.Role || "",
-            Team: decoded.Team || "",
-            Designation: decoded.Designation || "",
-            Email: decoded.EmailId || "",
-            Phone: decoded.PhoneNo || "",
-            Address: decoded.Address || "",
-            profilePicture: "/profile.jpg",
+            FullName: user.name || "N/A",
+            EmpID: user.employeeId || "N/A",
+            Role: user.userRole === 0 ? "Employee" : "Admin",
+            Team: user.department || "N/A",
+            Department: user.department || "N/A",
+            Designation: user.designation || "N/A",
+            Email: user.email || "N/A",
+            Phone: user.phoneNo || "N/A",
+            Address: user.address || "N/A",
+            profilePicture: user.image || "/profile.jpg",
           });
+        } else {
+          console.error("Invalid response structure", data);
         }
       } catch (error) {
         console.error("Error fetching login:", error);
       }
     };
-
-    login();
+  
+    fetchUserProfile();
   }, []);
-
+  
   const handleEdit = async () => {
     if (editMode) {
       try {
@@ -156,7 +167,7 @@ export default function ProfilePage() {
             <h2 className="profile-name">{profileData.FullName}</h2>
             <p className="profile-role">{profileData.Role}</p>
             <p className="profile-designation">{profileData.Designation}</p>
-            <p className="profile-designation">IT Department</p>
+            <p className="profile-designation">{profileData.Department}</p>
             <p className="profile-address">{profileData.Address}</p>
             <div className="badges">
               <h3 className="badge-title">Badges Earned</h3>
@@ -178,11 +189,11 @@ export default function ProfilePage() {
                   <input
                     type="text"
                     name="fullName"
-                    value={profileData.fullName}
+                    value={profileData.FullName}
                     onChange={handleChange}
                   />
                 ) : (
-                  <p>{profileData.fullName}</p>
+                  <p>{profileData.FullName}</p>
                 )}
               </div>
               <div className="info-row">
@@ -200,11 +211,11 @@ export default function ProfilePage() {
                   <input
                     type="email"
                     name="email"
-                    value={profileData.email}
+                    value={profileData.Email}
                     onChange={handleChange}
                   />
                 ) : (
-                  <p>{profileData.email}</p>
+                  <p>{profileData.Email}</p>
                 )}
               </div>
               <div className="info-row">
@@ -213,11 +224,11 @@ export default function ProfilePage() {
                   <input
                     type="text"
                     name="phone"
-                    value={profileData.phone}
+                    value={profileData.Phone}
                     onChange={handleChange}
                   />
                 ) : (
-                  <p>{profileData.phone}</p>
+                  <p>{profileData.Phone}</p>
                 )}
               </div>
 
@@ -227,11 +238,11 @@ export default function ProfilePage() {
                   <input
                     type="text"
                     name="address"
-                    value={profileData.address}
+                    value={profileData.Address}
                     onChange={handleChange}
                   />
                 ) : (
-                  <p>{profileData.address}</p>
+                  <p>{profileData.Address}</p>
                 )}
               </div>
             <button className="edit-btn" onClick={handleEdit}>
