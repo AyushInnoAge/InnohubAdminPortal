@@ -56,10 +56,6 @@ const NominationForm = () => {
         }
     }, [user]); // Dependency on `user` ensures it updates correctly
 
-    useEffect(() => {
-        console.log("Updated User Data in NominationForm:", { userRole, employeeId });
-    }, [userRole, employeeId]);
-
     //message display time
     useEffect(() => {
         if (message) {
@@ -117,6 +113,8 @@ const NominationForm = () => {
                     emp.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
                 );
             }
+
+
 
             setFilteredEmployees(filtered);
             setShowEmployeeDropdown(filtered.length > 0);
