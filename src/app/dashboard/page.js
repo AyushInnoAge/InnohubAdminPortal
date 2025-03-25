@@ -32,9 +32,8 @@ export default function Home() {
       const response = await DashboardDataFetch(lastFetchedDate);
 
       if (response.length > 0) {
-        setTimeout(() => {
           setDashboardData((prev) => [...prev, ...response]);
-        }, 1000);
+      
         let time = response[response.length - 1]?.nominationData
           ? response[response.length - 1]?.nominationData?.verifiedAt
           : response[response.length - 1]?.postData?.created_at;
@@ -176,7 +175,6 @@ export default function Home() {
           )}
         </div>
       </div>
-      {loading && <h1 className="text-center text-black">Loading more posts...</h1>}
     </div>
   );
 }
