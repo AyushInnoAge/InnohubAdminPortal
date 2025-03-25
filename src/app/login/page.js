@@ -58,7 +58,6 @@ export default function LoginPage() {
 
     try {
       const data = await loginUser(email, password); // Call API from separate folder
-      console.log(data);
 
       if (data.statusCode === 200 && data.message?.token) {
         const token = data.message.token;
@@ -66,7 +65,6 @@ export default function LoginPage() {
 
         localStorage.setItem("token", token); // Store token in localStorage
         login(userdata);
-        console.log("Token from Login: ", token);
         setTimeout(() => {
           router.push("/dashboard");
         }, 1500);
@@ -75,7 +73,6 @@ export default function LoginPage() {
       }
     } catch (error) {
       setError(error.message || "Something went wrong");
-      console.error("Login failed:", error);
     }
   };
 

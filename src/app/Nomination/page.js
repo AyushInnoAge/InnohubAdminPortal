@@ -56,10 +56,6 @@ const NominationForm = () => {
         }
     }, [user]); // Dependency on `user` ensures it updates correctly
 
-    useEffect(() => {
-        console.log("Updated User Data in NominationForm:", { userRole, employeeId });
-    }, [userRole, employeeId]);
-
     //message display time
     useEffect(() => {
         if (message) {
@@ -210,7 +206,6 @@ const NominationForm = () => {
         let employeeManager = null;
         if (userRole === "HR" && selectedRole === "Star of the month") {
             const teamLeaderId = employee?.user?.teamLeaderId;  // Safe access
-            console.log("Team Leader ID:", teamLeaderId);
 
             if (teamLeaderId) {
                 employeeManager = managers.find(mgr => mgr.id === teamLeaderId);
