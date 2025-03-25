@@ -1,19 +1,19 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef , useContext} from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./login.module.css";
 import { useRouter } from "next/navigation";
-
+import { AuthContext } from "@/context/AuthContext";
 export default function LoginPage() {
+  const {login}= useContext(AuthContext)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-
   const formRef = useRef(null);
   const API_URL = "http://localhost:5279/login";
-  const router= useRouter();
+  const router = useRouter();
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -46,23 +46,22 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-
+      console.log(data);
       if (!response.ok) {
         alert(data.message || "Invalid email or password");
         setError(data.message || "Invalid email or password");
         return;
       }
 
-      if(data.success){
-        const token = data.response.token
-          localStorage.setItem("token", token); // Store token in localStorage
-          console.log("Token from Login: ", token);
-          router.push("/dashboard");
-          
+      if (data.statusCode == 200) {
+        const token = data.message.token;
+        const userdata = data.message.user;
+        // localStorage.setItem("userData", JSON.stringify(userdata));
+        localStorage.setItem("token", token); // Store token in localStorage
+        login(userdata);
+        console.log("Token from Login: ", token);
+        router.push("/dashboard");
       }
-      
-
-      alert("Login Successful!");
     } catch (error) {
       alert("Network error. Please try again.");
       setError("Network error. Please try again.");
@@ -111,7 +110,9 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className={`${styles.button} ${!(email && password) ? styles.disabledButton : ""}`}
+            className={`${styles.button} ${
+              !(email && password) ? styles.disabledButton : ""
+            }`}
             disabled={!(email && password)}
           >
             Login
@@ -120,7 +121,9 @@ export default function LoginPage() {
 
         <p className={styles.footerText}>
           Forgot Your Password?{" "}
-          <Link href="/ResetPasswordEmail" className={styles.link}>Forgot Password</Link>
+          <Link href="/ResetPasswordEmail" className={styles.link}>
+            Forgot Password
+          </Link>
         </p>
       </div>
     </div>

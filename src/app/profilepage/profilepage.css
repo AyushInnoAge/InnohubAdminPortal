@@ -210,7 +210,10 @@
   
   .badge-title {
     color: #707BFF;
+    font-weight: bolder;
+    font-size: medium;
   }
+ 
   
   .section-title{
     color: #707BFF;

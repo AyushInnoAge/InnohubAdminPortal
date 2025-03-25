@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import {useContext, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import "./navbar.css";
@@ -11,6 +11,7 @@ import { GrDocumentPerformance } from "react-icons/gr";
 import { MdOutlineEvent } from "react-icons/md";
 import { IoBicycleOutline } from "react-icons/io5";
 import { RiGalleryFill } from "react-icons/ri";
+import { AuthContext } from "@/context/AuthContext";
 import {
   FaThLarge,
   FaBox,
@@ -21,6 +22,7 @@ import {
 } from "react-icons/fa";
 
 export default function Navbar() {
+   const { user,login } = useContext(AuthContext);
   const [isDropdownOpen, setDropdownOpen] = useState(null);
   const [isProfileOpen, setProfileOpen] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -113,8 +115,8 @@ export default function Navbar() {
               </div>
               {isDropdownOpen === "awards" && (
                 <div className="dropdown-content lower-dropdown">
-                  <Link href="/awards/employee-month" className="dropdown-item">
-                    Employee of the Month
+                  <Link href="/Nomination" className="dropdown-item">
+                    Nominations
                   </Link>
                   <Link href="/awards/top-performers" className="dropdown-item">
                     Top Performers
@@ -173,18 +175,18 @@ export default function Navbar() {
           <div className="right-container">
             <div className="profile-container">
               <button className="profile-btn" onClick={toggleProfileDropdown}>
-                <Image
-                  src="/profile1.webp"
+                <img
+                  src={user?.image}
                   alt="User"
                   className="profile-pic"
                   width={32}
                   height={32}
                 />
-                <span className="profile-text">Vedant</span>
+                <span className="profile-text">{user?.name}</span>
               </button>
               {isProfileOpen && (
                 <div className="profile-dropdown">
-                  <Link href="/profile/edit" className="dropdown-item">
+                  <Link href="/profilepage" className="dropdown-item">
                     Profile
                   </Link>
                   <Link href="/logout" className="dropdown-item">

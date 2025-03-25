@@ -1,80 +1,72 @@
 import { motion } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { ThumbsUp, MessageCircle } from "lucide-react";
-import axios from "axios";
-
-import { PostContext } from "@/app/Components/ContextApi";
 import CommentBox from "@/app/dashboard/(dashboardComponents)/CommentSection";
-
+import { LikeSubmite, CommentAdd } from "@/_api_/dashboard";
+import { AuthContext } from "@/context/AuthContext";
 const AnimatedPostCard = ({
-  profileImage,
-  username,
-  profileUrl,
-  title,
-  description,
-  imageUrl,
   PostId,
-  like = [],
-  date,
-  commentDatas=[]
+  PostUser,
+  PostImageUrl,
+  PostUserProfile,
+  PostLike,
+  PostComment,
+  PostType,
+  PostTitle,
+  PostDescription,
+  Postcreated_At,
 }) => {
-  const { userData } = useContext(PostContext);
+  const { user } = useContext(AuthContext);
   const [hoverDirection, setHoverDirection] = useState({ x: 0, y: 0 });
-  const [Like, setLike] = useState(like);
-  const [commentsDisplay, setCommentsDisplay] = useState(commentDatas);
+  const [Like, setLike] = useState(PostLike);
+  const [commentsDisplay, setCommentsDisplay] = useState(PostComment);
   const [commentValue, setCommentValue] = useState("");
-  const [comment, setComment] = useState(false);
+  const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
-  
 
-  // Format date
-  const timing = new Date(date);
-  const time = `${timing.getDate()}-${timing.getMonth() + 1}-${timing.getFullYear()}`;
+  const timing = new Date(Postcreated_At);
+  const time = `${timing.getDate()}-${
+    timing.getMonth() + 1
+  }-${timing.getFullYear()}`;
 
-  // Check if the user has already liked the post
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.includes(userData.userId));
+      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); 
     }
-  }, [Like, userData.userId]);
+  }, []);
 
   const handleMouseMove = (e) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const { left, top, width, height } =
+      e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - left - width / 2) / (width / 2);
     const y = (e.clientY - top - height / 2) / (height / 2);
     setHoverDirection({ x, y });
   };
 
-  // Submit Like Button
+ 
   const setLikeSubmit = async () => {
     try {
-      const likedData = { postId: PostId, userId: userData.userId };
       setLikeButtonDisable(true);
-      await axios.post("http://localhost:5279/apiDashboard/InsertLike", likedData);
-      setLike((prev) => [...prev, userData.userId]);
+      const likedData = { postId: PostId, userId: user.id };
+      await LikeSubmite(likedData);
+      setLike((prev = []) => [...prev, user.id]); 
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Submit Comment Button
+ 
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
-      
-     
-     var ImageUrl= `https://api.dicebear.com/7.x/initials/svg?seed=${userData.Name}`
-    
       const commentData = {
         postId: PostId,
-        comment: commentValue,
-        userId: userData.Name,
-        imageUrl: ImageUrl
+        commentMessage: commentValue,
+        userName: user?.name,
       };
-      await axios.post("http://localhost:5279/apiDashboard/commentAdd", commentData);
-      setCommentsDisplay((prev) => [commentData, ...prev]);
-      setCommentValue(""); // Clear input after submission
-     
+      setCommentsDisplay((prev = []) => [commentData, ...prev]);
+      await CommentAdd(commentData);
+      setCommentValue("");
     } catch (error) {
       console.error(error);
     }
@@ -90,28 +82,38 @@ const AnimatedPostCard = ({
       >
         <div className="flex items-center space-x-4 mb-4">
           <button
-            onClick={() => window.open(profileUrl, "_blank")}
+            onClick={() =>
+              window.open(
+                PostUser?.image ||
+                  `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser}`,
+                "_blank"
+              )
+            }
             className="focus:outline-none"
-            aria-label={`Visit ${username}'s profile`}
+            aria-label={`Visit ${""}'s profile`}
           >
             <img
-              src={profileImage}
-              alt={`${username}'s Profile`}
+              src={
+                PostUserProfile.length > 0
+                  ? PostUserProfile
+                  : `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser}`
+              }
+              alt={`Profile`}
               className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover hover:scale-110 transition-transform"
             />
           </button>
           <div className="flex flex-col">
             <span className="text-gray-800 font-semibold text-base sm:text-lg">
-              {username}
+              {PostUser}
             </span>
             <span className="text-gray-500 text-sm sm:text-xs">{time}</span>
           </div>
         </div>
 
-        {imageUrl && (
+        {PostImageUrl && (
           <motion.img
-            src={imageUrl}
-            alt={PostId}
+            src={PostImageUrl}
+            alt="img"
             className="w-full h-auto object-cover rounded-md"
             initial={{ scale: 1 }}
             whileHover={{ scale: 1.05 }}
@@ -120,8 +122,12 @@ const AnimatedPostCard = ({
         )}
 
         <div className="p-4 sm:p-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-black">{title}</h2>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base">{description}</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-black">
+            {PostTitle}
+          </h2>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">
+            {PostDescription}
+          </p>
         </div>
 
         <div className="flex items-center justify-between mt-4">
@@ -139,14 +145,14 @@ const AnimatedPostCard = ({
           <button
             className="flex items-center space-x-2 text-gray-500 hover:text-gray-700 transition-colors"
             aria-label="Comment on post"
-            onClick={() => setComment(!comment)}
+            onClick={() => setComments(!comments)}
           >
             <MessageCircle size={24} />
             <span>Comment</span>
           </button>
         </div>
 
-        {comment && (
+        {comments && (
           <div className="p-4 bg-white shadow-md">
             <div className="flex items-center border rounded-md overflow-hidden">
               <input
