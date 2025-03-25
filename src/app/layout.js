@@ -15,13 +15,12 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <body className="bg-gray-100">
+      <body className=  {token?"bg-gray-100 pt-16" :"bg-gray-100"}>
         <AuthProvider>
           {token ? <Navbar /> : null}
-          <div className="pt-16">
             {/* Adjust padding to avoid overlap */}
             {children}
-          </div>
+          
         </AuthProvider>
       </body>
     </html>
