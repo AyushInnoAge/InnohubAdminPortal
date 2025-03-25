@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import Image from "next/image";
 import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
@@ -7,21 +7,27 @@ import { RiCoinsFill } from "react-icons/ri";
 import { jwtDecode } from "jwt-decode";
 import "./profilepage.css";
 import Navbar from "../navbar/page";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+import { AuthContext } from "@/context/AuthContext";
+import { updateUserProfile } from "@/_api_/profilepage";
+
+
 
 export default function ProfilePage() {
+  const { user,login } = useContext(AuthContext);
+
+
   const [badges, setBadges] = useState([]);
   const [editMode, setEditMode] = useState(false);
-  const [profileData, setProfileData] = useState({
-    Name: "",
-    EmpID: "",
-    Role: "",
-    Team: "",
-    Designation: "",
-    Email: "",
-    Phone: "",
-    Address: "",
-    profilePicture: "/profile.jpg",
-  });
+  const [image, setImage] = useState(user?.image)
+  const [email, setEmail] = useState(user?.email)
+  const [phoneNo, setPhoneNo] = useState(user?.phoneNo)
+  const [address, setAddress] = useState(user?.address)
+
+
+
 
   useEffect(() => {
     const badgeData = [
@@ -34,113 +40,101 @@ export default function ProfilePage() {
     ];
     setBadges(badgeData);
   }, []);
-  
-  useEffect(() => {
-    const login = async () => {
-      try {
-        const response = await fetch("http://localhost:5279/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: "shahivedant1@gmail.com",
-            password: "ved@123",
-          }),
-        });
-        console.log(response.response)
-
-        const data = await response.json();
-
-        if (data.success) {
-          console.log(data);
-          const token = data.response.token;
-          localStorage.setItem("token", token);
-          const decoded = jwtDecode(token);
-
-          setProfileData({
-            FullName: decoded.Name || "",
-            EmpID: decoded.EmployeeId || "",
-            Role: decoded.Role || "",
-            Team: decoded.Team || "",
-            Designation: decoded.Designation || "",
-            Email: decoded.EmailId || "",
-            Phone: decoded.PhoneNo || "",
-            Address: decoded.Address || "",
-            profilePicture: "/profile.jpg",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching login:", error);
-      }
-    };
-
-    login();
-  }, []);
-
-  const handleEdit = async () => {
-    if (editMode) {
-      try {
-        const patchData = [
-          { op: "replace", path: "/Name", value: profileData.FullName },
-          { op: "replace", path: "/Email", value: profileData.Email },
-          { op: "replace", path: "/PhoneNo", value: profileData.Phone },
-          { op: "replace", path: "/Image", value: profileData.profilePicture },
-          { op: "replace", path: "/Address", value: profileData.Address },
-        ];
-
-        const response = await fetch(`http://localhost:5279/UpdateUserProfile/${profileData.EmpID}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json-patch+json",
-          },
-          body: JSON.stringify(patchData),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to update profile");
-        }
-
-        const result = await response.json();
-        console.log("Profile updated successfully", result);
-      } catch (error) {
-        console.error("Error updating profile:", error);
-      }
+  const handleEditClick = () => {
+    if (!editMode) {
+      setEmail(user?.email || "");
+      setPhoneNo(user?.phoneNo || "");
+      setAddress(user?.address || "");
+      setImage(user?.image || "");
+    } else {
+      handleSubmit(); // Call API when saving
     }
     setEditMode(!editMode);
   };
 
-  const handleChange = (e) => {
-    setProfileData({ ...profileData, [e.target.name]: e.target.value });
-  };
-  
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileData({ ...profileData, profilePicture: e.target.result });
-      };
-      reader.readAsDataURL(file);
+
+  const handleSubmit = async () => {
+    if (editMode) {
+      // Save Mode: Call API to update profile
+      try {
+        const res = await updateUserProfile(user.employeeId, email, phoneNo, address, image);
+        if (res.status == 200) {
+          toast.success("User Profile updated successfully!");
+          const newUser = {
+            address: address,
+
+            department: user.department,
+
+            designation: user.designation,
+
+            dob
+              : user.dob,
+            doj
+              :
+              user.doj,
+            email
+              :
+              email,
+            employeeId
+              :
+              user.employeeId,
+            id
+              :
+              user.id,
+            image
+              :
+              image,
+            name
+              :
+              user.name,
+            phoneNo
+              :
+              phoneNo,
+            teamLeaderEmail
+              :
+              user.teamLeaderEmail,
+            teamLeaderId
+              :
+              user.teamLeaderId,
+            teamLeaderName
+              :
+              user.teamLeaderName,
+            userRole
+              :
+              user.userRole,
+
+          }
+          localStorage.removeItem("user");
+          login(newUser);
+
+        }
+
+      } catch (error) {
+        console.error(error);
+        toast.error("User Updation Failed!");
+      }
     }
+    // Toggle edit mode
+    setEditMode(!editMode);
   };
 
   return (
     <>
       <Navbar />
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="container">
         <div className="profile-card">
-        <div className="xps-icon">
-                       <RiCoinsFill className="icon1" />
-                       <a href="/available-xps" className="xps-text">
-                         Available XPs
-                       </a>
-                     </div>
+          <div className="xps-icon">
+            <RiCoinsFill className="icon1" />
+            <a href="/available-xps" className="xps-text">
+              Available XPs
+            </a>
+          </div>
           <div className="profile-left">
-         
+
             <div className="profile-img-wrapper">
-              <Image
-                src={profileData.profilePicture}
+              <img
+                src={user?.image}
                 alt="Profile"
                 width={160}
                 height={160}
@@ -149,15 +143,15 @@ export default function ProfilePage() {
               {editMode && (
                 <label className="image-edit-label">
                   <RiImageEditFill className="image-edit-icon" />
-                  <input type="file" accept="image/*" onChange={handleImageChange} hidden />
+                  <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} hidden />
                 </label>
               )}
             </div>
-            <h2 className="profile-name">{profileData.FullName}</h2>
-            <p className="profile-role">{profileData.Role}</p>
-            <p className="profile-designation">{profileData.Designation}</p>
-            <p className="profile-designation">IT Department</p>
-            <p className="profile-address">{profileData.Address}</p>
+            <h2 className="profile-name">{user?.name}</h2>
+            <p className="profile-role">{user?.userRole}</p>
+            <p className="profile-designation">{user?.designation}</p>
+            <p className="profile-designation">{user?.department}</p>
+            <p className="profile-address">{user?.address}</p>
             <div className="badges">
               <h3 className="badge-title">Badges Earned</h3>
               <div className="badge-list">
@@ -170,29 +164,67 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="profile-right">
-            <h3 className="section-title">Personal Information</h3>
-            <div className="info-grid">
-              {Object.entries(profileData).map(([key, value]) => (
-                key !== "profilePicture" && key !== "Role" && key !== "designation" ? (
-                  <div key={key} className="info-item">
-                    <label>{key.replace(/([A-Z])/g, " $1").trim()}</label>
-                    {editMode ? (
-                      <input
-                        type="text"
-                        name={key}
-                        value={value}
-                        onChange={handleChange}
-                      />
-                    ) : (
-                      <p>{value}</p>
-                    )}
-                  </div>
-                ) : null
-              ))}
+            <div className="profile-info">
+              <h3 className="section-title">Personal Information</h3>
+              <div className="info-row">
+                <label>Full Name</label>
+
+                <p>{user?.name}</p>
+
+              </div>
+              <div className="info-row">
+                <label>Employee ID</label>
+                <p>{user?.employeeId}</p>
+              </div>
+              <div className="info-row">
+                <label>Team</label>
+                <p>{user?.department}</p>
+              </div>
+
+              <div className="info-row">
+                <label>Email</label>
+                {editMode ? (
+                  <input
+                    type="text"
+                    name="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                ) : (
+                  <p>{user?.email}</p>
+                )}
+              </div>
+              <div className="info-row">
+                <label>Phone</label>
+                {editMode ? (
+                  <input
+                    type="text"
+                    name="Phone"
+                    value={phoneNo}
+                    onChange={(e) => setPhoneNo(e.target.value)}
+                  />
+                ) : (
+                  <p>{user?.phoneNo}</p>
+                )}
+              </div>
+
+              <div className="info-row">
+                <label>Address</label>
+                {editMode ? (
+                  <input
+                    type="text"
+                    name={address}
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                ) : (
+                  <p>{user?.address}</p>
+                )}
+              </div>
+              <button className="edit-btn" onClick={handleEditClick}>
+                <FaEdit /> {editMode ? "Save" : "Edit"}
+              </button>
             </div>
-            <button className="edit-btn" onClick={handleEdit}>
-              <FaEdit /> {editMode ? "Save" : "Edit"}
-            </button>
             <div className="achievements">
               <h3 className="section-title">Achievements</h3>
               <ul className="achievements-list">
