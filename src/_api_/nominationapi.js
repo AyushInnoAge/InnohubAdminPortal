@@ -26,9 +26,7 @@ export const fetchEmployees = async (userRole, selectedRole, employeeId) => {
     } else {
       api = API_ENDPOINTS.FETCH_ALL_TEAMS;
     }
-  
-    console.log("Fetching employees for role:", selectedRole, "and user role:", userRole);
-  
+   
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -40,7 +38,6 @@ export const fetchEmployees = async (userRole, selectedRole, employeeId) => {
         method: "GET",
         headers: getAuthHeaders(),
       });
-      console.log("Response Status:", response.status);
   
       if (!response.ok) throw new Error("Failed to fetch employees");
   
@@ -49,9 +46,7 @@ export const fetchEmployees = async (userRole, selectedRole, employeeId) => {
       if (userRole === "Employee" && selectedRole === "Shoutout") {
         data = data.filter(emp => emp.id !== employeeId);
       }
-  
-      console.log(data);
-  
+
       if (!Array.isArray(data)) {
         throw new Error("No valid data available");
       }
@@ -79,8 +74,6 @@ export const fetchManagers = async () => {
     if (!response.ok) throw new Error("Failed to fetch managers");
 
     const data = await response.json();
-    console.log("manager", data);
-
     if (!Array.isArray(data) || data.length === 0) {
       throw new Error("No valid managers available");
     }
@@ -112,13 +105,6 @@ export const submitNomination = async (selectedEmployee, selectedManagers, selec
       } else {
         UserId = selectedEmployee.id; // Default for non-HR users
       }
-  
-      console.log("Submitting Data:", {
-        UserId,
-        ManagerIds: selectedManagers.map(m => m.id),
-        Nomination_Type: selectedRole,
-        Reason: reason,
-      });
   
       const obj = {
         ManagerIds: selectedManagers.map(m => m.id),
