@@ -37,6 +37,7 @@ const BirthdayCard = ({
   PostTitle,
   PostDescription,
   Postcreated_At,
+  PostUserDetailed
 }) => {
   const { user } = useContext(AuthContext);
   const [Like, setLike] = useState(PostLike);
@@ -44,6 +45,10 @@ const BirthdayCard = ({
   const [commentValue, setCommentValue] = useState("");
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
+  const {userDOJ} = PostUserDetailed
+
+  const getYearGap = (date) => new Date().getFullYear() - new Date(date).getFullYear();
+ const Time =getYearGap(userDOJ)
 
   useEffect(() => {
     if (Like.length !== 0) {
@@ -113,8 +118,8 @@ const BirthdayCard = ({
         whileHover={{ scale: 1.1, rotate: 3 }}
         transition={{ type: "spring", stiffness: 150, damping: 10 }}
       />
-      <h2 className="text-2xl font-extrabold text-gray-900 text-center mt-4">
-        {PostTitle}
+      <h2 className="text-xl font-extrabold text-gray-900 text-center mt-4">
+        {PostType=="Anniversary"? `Congratulations On ${Time} ${PostTitle}`: PostTitle}
       </h2>
       <p className="text-gray-600 text-center mt-2 font-medium">
         {PostDescription}

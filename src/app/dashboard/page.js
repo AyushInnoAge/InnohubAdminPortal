@@ -141,6 +141,7 @@ export default function Home() {
                     PostTitle={post.postData?.title}
                     PostDescription={post.postData?.description}
                     Postcreated_At={post.postData?.created_at}
+                    PostUserDetailed={post?.userData}
                   />
                 ) : post.postData != null &&
                   post.postData?.type == "Festival" ? (
