@@ -32,7 +32,9 @@ export default function Home() {
       const response = await DashboardDataFetch(lastFetchedDate);
 
       if (response.length > 0) {
-        setDashboardData((prev) => [...prev, ...response]);
+        setTimeout(() => {
+          setDashboardData((prev) => [...prev, ...response]);
+        }, 1000);
         let time = response[response.length - 1]?.nominationData
           ? response[response.length - 1]?.nominationData?.verifiedAt
           : response[response.length - 1]?.postData?.created_at;
@@ -82,7 +84,7 @@ export default function Home() {
         />
       </div>
 
-      <div className="flex flex-col w-full md:w-4/5 lg:w-5/6 p-4 overflow-y-auto h-screen space-y-6">
+      <div className="flex flex-col w-full md:w-4/5 lg:w-5/6 p-4 overflow-y-auto h-screen space-y-6 scrollbar-hide">
         <div className="w-full max-w-4xl mx-auto">
           <DashboardStatus.Provider value={{ setDashboardData, setLoading, setLastFetchedDate }}>
             <PostInput
@@ -97,7 +99,7 @@ export default function Home() {
 
         <div className="w-full max-w-4xl mx-auto space-y-6">
           {dashboardData.length == 0 ? (
-            <h1 className="text-black size-max text-center">Loading..</h1>
+            <h1 className="text-black  text-center">Loading..</h1>
           ) : (
             dashboardData.map((post, index) => (
               <div
@@ -174,7 +176,7 @@ export default function Home() {
           )}
         </div>
       </div>
-      {loading && <h1 className="text-center">Loading more posts...</h1>}
+      {loading && <h1 className="text-center text-black">Loading more posts...</h1>}
     </div>
   );
 }
