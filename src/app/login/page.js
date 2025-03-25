@@ -5,7 +5,6 @@ import { Eye, EyeOff } from "lucide-react";
 import styles from "./login.module.css";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
-import API_ENDPOINTS from "@/app/config/apiconfig";
 import { loginUser } from "@/_api_/loginapi";
 
 export default function LoginPage() {
@@ -16,7 +15,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState(""); // Added this
   const formRef = useRef(null);
-  const API_URL = API_ENDPOINTS.LOGIN_API;
+const [loginButtonDisable, setLoginButtonDisable] = useState(false);
+  
   const router = useRouter();
 
   // Hide message after 2 seconds
@@ -40,6 +40,7 @@ export default function LoginPage() {
   };
 
   const handleSubmit = async (event) => {
+    setLoginButtonDisable(true);
     event.preventDefault();
     setError("");
     setMessage(""); // Reset message on new submit
@@ -73,6 +74,8 @@ export default function LoginPage() {
       }
     } catch (error) {
       setError(error.message || "Something went wrong");
+    }finally{
+      setLoginButtonDisable(false);
     }
   };
 
@@ -121,9 +124,9 @@ export default function LoginPage() {
           <button
             type="submit"
             className={`${styles.button} ${
-              !(email && password && password.length >= 6) ? styles.disabledButton : ""
+              (!(email && password && password.length >= 6)) || loginButtonDisable ? styles.disabledButton : ""
             }`}
-            disabled={!(email && password && password.length >= 6)}
+            disabled={(!(email && password && password.length >= 6))|| loginButtonDisable}
           >
             Login
           </button>
