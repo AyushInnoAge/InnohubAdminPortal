@@ -189,7 +189,7 @@ export default function Navbar() {
                   <Link href="/profilepage" className="dropdown-item">
                     Profile
                   </Link>
-                  <Link href="/logout" className="dropdown-item">
+                  <Link href="/login" className="dropdown-item">
                     Logout
                   </Link>
                 </div>
