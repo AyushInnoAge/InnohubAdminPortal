@@ -64,7 +64,8 @@ const PostInput = ({ UserProfileImage }) => {
       await UploadPost(formData);
       closeModal();
       setDashboardData([]);
-      const response = await DashboardDataFetch();
+      const res = await DashboardDataFetch();
+      const response = res.message.dashboardData;
       setDashboardData(response);
       let time = response[response.length - 1]?.nominationData
         ? response[response.length - 1]?.nominationData?.verifiedAt

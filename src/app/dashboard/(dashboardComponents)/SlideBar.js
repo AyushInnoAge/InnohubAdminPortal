@@ -34,17 +34,17 @@ export default function SidebarProfile2({
               Achievements
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {achievements.map((ach) => (
-                <Tooltip key={ach.id}>
+              {achievements.map((ach, index) => (
+                <Tooltip key={index}>
                   <TooltipTrigger className="transition-transform hover:scale-110">
                     <Avatar
                       src="https://img.freepik.com/premium-photo/best-seller-batch-golden-rebon_1137257-3331.jpg?semt=ais_hybrid"
-                      className={`w-12 h-12 ${ach.color} rounded-lg`}
+                      className={`w-12 h-12 "bg-blue-500" rounded-lg`}
                     />
                   </TooltipTrigger>
                   <TooltipContent className="p-3 bg-gray-800 text-white rounded-lg shadow-md">
-                    <strong>{ach.title}</strong>
-                    <p className="text-xs mt-1">{ach.desc}</p>
+                    <strong>{ach}</strong>
+                    {/* <p className="text-xs mt-1">{ach.desc}</p> */}
                   </TooltipContent>
                 </Tooltip>
               ))}
