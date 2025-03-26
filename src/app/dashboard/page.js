@@ -20,6 +20,7 @@ export default function Home() {
   const lastPostRef = useRef(null);
   const [lastFetchedDate, setLastFetchedDate] = useState(null);
   const [hasMoredata, setHasMoreData] = useState(true);
+  const [achievements, setAchievements] = useState([]);
 
   useEffect(() => {
     fetchPosts();
@@ -29,8 +30,9 @@ export default function Home() {
     if (loading || !hasMoredata) return;
     setLoading(true);
     try {
-      const response = await DashboardDataFetch(lastFetchedDate);
-
+      const res = await DashboardDataFetch(lastFetchedDate);
+      const response= res.message.dashboardData;
+      res.message.currentUserAchievements.length >0 ? setAchievements(res.message.currentUserAchievements) : null;
       if (response.length > 0) {
           setDashboardData((prev) => [...prev, ...response]);
       
@@ -71,7 +73,7 @@ export default function Home() {
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
       
-      <div className="hidden md:flex md:w-1/5 lg:w-1/6 p-4 bg-white shadow-md flex-col">
+      <div className="hidden md:flex md:w-1/5 lg:w-1/6 p-4 bg-white shadow-md flex-col overflow-y-auto scrollbar-hide">
         <SidebarProfile
           UserProfileImage={
             user?.image?.trim()
@@ -80,6 +82,8 @@ export default function Home() {
           }
           UserName={user?.name || ""}
           Designation={user?.designation || ""}
+          achievements={achievements}   
+
         />
       </div>
 
@@ -141,6 +145,7 @@ export default function Home() {
                     PostTitle={post.postData?.title}
                     PostDescription={post.postData?.description}
                     Postcreated_At={post.postData?.created_at}
+                    PostUserDetailed={post?.userData}
                   />
                 ) : post.postData != null &&
                   post.postData?.type == "Festival" ? (
