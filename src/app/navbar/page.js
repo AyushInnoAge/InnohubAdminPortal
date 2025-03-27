@@ -90,7 +90,7 @@ export default function Navbar() {
           {/* Logo */}
           <div className="logo-container">
             <Image src="/logo.svg" alt="Logo" width={40} height={40} />
-            <span className="brand-name">Inno Age</span>
+            <span className="brand-name">InnoAge</span>
           </div>
 
           {/* Hamburger Menu for Small Screens */}
@@ -200,16 +200,7 @@ export default function Navbar() {
                 <FaShoppingCart />
               </Link>
             </div>
-            <div className="notification">
-              <Link href="/notifications" className="nav-link2">
-                <IoNotificationsSharp className="notification-icon" />
-                {notificationCount > 0 && (
-                  <span className="notification-badge">
-                    {notificationCount}
-                  </span>
-                )}
-              </Link>
-            </div>
+           
           </div>
         </div>
       </nav>
