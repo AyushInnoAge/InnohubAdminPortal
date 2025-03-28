@@ -74,11 +74,12 @@
     #707bff,
     #d65dff
   ); /* Change this to your preferred underline color */
-  transition: all 0.3s ease-in-out;
+;
   transform: translateX(-50%);
 }
 
-.nav-link:hover::after {
+.nav-link:hover::after,
+.nav-link.active::after {
   width: 100%;
 }
 
