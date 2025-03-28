@@ -8,10 +8,10 @@ import { addSocialActivity, getSocialActivities } from "@/_api_/socialactivity";
 
 const categoryMapping = {
   All: "All",
-  "Team Lunch And Outings": 0,
-  Social: 1,
-  Work: 2,
-  "Sports Event": 3,
+  "Team Lunch And Outings": 1,
+  "Social": 2,
+  "Work": 3,
+  "Sports Event": 4,
 };
 
 const categories = [
@@ -22,6 +22,7 @@ const categories = [
   "Sports Event",
 ];
 const categories_display = [
+  "All",
   "TeamLunchAndOutings",
   "Social",
   "Work",
@@ -70,12 +71,7 @@ export default function EventsPage() {
       : events.filter(
           (event) =>
             String(event.category) == String(categoryMapping[selectedCategory])
-        ).map(event => ({
-          ...event,
-          parsedDate: new Date(event.date) // Ensure it's a Date object
-        }))
-        .filter(event => !isNaN(event.parsedDate)) // Remove invalid dates
-        .sort((a, b) => a.parsedDate - b.parsedDate);
+        );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,7 +84,7 @@ export default function EventsPage() {
         date: new Date(newEvent.date).toISOString(),
         organisers: newEvent.organisers.split(",").map((email) => email.trim()),
       };
-      console.log(formattedEvent.category);
+      
 
       const response = await addSocialActivity(
         formattedEvent.activityName,
@@ -99,16 +95,23 @@ export default function EventsPage() {
         formattedEvent.category,
         formattedEvent.image
       );
-      console.log(response);
+      
       if (response.statusCode == 200) {
         toast.success("New Activity Added successfully!");
         const response = await getSocialActivities(1, "All", 30);
 
-        // Convert object to array\
-        setEvents([]);
+        // Convert object to array
         setEvents(response.data.data);
         setShowForm(false);
-      
+        setNewEvent({
+          activityName: "",
+          description: "",
+          date: "",
+          timing: "",
+          organisers: "",
+          category: "",
+          image: null,
+        });
       }
     } catch (err) {
       setError("Failed to add activity. Please try again.");
@@ -162,7 +165,7 @@ export default function EventsPage() {
               required
             />
             <input
-              type="datetime-local"
+              type="date"
               value={newEvent.date}
               onChange={(e) =>
                 setNewEvent({ ...newEvent, date: e.target.value })
@@ -194,8 +197,8 @@ export default function EventsPage() {
               required
             >
               <option value="">Select Category</option>
-              {categories_display.slice(0).map((cat, index) => (
-                <option key={cat} value={index}>
+              {categories_display.slice(1).map((cat, index) => (
+                <option key={cat} value={index+1}>
                   {cat}
                 </option>
               ))}

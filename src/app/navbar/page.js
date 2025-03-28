@@ -195,11 +195,7 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-            <div className="cart">
-              <Link href="/cart" className="nav-link1">
-                <FaShoppingCart />
-              </Link>
-            </div>
+            
            
           </div>
         </div>

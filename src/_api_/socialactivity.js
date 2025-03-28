@@ -1,4 +1,4 @@
-const addSocialActivity = async (activityName, description, date, timing, organisers, category, image, yourToken) => {
+const addSocialActivity = async (activityName, description, date, timing, organisers, category, image, ) => {
     try {
         const formData = new FormData();
 
@@ -8,6 +8,9 @@ const addSocialActivity = async (activityName, description, date, timing, organi
         formData.append("Date", new Date(date).toISOString().split("T")[0]); // Format date
         formData.append("Timing", timing);
         formData.append("Category", category);
+
+       
+
 
         // Append image only if it's valid
         if (image && image instanceof File) {
@@ -22,7 +25,7 @@ const addSocialActivity = async (activityName, description, date, timing, organi
         });
         console.log(formData)
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/SocialActivity`, {
+        const response = await fetch( `${process.env.NEXT_PUBLIC_API_URL}api/SocialActivity`, {
             method: "POST",
             body: formData,
             headers: {
@@ -41,13 +44,14 @@ const addSocialActivity = async (activityName, description, date, timing, organi
         throw error;
     }
 };
-const getSocialActivities = async (pageNumber = 1, category = "All", pageSize = 10) => {
+const getSocialActivities = async (pageNumber = 7, category = "ALL", pageSize = 10) => {
     try {
         // Format category for API request
         const categoryQuery = category === "All" ? "" : `&category=${category}`;
 
         const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}api/SocialActivity/activities/page/${pageNumber}?pageSize=${pageSize}${categoryQuery}`,
+             
             {
                 method: "GET",
                 headers: {
