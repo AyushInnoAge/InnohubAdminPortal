@@ -51,7 +51,7 @@ const BirthdayCard = ({
 
   const getYearGap = (date) => new Date().getFullYear() - new Date(date).getFullYear();
   const Time =getYearGap(userDOJ);
-  
+  const [grammer, setGrammer]=useState(["st", "nd", "rd", "th", "th", "th", "th", "th", "th" , "th"]); //temp
   useEffect(() => {
     if (Like.length !== 0) {
       setLikeButtonDisable(Like.some((like) => like.userId == user.id)); 
@@ -121,7 +121,7 @@ const BirthdayCard = ({
         transition={{ type: "spring", stiffness: 150, damping: 10 }}
       />
       <h2 className="text-xl font-extrabold text-gray-900 text-center mt-4">
-        {PostType=="Anniversary"? `Congratulations On ${Time} ${PostTitle}, ${userName}`: `${PostTitle}, ${userName}`}
+        {PostType=="Anniversary"? `Congratulations On ${Time}${grammer[Time-1]} ${PostTitle}, ${userName}`: `${PostTitle}, ${userName}`}
       </h2>
       <p className="text-gray-600 text-center mt-2 font-medium">
         {PostDescription}
