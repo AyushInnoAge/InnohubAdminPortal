@@ -6,9 +6,10 @@ import { useEffect, useState, useContext, useRef, createContext } from "react";
 import PollCard from "./(dashboardComponents)/PollCard";
 import BirthdayCard from "./(dashboardComponents)/BirthdayCard";
 import AppreciationCard from "./(dashboardComponents)/AppreciationCard";
-import FestivalCard from "./(dashboardComponents)/Festivale";
 import { DashboardDataFetch } from "@/_api_/dashboard";
 import { AuthContext } from "@/context/AuthContext";
+import CompanyEvent from "./(dashboardComponents)/Festivale";
+import { useRouter } from "next/navigation";
 
 export const DashboardStatus = createContext();
 export default function Home() {
@@ -21,8 +22,17 @@ export default function Home() {
   const [lastFetchedDate, setLastFetchedDate] = useState(null);
   const [hasMoredata, setHasMoreData] = useState(true);
   const [achievements, setAchievements] = useState([]);
+  const router = useRouter();
+
+  useEffect(()=>{
+    if(!user){
+      router.push("/login");
+      return ;
+    }
+  },[]);
 
   useEffect(() => {
+    if (!user) return;
     fetchPosts();
   }, [page]);
 
@@ -73,6 +83,7 @@ export default function Home() {
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
       
+      {dashboardData.length >0 ?
       <div className="hidden md:flex md:w-1/5 lg:w-1/6 p-4 bg-white shadow-md flex-col overflow-y-auto scrollbar-hide">
         <SidebarProfile
           UserProfileImage={
@@ -86,8 +97,10 @@ export default function Home() {
 
         />
       </div>
+      :null}
 
       <div className="flex flex-col w-full md:w-4/5 lg:w-5/6 p-4 overflow-y-auto h-screen space-y-6 scrollbar-hide">
+      {dashboardData.length >0 ?
         <div className="w-full max-w-4xl mx-auto">
           <DashboardStatus.Provider value={{ setDashboardData, setLoading, setLastFetchedDate }}>
             <PostInput
@@ -99,6 +112,7 @@ export default function Home() {
             />
           </DashboardStatus.Provider>
         </div>
+        :null}
 
         <div className="w-full max-w-4xl mx-auto space-y-6">
           {dashboardData.length == 0 ? (
@@ -148,8 +162,8 @@ export default function Home() {
                     PostUserDetailed={post?.userData}
                   />
                 ) : post.postData != null &&
-                  post.postData?.type == "Festival" ? (
-                  <FestivalCard
+                  post.postData?.type == "Company Event" ? (
+                  <CompanyEvent
                     PostId={post.postData?.id}
                     PostImageUrl={post?.postData?.image}
                     PostLike={post.postData?.postLikes}
