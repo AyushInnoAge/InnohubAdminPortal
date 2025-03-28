@@ -7,13 +7,16 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "../../../components/ui/tooltip";
+import { useRouter } from "next/navigation";
 
 export default function SidebarProfile2({
   UserProfileImage,
   UserName,
   Designation,
   achievements = [],
-}) {
+})
+{
+  const router = useRouter();
   return (
     <TooltipProvider>
       <Card className="w-full p-5 shadow-lg rounded-2xl bg-white">
@@ -53,7 +56,10 @@ export default function SidebarProfile2({
         ) : null}
 
         <div className="mt-4 flex flex-wrap justify-center gap-2">
-          <Button variant="outline">Profile</Button>
+          <Button variant="outline"
+           onClick={() => router.push("/profilepage")}
+          >Profile</Button>
+          
         </div>
       </Card>
     </TooltipProvider>

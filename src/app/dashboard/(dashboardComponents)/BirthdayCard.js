@@ -45,11 +45,13 @@ const BirthdayCard = ({
   const [commentValue, setCommentValue] = useState("");
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
-  const {userDOJ} = PostUserDetailed
+  const {userDOJ, userName} = PostUserDetailed;
+  const [birthdayImage, setBirthdayImage] = useState(PostImageUrl.length>0 ? PostImageUrl : "https://images.pexels.com/photos/1543762/pexels-photo-1543762.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1  ");
+  const [anniversaryImage, setAnniversaryImage] = useState(PostImageUrl.length>0 ? PostImageUrl :"https://res.cloudinary.com/dnx8ycr6n/image/upload/v1742145427/uploads/pqbi5xdwrzoqkxvmll1r.jpg");
 
   const getYearGap = (date) => new Date().getFullYear() - new Date(date).getFullYear();
- const Time =getYearGap(userDOJ)
-
+  const Time =getYearGap(userDOJ);
+  
   useEffect(() => {
     if (Like.length !== 0) {
       setLikeButtonDisable(Like.some((like) => like.userId == user.id)); 
@@ -111,15 +113,15 @@ const BirthdayCard = ({
         ✨
       </motion.div>
       <motion.img
-        src={PostImageUrl}
-        alt="Post"
+        src={PostType=="Anniversary"? anniversaryImage : birthdayImage}
+        alt="Image"
         className="w-full rounded-lg shadow-lg border-4 border-gray-300"
         initial={{ scale: 1 }}
         whileHover={{ scale: 1.1, rotate: 3 }}
         transition={{ type: "spring", stiffness: 150, damping: 10 }}
       />
       <h2 className="text-xl font-extrabold text-gray-900 text-center mt-4">
-        {PostType=="Anniversary"? `Congratulations On ${Time} ${PostTitle}`: PostTitle}
+        {PostType=="Anniversary"? `Congratulations On ${Time} ${PostTitle}, ${userName}`: `${PostTitle}, ${userName}`}
       </h2>
       <p className="text-gray-600 text-center mt-2 font-medium">
         {PostDescription}

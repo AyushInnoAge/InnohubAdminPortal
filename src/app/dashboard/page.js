@@ -9,6 +9,7 @@ import AppreciationCard from "./(dashboardComponents)/AppreciationCard";
 import FestivalCard from "./(dashboardComponents)/Festivale";
 import { DashboardDataFetch } from "@/_api_/dashboard";
 import { AuthContext } from "@/context/AuthContext";
+import CompanyEvent from "./(dashboardComponents)/Festivale";
 
 export const DashboardStatus = createContext();
 export default function Home() {
@@ -148,8 +149,8 @@ export default function Home() {
                     PostUserDetailed={post?.userData}
                   />
                 ) : post.postData != null &&
-                  post.postData?.type == "Festival" ? (
-                  <FestivalCard
+                  post.postData?.type == "Company Event" ? (
+                  <CompanyEvent
                     PostId={post.postData?.id}
                     PostImageUrl={post?.postData?.image}
                     PostLike={post.postData?.postLikes}
