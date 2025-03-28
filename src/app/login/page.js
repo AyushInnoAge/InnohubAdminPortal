@@ -8,16 +8,24 @@ import { AuthContext } from "@/context/AuthContext";
 import { loginUser } from "@/_api_/loginapi";
 
 export default function LoginPage() {
-  const { login } = useContext(AuthContext); // Ensure AuthContext is defined
+  const { login, user } = useContext(AuthContext); // Ensure AuthContext is defined
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState(""); // Added this
   const formRef = useRef(null);
-const [loginButtonDisable, setLoginButtonDisable] = useState(false);
-  
+  const [loginButtonDisable, setLoginButtonDisable] = useState(false);
+  const [displayValue, setDisplayValue] = useState(false);
   const router = useRouter();
+
+  useEffect(()=>{
+      if(user){
+        router.push("/dashboard");
+        return ;
+      }
+      setDisplayValue(true);
+    },[user])
 
   // Hide message after 2 seconds
   useEffect(() => {
@@ -66,9 +74,7 @@ const [loginButtonDisable, setLoginButtonDisable] = useState(false);
 
         localStorage.setItem("token", token); // Store token in localStorage
         login(userdata);
-        setTimeout(() => {
           router.push("/dashboard");
-        }, 1500);
       } else {
         setError("Invalid email or password");
       }
@@ -81,7 +87,7 @@ const [loginButtonDisable, setLoginButtonDisable] = useState(false);
 
   return (
     <div className={styles.container}>
-      <div className={styles.card}>
+      {displayValue? <div className={styles.card}>
         <img src="/logo.svg" alt="Innoage Logo" className={styles.logo} />
         <h2 className={styles.title}>Welcome To Inno Age</h2>
         <p className={styles.subtitle}>Sign in to your account</p>
@@ -138,7 +144,7 @@ const [loginButtonDisable, setLoginButtonDisable] = useState(false);
             Forgot Password
           </Link>
         </p>
-      </div>
+      </div>: null}
     </div>
   );
 }
