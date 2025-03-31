@@ -134,7 +134,11 @@ export default function ProfilePage() {
 
             <div className="profile-img-wrapper">
               <img
-                src={user?.image}
+               src={
+                user?.image.length > 0
+                  ? user.image
+                  : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
+              }
                 alt="Profile"
                 width={160}
                 height={160}

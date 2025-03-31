@@ -135,6 +135,37 @@ export default function Navbar() {
                 </button>
               </div>
             </div>
+            <div className="nav-item">
+              {(user?.userRole && (user.userRole === 1 || user.userRole === 2)) && (
+                <div className="nav-item">
+                  <div className="dropdown1">
+                    <button
+                      className="nav-link dropdown-btn"
+                      onClick={() => toggleDropdown("Admin")}
+                    >
+                      Admin
+                    </button>
+                    <FaChevronDown
+                      size={12}
+                      onClick={() => toggleDropdown("Admin")}
+                    />
+                  </div>
+                  {isDropdownOpen === "Admin" && (
+                    <div className="dropdown-content lower-dropdown">
+                      <Link href="/Nomination" className="dropdown-item">
+                        Review
+                      </Link>
+                      <Link
+                        href="/awards/top-performers"
+                        className="dropdown-item"
+                      >
+                        New Employee
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Profile & Cart */}

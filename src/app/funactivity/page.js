@@ -1,10 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect,useContext } from "react";
 import "./page.css";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { addSocialActivity, getSocialActivities } from "@/_api_/socialactivity";
+import { AuthContext } from "@/context/AuthContext";
 
 const categoryMapping = {
   All: "All",
@@ -35,6 +36,7 @@ export default function EventsPage() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { user,login } = useContext(AuthContext);
   useEffect(() => {
     fetchActivities();
   }, [selectedCategory]);
@@ -126,13 +128,14 @@ export default function EventsPage() {
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="header-container">
         <div style={{ flex: 1 }}></div>
+        {(user?.userRole && (user.userRole === 1 || user.userRole === 2)) &&(
         <button
           className="add-activity-btn"
           onClick={() => setShowForm(true)}
           style={{ marginLeft: "auto" }}
         >
           <span className="plus-icon">+ </span>Add Activity
-        </button>
+        </button>)}
       </div>
 
       {showForm && (

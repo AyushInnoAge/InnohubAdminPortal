@@ -47,7 +47,8 @@
 .nav-links {
   display: flex;
   gap: 25px;
-  margin: 0 auto; /* Centering */
+  margin: 0 auto;
+  align-items: center; /* Centering */
 }
 
 /* Nav Link with Hover Underline */
