@@ -29,7 +29,7 @@ const EventCard = ({ NominationType, NominationReason, NominatedName, userId, No
   const submiteReject = async () => {
     try {
     //  const response= await RejectApproval(NominationId);
-     console.log(response);
+    //  console.log(response);
       setNominatedEmployee((prev) => prev.filter((item) => item.user?.id !== userId));
     } catch (error) {
       throw error

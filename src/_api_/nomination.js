@@ -3,7 +3,6 @@ import axios from "axios";
 const getToken = () => {
     return typeof window !== "undefined" ? localStorage.getItem("token") : null;
   };
-//fetch all employee for teamleader
 
 const fetchAllEmployeesByTeamLeaderId = async ()=>{
     try{
@@ -22,12 +21,19 @@ const fetchAllEmployeesByTeamLeaderId = async ()=>{
 
 }
 
-//submite shoutout 
+const submiteNomination = async(data)=>{
+    try {
+        const token = getToken();
+     const response= await axios.post(`${process.env.NEXT_PUBLIC_API_URL}api/shoutout`, data, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          return response;
+    } catch (error) {
+        throw new error.message();
+    }
+}
 
 
-export {fetchAllEmployeesByTeamLeaderId};
-//selectedEmployee is full user data of employee
-//selectedManagers is array of user data of managers
-//selectRole : "Star of the month", "Best Team Leader (yearly)", "Best Team (yearly)", "Best Team Leader (Half yearly)", "Best Team (Half yearly)"
-//reason : string
-//userRole : "HR", "TeamLeader", "Employee" line 95
+export {fetchAllEmployeesByTeamLeaderId, submiteNomination};

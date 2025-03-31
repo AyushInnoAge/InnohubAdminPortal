@@ -33,8 +33,9 @@ export default function ApprovalPage() {
       try {
 
         const response = await fetchAllApproval()
+        console.log("Fetched Data:", response);
         setNominatedEmployee(response.data);
-        console.log("Fetched Data:", response.data);
+        
       } catch (error) {
         console.error("Error fetching data:", error);
       }
