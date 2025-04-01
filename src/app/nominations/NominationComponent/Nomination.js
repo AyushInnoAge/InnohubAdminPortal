@@ -9,15 +9,18 @@ import { AuthContext } from "@/context/AuthContext";
 import { submiteNomination } from "@/_api_/nomination";
 import { toast, ToastContainer } from "react-toastify";
 
-
-export default function Nomination({ AllEmployees, Nomination_Type, NominationHeading }) {
+export default function Nomination({
+  AllEmployees,
+  Nomination_Type,
+  NominationHeading,
+}) {
   const { user } = useContext(AuthContext);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [reason, setReason] = useState("");
   const [selectedId, setSelectedId] = useState("");
-  const [disablebutton, setDisableButton]= useState(false)
-
-
+  const [disablebutton, setDisableButton] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [emmployeeofteam, setEmployeeOfTeam] = useState([]);
   const submitedShoutout = async () => {
     try {
       setDisableButton(true);
@@ -27,17 +30,28 @@ export default function Nomination({ AllEmployees, Nomination_Type, NominationHe
         Nomination_Type: Nomination_Type,
         Reason: reason,
       };
-     const response= await submiteNomination(data);
-     setSelectedEmployee(null);
-     setSelectedId("");
-     setReason("");
-     response.data.success? toast.success(`${Nomination_Type} SuccessFully added`): toast.error(response.data.message);
+      const response = await submiteNomination(data);
+      setSelectedEmployee(null);
+      setSelectedId("");
+      setReason("");
+      response.data.success
+        ? toast.success(`${Nomination_Type} SuccessFully added`)
+        : toast.error(response.data.message);
     } catch (error) {
       console.error(error);
-    }finally{
+    } finally {
       setDisableButton(false);
     }
   };
+
+  useEffect(() => {
+    if (user?.userRole == 3) {
+      const filteredEmployees = AllEmployees.filter(
+        (emp) => emp.teamLeaderId === user.id
+      );
+      setEmployeeOfTeam(filteredEmployees);
+    }
+  }, [user, AllEmployees]);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 p-4 w-full bg-transparent">
@@ -60,15 +74,19 @@ export default function Nomination({ AllEmployees, Nomination_Type, NominationHe
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <label className="font-medium text-gray-700">
+            <label className="block font-medium text-gray-700">
               Nomination Category:
             </label>
-            <Input
-              placeholder="Type a role..."
-              className="w-full mt-1 text-black"
-              value={Nomination_Type}
-              disabled
-            />
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full border p-2 rounded bg-white text-black"
+            >
+              <option value="">--Choose--</option>
+              <option value="React">React</option>
+              <option value="Vue">Vue</option>
+              <option value="Angular">Angular</option>
+            </select>
           </motion.div>
 
           {/* Employee Selection */}
@@ -150,7 +168,6 @@ export default function Nomination({ AllEmployees, Nomination_Type, NominationHe
             >
               click me
             </button>
-
           </motion.div>
         </CardContent>
       </Card>

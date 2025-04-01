@@ -12,18 +12,18 @@ export default function NominateEmployee() {
   const {user} = useContext(AuthContext);
   const router = useRouter();
 
-  useEffect(()=>{
-    if(user && user.userRole!=3){
-      router.push("/dashboard")
-      return ;
-    }
-  },[user]);
+  // useEffect(()=>{
+  //   if(user && user.userRole!=3){
+  //     router.push("/dashboard")
+  //     return ;
+  //   }
+  // },[user]);
 
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetchAllEmployeesByTeamLeaderId();
       if (response.status === 200) {
-        setSelectedEmployee(response.data);
+        setSelectedEmployee(response.data.employeeData);
       } else {
         console.error("Error fetching employees:", response.statusText);
       }
