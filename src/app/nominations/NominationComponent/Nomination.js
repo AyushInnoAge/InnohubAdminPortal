@@ -1,26 +1,26 @@
 "use client";
 import { useState, useEffect, useContext } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Combobox } from "@/components/ui/combobox";
 import { Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import { AuthContext } from "@/context/AuthContext";
-import axios from "axios";
 import { submiteNomination } from "@/_api_/nomination";
+import { toast, ToastContainer } from "react-toastify";
+
 
 export default function Nomination({ AllEmployees, Nomination_Type, NominationHeading }) {
   const { user } = useContext(AuthContext);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [reason, setReason] = useState("");
   const [selectedId, setSelectedId] = useState("");
-  const [message, setMessage]= useState("");
+  const [disablebutton, setDisableButton]= useState(false)
 
-  console.log(AllEmployees)
+
   const submitedShoutout = async () => {
     try {
+      setDisableButton(true);
       var data = {
         UserId: selectedId,
         ManagerIds: [user.id],
@@ -31,21 +31,18 @@ export default function Nomination({ AllEmployees, Nomination_Type, NominationHe
      setSelectedEmployee(null);
      setSelectedId("");
      setReason("");
-      console.log(response);
+     response.data.success? toast.success(`${Nomination_Type} SuccessFully added`): toast.error(response.data.message);
     } catch (error) {
       console.error(error);
+    }finally{
+      setDisableButton(false);
     }
   };
-
-  console.log("response of nomination", AllEmployees);
-
-  useEffect(() => {
-    console.log("Id kya hai", selectedId);
-  }, [selectedId]);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 p-4 w-full bg-transparent">
       {/* Form */}
+      <ToastContainer position="top-right" autoClose={3000} />
       <Card className="w-full max-w-5xl p-8 bg-white rounded-2xl shadow-2xl border mt-6">
         <motion.h2
           initial={{ opacity: 0, scale: 0.9 }}
@@ -149,7 +146,7 @@ export default function Nomination({ AllEmployees, Nomination_Type, NominationHe
               className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition 
             disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={submitedShoutout}
-              disabled={!selectedId || !reason}
+              disabled={!selectedId || !reason || disablebutton}
             >
               click me
             </button>

@@ -2,19 +2,26 @@
 import { useContext, useState, useEffect } from "react";
 import Nomination from "./NominationComponent/Nomination";
 import { fetchAllEmployeesByTeamLeaderId } from "@/_api_/nomination";
-
+import { AuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 const categories = ["Shoutout","Star of the month"];
 
 export default function NominateEmployee() {
   const [selectedEmployee, setSelectedEmployee] = useState([]);
-  const [selectedManager, setSelectedManager] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("Shoutout");
-  const [reason, setReason] = useState("");
-  const [userRole, setUserRole] = useState(null);
+  const {user} = useContext(AuthContext);
+  const router = useRouter();
+
+  useEffect(()=>{
+    if(user && user.userRole!=3){
+      router.push("/dashboard")
+      return ;
+    }
+  },[user]);
+
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetchAllEmployeesByTeamLeaderId();
-      console.log(response.data);
       if (response.status === 200) {
         setSelectedEmployee(response.data);
       } else {

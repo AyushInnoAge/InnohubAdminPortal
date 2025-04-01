@@ -1,8 +1,6 @@
 "use client";
 import { useState, useContext } from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import axios from "axios";
 import { ApprovalData } from "../page";
 import { RejectApproval, SubmitedApproval } from "@/_api_/approval";
 
@@ -19,7 +17,6 @@ const EventCard = ({ NominationType, NominationReason, NominatedName, userId, No
   const submitedApproval = async () => {
     try {
       const response = await SubmitedApproval(userId)
-      console.log(response);
       setNominatedEmployee((prev) => prev.filter((item) => item.user?.id !== userId));
     } catch (error) {
       throw error;
@@ -28,8 +25,6 @@ const EventCard = ({ NominationType, NominationReason, NominatedName, userId, No
 
   const submiteReject = async () => {
     try {
-    //  const response= await RejectApproval(NominationId);
-    //  console.log(response);
       setNominatedEmployee((prev) => prev.filter((item) => item.user?.id !== userId));
     } catch (error) {
       throw error
@@ -44,14 +39,6 @@ const EventCard = ({ NominationType, NominationReason, NominatedName, userId, No
       transition={{ duration: 0.3 }}
       className="relative bg-white rounded-xl shadow-lg overflow-hidden w-[380px] h-[338px] flex flex-col"
     >
-      {/* <motion.img
-        src={"https://m.media-amazon.com/images/I/41oe+vaVrvL._AC_UY1100_.jpg"}
-        alt="profileImage"
-        className="w-full h-[200px] object-cover"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      /> */}
       <div className="p-4 flex-1 flex flex-col overflow-y-auto scrollbar-hide">
         <motion.h3
           className="text-2xl font-bold mb-2 text-blue-600"

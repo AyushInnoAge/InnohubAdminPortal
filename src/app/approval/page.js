@@ -11,45 +11,34 @@ export const ApprovalData = createContext()
 export default function ApprovalPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [nominatedEmployee, setNominatedEmployee] = useState([]);
-  const {user} = useContext(AuthContext);
-  const router=useRouter();
-//   const roleMap = {
-//     1: "Admin",
-//     2: "HR",
-//     3: "TeamLeader",
-//     4: "Employee"
-// };
+  const { user } = useContext(AuthContext);
+  const router = useRouter();
+  const [loading, setLoading] = useState(false)
 
-  // useEffect(()=>{
-  //   if(roleMap[user.userRole]!="HR" &&  roleMap[user.userRole]!="Admin"  ){
-  //     router.push("/dashboard")
-  //     return ;
-  //   }
-  // },[user])
+  useEffect(()=>{
+    if(user && user.userRole!=1 && user.userRole!=2){
+      router.push("/dashboard");
+      return ;
+    }
+  },[user])
 
-  //Fetch all Nominated Employees
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
 
         const response = await fetchAllApproval()
-        console.log("Fetched Data:", response);
         setNominatedEmployee(response.data);
-        
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
-  useEffect(() => {
-    console.log("Updated nominatedEmployee:", nominatedEmployee);
-    nominatedEmployee.forEach(element => {
-      console.log(element.user.id)
-    });
-  }, [nominatedEmployee]);
 
   return (
     <div className="p-4 sm:p-6 md:p-8 min-h-screen bg-gray-100">
@@ -69,7 +58,7 @@ export default function ApprovalPage() {
 
       {/* Events Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-10 place-items-center">
-        {nominatedEmployee.length > 0 ? (
+        {(nominatedEmployee.length > 0 && !loading) ? (
           nominatedEmployee.map((event) => (
             <div key={event.id} className="w-full max-w-[28rem] lg:max-w-[32rem] flex justify-center">
               <ApprovalData.Provider value={{ setNominatedEmployee, nominatedEmployee }}>
@@ -86,9 +75,9 @@ export default function ApprovalPage() {
               </ApprovalData.Provider>
             </div>
           ))
-        ) : (
+        ) : (nominatedEmployee.length == 0 && !loading) ? (
           <p className="text-center text-black text-2lg justify-center items-center">not more nomination available</p>
-        )}
+        ) : <p className="text-center text-black text-2lg justify-center items-center">Loading...</p>}
       </div>
     </div>
   );
