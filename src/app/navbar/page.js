@@ -156,7 +156,7 @@ export default function Navbar() {
                         Review
                       </Link>
                       <Link
-                        href="/awards/top-performers"
+                        href="/signup"
                         className="dropdown-item"
                       >
                         New Employee

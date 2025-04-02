@@ -5,7 +5,6 @@ import { Eye, EyeOff } from "lucide-react";
 import styles from "./resetpasswordemail.module.css";
 import { sendResetPasswordOtp, verifyOtpAndUpdatePassword } from "@/_api_/resetpasswordEmail";
 
-
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -16,16 +15,13 @@ export default function ResetPasswordPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
   const formRef = useRef(null);
-
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
       formRef.current.requestSubmit();
     }
   };
-
   //  Step 1: Request OTP
   const handleSendOtp = async (event) => {
     event.preventDefault();
@@ -90,15 +86,13 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className={styles.container}>
-        
+    <div className={styles.container}>  
       <div className={styles.card}>
         <img src="/logo.svg" alt="Innoage Logo" className={styles.logo} />
         <h2 className={styles.title}>Welcome To Inno Age</h2>
         <p className={styles.subtitle}>Trouble logging in?</p>
 
         {error && <p className={styles.error}>{error}</p>}
-
         <form
           ref={formRef}
           onSubmit={step === "email" ? handleSendOtp : handleVerifyOtpAndUpdatePassword}
@@ -115,7 +109,6 @@ export default function ResetPasswordPage() {
                 onKeyDown={handleKeyDown}
                 required
               />
-
               <button type="submit" className={styles.button} disabled={!email || loading}>
                 {loading ? "Sending OTP..." : "Send OTP"}
               </button>
@@ -173,16 +166,12 @@ export default function ResetPasswordPage() {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-
               <button type="submit" className={styles.button} disabled={loading}>
                 {loading ? "Updating Password..." : "Verify OTP & Update Password"}
               </button>
             </>
           )}
         </form>
-
-        {/* Display Messages */}
-      
         {message && <p className={styles.success}>{message}</p>}
 
         <p className={styles.footerText}>

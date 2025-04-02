@@ -6,7 +6,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { addSocialActivity, getSocialActivities } from "@/_api_/socialactivity";
 import { AuthContext } from "@/context/AuthContext";
-
 const categoryMapping = {
   All: "All",
   "Team Lunch And Outings": 1,
@@ -86,8 +85,6 @@ export default function EventsPage() {
         date: new Date(newEvent.date).toISOString(),
         organisers: newEvent.organisers.split(",").map((email) => email.trim()),
       };
-      
-
       const response = await addSocialActivity(
         formattedEvent.activityName,
         formattedEvent.description,
