@@ -115,7 +115,6 @@ const NominationForm = () => {
             }
 
 
-
             setFilteredEmployees(filtered);
             setShowEmployeeDropdown(filtered.length > 0);
         }

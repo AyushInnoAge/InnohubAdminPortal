@@ -68,8 +68,6 @@
     object-fit: cover;
   }
   
-  
-  
   .profile-name {
     font-size: 22px; /* Increased font size */
     
@@ -82,11 +80,6 @@
       margin-top: 7px;
   
   }
-  
-  
-  
-  
-  
   .badges {
     margin-top: 35px;
   }
