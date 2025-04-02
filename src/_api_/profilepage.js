@@ -30,7 +30,6 @@ const updateUserProfile = async (empID, email, phone, address, image) => {
         },
         body: JSON.stringify(patchData),
       });
-      console.log(response)
       return response
     } catch (error) {
       throw new Error(error.message);

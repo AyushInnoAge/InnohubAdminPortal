@@ -22,12 +22,12 @@ const SubmitedApproval = async (userId) => {
     } catch (error) {
 
     }
-}
+};
 
 const fetchAllApproval = async () => {
     try {
         const token = getToken();
-        const response = await axios.get("http://localhost:5279/users/fetch_nominated_employees", {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}users/fetch_nominated_employees`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -55,7 +55,7 @@ const RejectApproval = async (NominationId) => {
         );
         return response;
     } catch (error) {
-console.error(error);
+        console.error(error);
     }
 }
 

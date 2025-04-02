@@ -51,7 +51,7 @@ export default function Nomination({
           Reason: reason,
         }
       }
-      console.log(data);
+
       const response = await submiteNomination(data);
       setSelectedEmployee(null);
       setSelectedId("");
@@ -68,10 +68,6 @@ export default function Nomination({
       setDisableButton(false);
     }
   };
-
-  useEffect(() => {
-    console.log("TOTAL SHOUTOUT R", totalShoutOutRemaing)
-  }, [totalShoutOutRemaing])
 
   useEffect(() => {
     if (user?.userRole == 3) {
@@ -193,10 +189,10 @@ export default function Nomination({
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               <label className="block font-medium text-gray-700">
-                Search Managers:
+              Nominated By:
               </label>
               <Input
-                placeholder="Manager..."
+                placeholder="Nominater..."
                 className="w-full mt-1 text-black"
                 value={user?.name ? user.name : ""}
                 disabled
