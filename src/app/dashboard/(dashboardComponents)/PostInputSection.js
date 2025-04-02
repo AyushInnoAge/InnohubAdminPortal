@@ -11,7 +11,7 @@ import {
 
 const PostInput = ({ UserProfileImage }) => {
   const { user } = useContext(AuthContext);
-  const { setDashboardData, setLoading, setLastFetchedDate } = useContext(DashboardStatus);
+  const { setDashboardData, setLoading, setLastFetchedDate,  setHasMoreData } = useContext(DashboardStatus);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
   const [postDescription, setPostDescription] = useState("");
@@ -71,7 +71,7 @@ const PostInput = ({ UserProfileImage }) => {
         ? response[response.length - 1]?.nominationData?.verifiedAt
         : response[response.length - 1]?.postData?.created_at;
       setLastFetchedDate(time);
-      
+      response.length > 0? setHasMoreData(true):setHasMoreData(false);
     } catch (error) {
       throw new error.message();
     }finally{
@@ -100,6 +100,7 @@ const PostInput = ({ UserProfileImage }) => {
         ? response[response.length - 1]?.nominationData?.verifiedAt
         : response[response.length - 1]?.postData?.created_at;
       setLastFetchedDate(time);
+      response.length > 0? setHasMoreData(true):setHasMoreData(false);
     } catch (error) {
       throw new error.message();
     }finally{
