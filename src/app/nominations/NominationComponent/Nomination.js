@@ -3,7 +3,7 @@ import { useState, useEffect, useContext } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Trophy } from "lucide-react";
+import { Award, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import { AuthContext } from "@/context/AuthContext";
 import { submiteNomination } from "@/_api_/nomination";
@@ -11,8 +11,8 @@ import { toast, ToastContainer } from "react-toastify";
 
 export default function Nomination({
   AllEmployees,
-  Nomination_Type,
   NominationHeading,
+  ShoutoutRemaing
 }) {
   const { user } = useContext(AuthContext);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -21,28 +21,57 @@ export default function Nomination({
   const [disablebutton, setDisableButton] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [emmployeeofteam, setEmployeeOfTeam] = useState([]);
+  const [totalShoutOutRemaing, setTotalShoutOutRemaing] = useState(ShoutoutRemaing);
+  useEffect(() => {
+    if (user?.userRole != 3) {
+      setSelectedCategory("Shoutout")
+    }
+  }, [user])
+
+  useEffect(() => {
+    setTotalShoutOutRemaing(ShoutoutRemaing);
+  }, [ShoutoutRemaing]);
+
   const submitedShoutout = async () => {
     try {
       setDisableButton(true);
-      var data = {
-        UserId: selectedId,
-        ManagerIds: [user.id],
-        Nomination_Type: Nomination_Type,
-        Reason: reason,
-      };
+      var data;
+      if (user?.userRole == 3) {
+        data = {
+          UserId: selectedId,
+          ManagerIds: [user.id],
+          Nomination_Type: selectedCategory,
+          Reason: reason,
+        };
+      } else {
+        data = {
+          UserId: selectedId,
+          ManagerIds: [user.id],
+          Nomination_Type: "Shoutout",
+          Reason: reason,
+        }
+      }
+      console.log(data);
       const response = await submiteNomination(data);
       setSelectedEmployee(null);
       setSelectedId("");
       setReason("");
       response.data.success
-        ? toast.success(`${Nomination_Type} SuccessFully added`)
-        : toast.error(response.data.message);
+        ? toast.success(`${selectedCategory} SuccessFully added`)
+        : (selectedCategory=="Star of the month" && !response.data.success)?(toast.error(`Already selected ${selectedCategory}`)):null;
+      if (selectedCategory === "Shoutout" && response.data.success) {
+        setTotalShoutOutRemaing(prev => Math.max(0, prev - 1));
+      }
     } catch (error) {
       console.error(error);
     } finally {
       setDisableButton(false);
     }
   };
+
+  useEffect(() => {
+    console.log("TOTAL SHOUTOUT R", totalShoutOutRemaing)
+  }, [totalShoutOutRemaing])
 
   useEffect(() => {
     if (user?.userRole == 3) {
@@ -58,14 +87,26 @@ export default function Nomination({
       {/* Form */}
       <ToastContainer position="top-right" autoClose={3000} />
       <Card className="w-full max-w-5xl p-8 bg-white rounded-2xl shadow-2xl border mt-6">
+        <div className="flex items-center space-x-4 mb-4">
+          {selectedCategory == "Shoutout" && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="ml-auto flex items-center bg-yellow-400 text-gray-900 px-3 py-1 rounded-full shadow-md"
+            >
+              <Award size={18} className="mr-1" /> {`Shoutout remaining ${totalShoutOutRemaing}`}
+            </motion.div>
+          )}
+        </div>
         <motion.h2
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
           className="text-3xl font-bold text-center text-gray-800 flex items-center justify-center gap-3"
         >
-          <Trophy className="text-yellow-500" /> {NominationHeading}{" "}
-          <Trophy className="text-yellow-500" />
+          {NominationHeading}
+
         </motion.h2>
         <CardContent className="space-y-6 mt-6">
           {/* Nomination Category */}
@@ -77,16 +118,21 @@ export default function Nomination({
             <label className="block font-medium text-gray-700">
               Nomination Category:
             </label>
-            <select
+            {user?.userRole == 3 ? (<select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="w-full border p-2 rounded bg-white text-black"
             >
               <option value="">--Choose--</option>
-              <option value="React">React</option>
-              <option value="Vue">Vue</option>
-              <option value="Angular">Angular</option>
-            </select>
+              <option value="Shoutout">Shoutout</option>
+              <option value="Star of the month">Star of the month</option>
+
+            </select>) : (<Input
+              placeholder="Type a role..."
+              className="w-full mt-1 text-black"
+              value={selectedCategory}
+              disabled
+            />)}
           </motion.div>
 
           {/* Employee Selection */}
@@ -98,7 +144,26 @@ export default function Nomination({
             <label className="block font-medium text-gray-700">
               Search Employee:
             </label>
-            <div className="border p-2 rounded bg-white relative text-black">
+            {selectedCategory === "Star of the month" ? (<div className="border p-2 rounded bg-white relative text-black">
+              <select
+                onChange={(e) => {
+                  const selectedOption = emmployeeofteam.find(
+                    (emp) => emp.id === e.target.value
+                  );
+                  setSelectedEmployee(selectedOption || { id: "", name: "" });
+                  setSelectedId(selectedOption?.id || "");
+                }}
+                value={selectedId}
+                className="w-full bg-transparent focus:outline-none"
+              >
+                <option value="">Select an option</option>
+                {emmployeeofteam.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </div>) : (<div className="border p-2 rounded bg-white relative text-black">
               <select
                 onChange={(e) => {
                   const selectedOption = AllEmployees.find(
@@ -117,25 +182,42 @@ export default function Nomination({
                   </option>
                 ))}
               </select>
-            </div>
+            </div>)}
           </motion.div>
 
           {/* Manager Selection */}
-          <motion.div
+          {user?.userRole == 3 ? (
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <label className="block font-medium text-gray-700">
+                Search Managers:
+              </label>
+              <Input
+                placeholder="Manager..."
+                className="w-full mt-1 text-black"
+                value={user?.name ? user.name : ""}
+                disabled
+              />
+            </motion.div>
+          ) : (<motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             <label className="block font-medium text-gray-700">
-              Search Managers:
+              Nominated By:
             </label>
             <Input
-              placeholder="Manager..."
+              placeholder="Nominater Name.."
               className="w-full mt-1 text-black"
               value={user?.name ? user.name : ""}
               disabled
             />
-          </motion.div>
+          </motion.div>)}
+
 
           {/* Reason for Nomination */}
           <motion.div
@@ -160,14 +242,25 @@ export default function Nomination({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.8 }}
           >
-            <button
+
+            {(selectedCategory == "Shoutout" || user?.userRole != 3) ? (<button
               className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition 
             disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={submitedShoutout}
-              disabled={!selectedId || !reason || disablebutton}
+              disabled={!selectedId || !reason || disablebutton || totalShoutOutRemaing == 0}
             >
-              click me
-            </button>
+              Submite Shoutout
+            </button>) :
+              (<button
+                className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition 
+          disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={submitedShoutout}
+                disabled={!selectedId || !reason || disablebutton}
+              >
+                Submite
+              </button>)
+            }
+
           </motion.div>
         </CardContent>
       </Card>
