@@ -46,8 +46,7 @@ export default function SidebarProfile2({
                     />
                   </TooltipTrigger>
                   <TooltipContent className="p-3 bg-gray-800 text-white rounded-lg shadow-md">
-                    <strong>{ach}</strong>
-                    {/* <p className="text-xs mt-1">{ach.desc}</p> */}
+                    <p className="text-xs mt-1">{ach}</p>
                   </TooltipContent>
                 </Tooltip>
               ))}

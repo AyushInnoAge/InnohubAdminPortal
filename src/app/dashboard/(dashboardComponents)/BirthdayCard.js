@@ -46,8 +46,8 @@ const BirthdayCard = ({
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
   const {userDOJ, userName} = PostUserDetailed;
-  const [birthdayImage, setBirthdayImage] = useState(PostImageUrl.length>0 ? PostImageUrl : "https://images.pexels.com/photos/1543762/pexels-photo-1543762.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1  ");
-  const [anniversaryImage, setAnniversaryImage] = useState(PostImageUrl.length>0 ? PostImageUrl :"https://res.cloudinary.com/dnx8ycr6n/image/upload/v1742145427/uploads/pqbi5xdwrzoqkxvmll1r.jpg");
+  const [birthdayImage, setBirthdayImage] = useState("https://images.pexels.com/photos/1543762/pexels-photo-1543762.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1  ");
+  const [anniversaryImage, setAnniversaryImage] = useState("https://res.cloudinary.com/dnx8ycr6n/image/upload/v1742145427/uploads/pqbi5xdwrzoqkxvmll1r.jpg");
 
   const getYearGap = (date) => new Date().getFullYear() - new Date(date).getFullYear();
   const Time =getYearGap(userDOJ);

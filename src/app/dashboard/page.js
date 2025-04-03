@@ -9,7 +9,6 @@ import AppreciationCard from "./(dashboardComponents)/AppreciationCard";
 import { DashboardDataFetch } from "@/_api_/dashboard";
 import { AuthContext } from "@/context/AuthContext";
 import CompanyEvent from "./(dashboardComponents)/Festivale";
-import { useRouter } from "next/navigation";
 
 export const DashboardStatus = createContext();
 export default function Home() {
@@ -22,17 +21,20 @@ export default function Home() {
   const [lastFetchedDate, setLastFetchedDate] = useState(null);
   const [hasMoredata, setHasMoreData] = useState(true);
   const [achievements, setAchievements] = useState([]);
-  const router = useRouter();
-
-  useEffect(()=>{
-    if(!user){
-      router.push("/login");
-      return ;
-    }
-  },[]);
 
   useEffect(() => {
-    if (!user) return;
+    setPage(1); 
+    setDashboardData([]); 
+    setLastFetchedDate(null);
+    setHasMoreData(true);
+  }, []);
+
+  useEffect(() => {
+    if (page === 1) {
+      setDashboardData([]); 
+      setLastFetchedDate(null);
+      setHasMoreData(true);
+    }
     fetchPosts();
   }, [page]);
 
@@ -41,11 +43,21 @@ export default function Home() {
     setLoading(true);
     try {
       const res = await DashboardDataFetch(lastFetchedDate);
-      const response= res.message.dashboardData;
-      res.message.currentUserAchievements.length >0 ? setAchievements(res.message.currentUserAchievements) : null;
+      const response = res.message.dashboardData;
+
+      if (res.message.currentUserAchievements.length > 0) {
+        setAchievements(res.message.currentUserAchievements);
+      }
+
       if (response.length > 0) {
-          setDashboardData((prev) => [...prev, ...response]);
-      
+    
+        setDashboardData((prev) => {
+          const newPosts = response.filter(
+            (post) => !prev.some((p) => p.postData?.id === post.postData?.id)
+          );
+          return [...prev, ...newPosts];
+        });
+
         let time = response[response.length - 1]?.nominationData
           ? response[response.length - 1]?.nominationData?.verifiedAt
           : response[response.length - 1]?.postData?.created_at;
@@ -55,11 +67,11 @@ export default function Home() {
       }
     } catch (error) {
       console.error("API call failed:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
- 
   useEffect(() => {
     if (!observerRef.current) {
       observerRef.current = new IntersectionObserver((entries) => {
@@ -68,22 +80,20 @@ export default function Home() {
         }
       });
     }
+
     if (lastPostRef.current) {
       observerRef.current.observe(lastPostRef.current);
     }
 
     return () => {
       if (lastPostRef.current) {
-        observerRef.current.unobserve(lastPostRef.current); 
+        observerRef.current.unobserve(lastPostRef.current);
       }
     };
   }, [dashboardData, loading]);
 
-
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
-      
-      {dashboardData.length >0 ?
       <div className="hidden md:flex md:w-1/5 lg:w-1/6 p-4 bg-white shadow-md flex-col overflow-y-auto scrollbar-hide">
         <SidebarProfile
           UserProfileImage={
@@ -93,16 +103,20 @@ export default function Home() {
           }
           UserName={user?.name || ""}
           Designation={user?.designation || ""}
-          achievements={achievements}   
-
+          achievements={achievements}
         />
       </div>
-      :null}
 
       <div className="flex flex-col w-full md:w-4/5 lg:w-5/6 p-4 overflow-y-auto h-screen space-y-6 scrollbar-hide">
-      {dashboardData.length >0 ?
         <div className="w-full max-w-4xl mx-auto">
-          <DashboardStatus.Provider value={{ setDashboardData, setLoading, setLastFetchedDate }}>
+          <DashboardStatus.Provider
+            value={{
+              setDashboardData,
+              setLoading,
+              setLastFetchedDate,
+              setHasMoreData,
+            }}
+          >
             <PostInput
               UserProfileImage={
                 user?.image?.trim()
@@ -112,87 +126,91 @@ export default function Home() {
             />
           </DashboardStatus.Provider>
         </div>
-        :null}
 
-        <div className="w-full max-w-4xl mx-auto space-y-6">
-          {dashboardData.length == 0 ? (
-            <h1 className="text-black  text-center">Loading..</h1>
-          ) : (
-            dashboardData.map((post, index) => (
-              <div
-                key={index}
-                ref={index === dashboardData.length - 1 ? lastPostRef : null}
-              >
-                {post.postData != null && post.postData?.type === "Post" ? (
-                  <AnimatedPostCard
-                    PostId={post.postData?.id}
-                    PostUser={post.userData?.userName}
-                    PostUserProfile={post.userData?.profileImage}
-                    PostImageUrl={post.postData?.image}
-                    PostLike={post.postData?.postLikes}
-                    PostComment={post.postData?.postComments}
-                    PostType={post.postData?.type}
-                    PostTitle={post.postData?.title}
-                    PostDescription={post.postData?.description}
-                    Postcreated_At={post.postData?.created_at}
-                  />
-                ) : post.postData != null && post.postData?.type === "Poll" ? (
-                  <PollCard
-                    PostId={post.postData?.id}
-                    PostUser={post?.userData?.userName}
-                    PostUserProfile={post?.userData?.profileImage}
-                    PostTotalYes={post?.postData?.totalYes}
-                    PostTotalNo={post?.postData?.totalNo}
-                    PostType={post.postData?.type}
-                    PostTitle={post.postData.title}
-                    Postcreated_At={post.postData?.created_at}
-                  />
-                ) : post.postData != null &&
-                  (post.postData?.type === "Birthday" ||
-                    post.postData?.type === "Anniversary") ? (
-                  <BirthdayCard
-                    PostId={post.postData?.id}
-                    PostImageUrl={post.postData?.image}
-                    PostLike={post.postData?.postLikes}
-                    PostComment={post.postData?.postComments}
-                    PostType={post.postData?.type}
-                    PostTitle={post.postData?.title}
-                    PostDescription={post.postData?.description}
-                    Postcreated_At={post.postData?.created_at}
-                    PostUserDetailed={post?.userData}
-                  />
-                ) : post.postData != null &&
-                  post.postData?.type == "Company Event" ? (
-                  <CompanyEvent
-                    PostId={post.postData?.id}
-                    PostImageUrl={post?.postData?.image}
-                    PostLike={post.postData?.postLikes}
-                    PostComment={post.postData?.postComments}
-                    PostType={post.postData?.type}
-                    PostTitle={post.postData?.title}
-                    PostDescription={post.postData?.description}
-                    Postcreated_At={post.postData?.created_at}
-                  />
-                ) : post.nominationData != null &&
-                  (post.nominationData?.nomination_Type ===
-                    "Star of the month" ||
-                    post.nominationData?.nomination_Type === "Shoutout" ||
-                    post.nominationData?.nomination_Type == "Best team" ||
-                    post.nominationData?.nomination_Type == "Best leader") ? (
-                  <AppreciationCard
-                    PostId={post.nominationData?.id}
-                    NominatedUser={post.nominationData?.userId}
-                    NominatedBy={post.nominationData?.nominated_By}
-                    PostType={post.nominationData?.nomination_Type}
-                    PostDescription={post.nominationData?.reason}
-                    PostLike={post.nominationData?.postLikes}
-                    PostComment={post.nominationData?.postComments}
-                  />
-                ) : null}
-              </div>
-            ))
-          )}
-        </div>
+        {(loading && dashboardData.length==0) ? (
+          <h1 className="text-black  text-center text-3xl">Loading...</h1>
+        ) : (
+          <div className="w-full max-w-4xl mx-auto space-y-6">
+            {dashboardData.length == 0 ? (
+              <h1 className="text-black  text-center text-2xl">No more Post</h1>
+            ) : (
+              dashboardData.map((post, index) => (
+                <div
+                  key={index}
+                  ref={index === dashboardData.length - 1 ? lastPostRef : null}
+                >
+                  {post.postData != null && post.postData?.type === "Post" ? (
+                    <AnimatedPostCard
+                      PostId={post.postData?.id}
+                      PostUser={post.userData?.userName}
+                      PostUserProfile={post.userData?.profileImage}
+                      PostImageUrl={post.postData?.image}
+                      PostLike={post.postData?.postLikes}
+                      PostComment={post.postData?.postComments}
+                      PostType={post.postData?.type}
+                      PostTitle={post.postData?.title}
+                      PostDescription={post.postData?.description}
+                      Postcreated_At={post.postData?.created_at}
+                    />
+                  ) : post.postData != null &&
+                    post.postData?.type === "Poll" ? (
+                    <PollCard
+                      PostId={post.postData?.id}
+                      PostUser={post?.userData?.userName}
+                      PostUserProfile={post?.userData?.profileImage}
+                      PostTotalYes={post?.postData?.totalYes}
+                      PostTotalNo={post?.postData?.totalNo}
+                      PostType={post.postData?.type}
+                      PostTitle={post.postData.title}
+                      Postcreated_At={post.postData?.created_at}
+                    />
+                  ) : post.postData != null &&
+                    (post.postData?.type === "Birthday" ||
+                      post.postData?.type === "Anniversary") ? (
+                    <BirthdayCard
+                      PostId={post.postData?.id}
+                      PostImageUrl={post.postData?.image}
+                      PostLike={post.postData?.postLikes}
+                      PostComment={post.postData?.postComments}
+                      PostType={post.postData?.type}
+                      PostTitle={post.postData?.title}
+                      PostDescription={post.postData?.description}
+                      Postcreated_At={post.postData?.created_at}
+                      PostUserDetailed={post?.userData}
+                    />
+                  ) : post.postData != null &&
+                    post.postData?.type == "Company Event" ? (
+                    <CompanyEvent
+                      PostId={post.postData?.id}
+                      PostImageUrl={post?.postData?.image}
+                      PostLike={post.postData?.postLikes}
+                      PostComment={post.postData?.postComments}
+                      PostType={post.postData?.type}
+                      PostTitle={post.postData?.title}
+                      PostDescription={post.postData?.description}
+                      Postcreated_At={post.postData?.created_at}
+                    />
+                  ) : post.nominationData != null &&
+                    (post.nominationData?.nomination_Type ===
+                      "Star of the month" ||
+                      post.nominationData?.nomination_Type === "Shoutout" ||
+                      post.nominationData?.nomination_Type == "Best team" ||
+                      post.nominationData?.nomination_Type == "Best leader") ? (
+                    <AppreciationCard
+                      PostId={post.nominationData?.id}
+                      NominatedUser={post.nominationData?.userId}
+                      NominatedBy={post.nominationData?.nominated_By}
+                      PostType={post.nominationData?.nomination_Type}
+                      PostDescription={post.nominationData?.reason}
+                      PostLike={post.nominationData?.postLikes}
+                      PostComment={post.nominationData?.postComments}
+                    />
+                  ) : null}
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
