@@ -67,6 +67,7 @@ export default function ProfilePage() {
       // Save Mode: Call API to update profile
       try {
         const res = await updateUserProfile(user.employeeId, email, phoneNo, address, image);
+        console.log(">>>>>>>>>>>>>>>>>>",res)
         if (res.status == 200) {
           toast.success("User Profile updated successfully!");
           const newUser = {
@@ -111,6 +112,7 @@ export default function ProfilePage() {
             userRole
               :
               user.userRole,
+              achievements:user.achievements
 
           }
           localStorage.removeItem("user");

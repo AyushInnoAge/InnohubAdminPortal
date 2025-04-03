@@ -1,42 +1,46 @@
-
-import axios from "axios";
-
-
 const getToken = () => {
   return typeof window !== "undefined" ? localStorage.getItem("token") : null;
 };
 
 const updateUserProfile = async (empID, email, phone, address, image) => {
-    try {
-       
-      const token = getToken();
-     
-      const url = `User/UpdateUserProfile/${empID}`;
-      
-      const patchData = [
-        { op: "replace", path: "/Email", value: email },
-        { op: "replace", path: "/PhoneNo", value: phone },
-        { op: "replace", path: "/Address", value: address },
-        { op: "replace", path: "/Image", value: image }
-      ];
+  try {
+    const token = getToken();
 
-      
-  
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}User/UpdateUserProfile/${empID}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json-patch+json",
-          Authorization: `Bearer ${token}`, // Ensure you have a function to retrieve the token
-        },
-        body: JSON.stringify(patchData),
-      });
-      return response
-    } catch (error) {
-      throw new Error(error.message);
+    // Build the JSON patch document (excluding image since it's uploaded separately)
+    const patchData = [
+      { op: "replace", path: "/Email", value: email },
+      { op: "replace", path: "/PhoneNo", value: phone },
+      { op: "replace", path: "/Address", value: address }
+    ];
+
+    // Create FormData and append the JSON patch as text.
+    const formData = new FormData();
+    formData.append("patchDoc", JSON.stringify(patchData));
+
+    // If an image file is provided, append it to the FormData.
+    if (image) {
+      formData.append("imageFile", image);
     }
-  };
-  
 
-export{
-    updateUserProfile
-}
+    // Construct the URL.
+    const url = `${process.env.NEXT_PUBLIC_API_URL}User/UpdateUserProfile/${empID}`;
+
+    // Make the PATCH request. Note: Do not set the Content-Type header here.
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      body: formData,
+    });
+
+    console.log(response);
+    return response;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export {
+  updateUserProfile,
+};

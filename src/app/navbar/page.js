@@ -112,10 +112,10 @@ export default function Navbar() {
             <div className="nav-item">
               <div className="dropdown1">
                 <button
-                  className={`nav-link ${activeRoute === "/Nomination" ? "active" : ""}`}
+                  className={`nav-link ${activeRoute === "/nominations" ? "active" : ""}`}
                   onClick={() => {
                     toggleDropdown("awards");
-                    handleNavClick("/Nomination")
+                    handleNavClick("/nominations")
                   }}
                 >
                   Awards
@@ -152,7 +152,7 @@ export default function Navbar() {
                   </div>
                   {isDropdownOpen === "Admin" && (
                     <div className="dropdown-content lower-dropdown">
-                      <Link href="/Nomination" className="dropdown-item">
+                      <Link href="/approval" className="dropdown-item">
                         Review
                       </Link>
                       <Link
