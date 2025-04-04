@@ -19,13 +19,13 @@ export default function LoginPage() {
   const [displayValue, setDisplayValue] = useState(false);
   const router = useRouter();
 
-  useEffect(()=>{
-      if(user){
-        router.push("/dashboard");
-        return ;
-      }
-      setDisplayValue(true);
-    },[user])
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+      return;
+    }
+    setDisplayValue(true);
+  }, [user])
 
   // Hide message after 2 seconds
   useEffect(() => {
@@ -68,28 +68,31 @@ export default function LoginPage() {
     try {
       const data = await loginUser(email, password); // Call API from separate folder
 
-      if (data.statusCode === 200 && data.message?.token) {
+      if (data.statusCode === 200 && !data.message.isVerified && !data.isError) {
+        router.push("/ResetPasswordEmail")
+        return;
+      } else if (data.statusCode === 200 && data.message.isVerified && data.message?.token && !data.isError) {
         const token = data.message.token;
         const userdata = data.message.user;
-
-        localStorage.setItem("token", token); // Store token in localStorage
         login(userdata);
-          router.push("/dashboard");
+        localStorage.setItem("token", token);
+        router.push("/dashboard");
+        return;
       } else {
-        setError("Invalid email or password");
+        setError(data.message || "Try again later!");
       }
     } catch (error) {
       setError(error.message || "Something went wrong");
-    }finally{
+    } finally {
       setLoginButtonDisable(false);
     }
   };
 
   return (
     <div className={styles.container}>
-      {displayValue? <div className={styles.card}>
+      {displayValue ? <div className={styles.card}>
         <img src="/logo.svg" alt="Innoage Logo" className={styles.logo} />
-        <h2 className={styles.title}>Welcome To Inno Age</h2>
+        <h2 className={styles.title}>Welcome To InnoAge</h2>
         <p className={styles.subtitle}>Sign in to your account</p>
 
         {error && <p className={styles.error}>{error}</p>}
@@ -129,10 +132,9 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className={`${styles.button} ${
-              (!(email && password && password.length >= 6)) || loginButtonDisable ? styles.disabledButton : ""
-            }`}
-            disabled={(!(email && password && password.length >= 6))|| loginButtonDisable}
+            className={`${styles.button} ${(!(email && password && password.length >= 6)) || loginButtonDisable ? styles.disabledButton : ""
+              }`}
+            disabled={(!(email && password && password.length >= 6)) || loginButtonDisable}
           >
             Login
           </button>
@@ -144,7 +146,7 @@ export default function LoginPage() {
             Forgot Password
           </Link>
         </p>
-      </div>: null}
+      </div> : null}
     </div>
   );
 }

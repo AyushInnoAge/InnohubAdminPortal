@@ -56,9 +56,10 @@ export default function Nomination({
       setSelectedEmployee(null);
       setSelectedId("");
       setReason("");
+      console.log(response);
       response.data.success
         ? toast.success(`${selectedCategory} SuccessFully added`)
-        : (selectedCategory=="Star of the month" && !response.data.success)?(toast.error(`Already selected ${selectedCategory}`)):null;
+        : (selectedCategory=="Star of the month" && !response.data.success)?(toast.error(response.data.message)):null;
       if (selectedCategory === "Shoutout" && response.data.success) {
         setTotalShoutOutRemaing(prev => Math.max(0, prev - 1));
       }
@@ -243,7 +244,7 @@ export default function Nomination({
               className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition 
             disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={submitedShoutout}
-              disabled={!selectedId || !reason || disablebutton || totalShoutOutRemaing == 0}
+              disabled={!selectedId || !reason || disablebutton || totalShoutOutRemaing == 0 || selectedCategory!="Shoutout"}
             >
               Submit
             </button>) :
@@ -251,7 +252,7 @@ export default function Nomination({
                 className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition 
           disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={submitedShoutout}
-                disabled={!selectedId || !reason || disablebutton}
+                disabled={!selectedId || !reason || disablebutton || selectedCategory!="Star of the month"}
               >
                 Submit
               </button>)

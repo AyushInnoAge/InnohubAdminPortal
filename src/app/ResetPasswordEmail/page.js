@@ -89,7 +89,7 @@ export default function ResetPasswordPage() {
     <div className={styles.container}>  
       <div className={styles.card}>
         <img src="/logo.svg" alt="Innoage Logo" className={styles.logo} />
-        <h2 className={styles.title}>Welcome To Inno Age</h2>
+        <h2 className={styles.title}>Welcome To InnoAge</h2>
         <p className={styles.subtitle}>Trouble logging in?</p>
 
         {error && <p className={styles.error}>{error}</p>}
