@@ -9,6 +9,8 @@ import AppreciationCard from "./(dashboardComponents)/AppreciationCard";
 import { DashboardDataFetch } from "@/_api_/dashboard";
 import { AuthContext } from "@/context/AuthContext";
 import CompanyEvent from "./(dashboardComponents)/Festivale";
+import InputDisplay from "@/components/InputDisplay";
+import NotificationSection from "@/components/InputDisplay";
 
 export const DashboardStatus = createContext();
 export default function Home() {
@@ -23,15 +25,15 @@ export default function Home() {
   const [achievements, setAchievements] = useState([]);
 
   useEffect(() => {
-    setPage(1); 
-    setDashboardData([]); 
+    setPage(1);
+    setDashboardData([]);
     setLastFetchedDate(null);
     setHasMoreData(true);
   }, []);
 
   useEffect(() => {
     if (page === 1) {
-      setDashboardData([]); 
+      setDashboardData([]);
       setLastFetchedDate(null);
       setHasMoreData(true);
     }
@@ -50,7 +52,6 @@ export default function Home() {
       }
 
       if (response.length > 0) {
-    
         setDashboardData((prev) => {
           const newPosts = response.filter(
             (post) => !prev.some((p) => p.postData?.id === post.postData?.id)
@@ -105,6 +106,9 @@ export default function Home() {
           Designation={user?.designation || ""}
           achievements={achievements}
         />
+        <div className="pt-8">
+          <NotificationSection />
+        </div>
       </div>
 
       <div className="flex flex-col w-full md:w-4/5 lg:w-5/6 p-4 overflow-y-auto h-screen space-y-6 scrollbar-hide">
@@ -127,7 +131,7 @@ export default function Home() {
           </DashboardStatus.Provider>
         </div>
 
-        {(loading && dashboardData.length==0) ? (
+        {loading && dashboardData.length == 0 ? (
           <h1 className="text-black  text-center text-3xl">Loading...</h1>
         ) : (
           <div className="w-full max-w-4xl mx-auto space-y-6">
