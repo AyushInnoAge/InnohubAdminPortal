@@ -8,26 +8,13 @@ import { SubmiteEmployeeData } from "@/_api_/allemployees";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 export default function EmployeeListPage() {
-  useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      !window.location.hash.includes("reloaded")
-    ) {
-      window.location.href = window.location.href + "#reloaded";
-      window.location.reload();
-    }
-  }, []);
+
   const { user } = useContext(AuthContext);
   const router = useRouter();
   const [filter, setFilter] = useState("All");
   const [employees, setEmployees] = useState([]);
   const [editingEmployee, setEditingEmployee] = useState(null);
-  const [department, setDepartment] = useState([
-    {
-      id: "1",
-      departmentName: "All",
-    },
-  ]);
+  const [department, setDepartment] = useState([]);
   const [role, setRole] = useState([]);
   const [team, setTeam] = useState([]);
   const [selectedDepartmentId, setSelectedDepartmentId] = useState(null);
@@ -51,7 +38,12 @@ export default function EmployeeListPage() {
     try {
       const fetch = async () => {
         const fetchalldepartment = await (await FetchAllDepartment()).json();
-        setDepartment((prev) => [...prev, ...fetchalldepartment]);
+        fetchalldepartment.unshift({
+          id: "1",
+          departmentName: "All",
+        });
+        setDepartment(fetchalldepartment);
+        // setDepartment((prev) => [...prev, ...fetchalldepartment]);
         const fetchallusers = await fetchAllEmployeesByTeamLeaderId();
         setEmployees(fetchallusers.data.employeeData);
         const fetchallteam = await FetchAllTeam();
