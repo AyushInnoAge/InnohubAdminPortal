@@ -42,7 +42,6 @@ const fetchAllApproval = async () => {
 const RejectApproval = async (NominationId) => {
     try {
         const token = getToken();
-        console.log(NominationId);
         const response = await axios.post(
             `${process.env.NEXT_PUBLIC_API_URL}api/postreject`,
             { NominationId },

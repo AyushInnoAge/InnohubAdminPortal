@@ -66,9 +66,6 @@ export default function EmployeeListPage() {
     }
   }, []);
 
-  useEffect(() => {
-    console.log("Employees data updated:", department);
-  }, [department]);
 
   const filteredEmployees =
     filter === "All"

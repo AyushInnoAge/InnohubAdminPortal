@@ -12,7 +12,6 @@ const fetchAllEmployeesByTeamLeaderId = async ()=>{
                 Authorization: `Bearer ${token}`,
             },
         });
-        console.log(response);
         return response;
     }catch (error)
     {   
