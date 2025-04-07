@@ -67,7 +67,6 @@ export default function ProfilePage() {
       // Save Mode: Call API to update profile
       try {
         const res = await updateUserProfile(user.employeeId, email, phoneNo, address, image);
-        console.log(">>>>>>>>>>>>>>>>>>",res)
         if (res.status == 200) {
           toast.success("User Profile updated successfully!");
           const newUser = {
@@ -163,10 +162,10 @@ export default function ProfilePage() {
               )}
             </div>
             <h2 className="profile-name">{user?.name}</h2>
-            <p className="profile-role">{user?.userRole}</p>
+            {/* <p className="profile-role">{user?.userRole}</p> */}
             <p className="profile-designation">{user?.designation}</p>
             <p className="profile-designation">{user?.department}</p>
-            <p className="profile-address">{user?.address}</p>
+            {/* <p className="profile-address">{user?.address}</p> */}
             <div className="badges">
               <h3 className="badge-title">Badges Earned</h3>
               <div className="badge-list">

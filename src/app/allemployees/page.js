@@ -1,119 +1,155 @@
 "use client";
 import "./page.css";
-import { useState } from "react";
-import { Pencil,X} from "lucide-react";
- 
-const sampleEmployees = [
-  {
-    id: 1,
-    name: "Alice Johnson",
-    department: "HR",
-    designation: "HR Manager",
-    email: "alice@company.com",
-    phoneNo: "1234567890",
-    address: "123 Main St",
-    dob: "1990-01-15",
-    doj: "2020-06-01",
-    profile: "https://randomuser.me/api/portraits/women/44.jpg",
-  },
-  {
-    id: 2,
-    name: "Bob Smith",
-    department: "Finance",
-    designation: "Accountant",
-    email: "bob@company.com",
-    phoneNo: "9876543210",
-    address: "456 Market St",
-    dob: "1988-04-10",
-    doj: "2018-03-15",
-    profile: "https://randomuser.me/api/portraits/men/32.jpg",
-  },
-  {
-    id: 3,
-    name: "Charlie Lee",
-    department: "IT",
-    designation: "Software Engineer",
-    email: "ch@company.com",
-    phoneNo: "5551234567",
-    address: "789 Tech Blvd",
-    dob: "1995-07-20",
-    doj: "2022-01-10",
-    profile: "https://randomuser.me/api/portraits/men/76.jpg",
-  },
-  {
-    id: 4,
-    name: "Diana Prince",
-    department: "HR",
-    designation: "Recruiter",
-    email: "diana@company.com",
-    phoneNo: "2223334444",
-    address: "22 Hero Ave",
-    dob: "1992-11-30",
-    doj: "2019-08-25",
-    profile: "https://randomuser.me/api/portraits/women/68.jpg",
-  },
-];
- 
-const departments = ["All", "HR", "Finance", "IT"];
- 
+import { useState, useEffect, useContext } from "react";
+import { Pencil, X } from "lucide-react";
+import { fetchAllEmployeesByTeamLeaderId } from "@/_api_/nomination";
+import { FetchAllDepartment, FetchAllRole, FetchAllTeam } from "@/_api_/signup";
+import { SubmiteEmployeeData } from "@/_api_/allemployees";
+import { useRouter } from "next/navigation";
+import { AuthContext } from "@/context/AuthContext";
 export default function EmployeeListPage() {
+
+  const { user } = useContext(AuthContext);
+  const router = useRouter();
   const [filter, setFilter] = useState("All");
-  const [employees, setEmployees] = useState(sampleEmployees);
+  const [employees, setEmployees] = useState([]);
   const [editingEmployee, setEditingEmployee] = useState(null);
- 
+  const [department, setDepartment] = useState([]);
+  const [role, setRole] = useState([]);
+  const [team, setTeam] = useState([]);
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState(null);
+  const [selectedRoleId, setSelectedRoleId] = useState(null);
+  const [selectedTeamId, setSelectedTeamId] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [Name, setName] = useState(null);
+  const [designation, setDesignation] = useState(null);
+  const [image, setImage] = useState(null);
+  const [Empid, setEmpid] = useState(null);
+
+  useEffect(() => {
+    if (user && user.userRole != 1 && user.userRole != 2) {
+        router.push("/dashboard");
+        return;
+    }
+}, [user])
+
+  useEffect(() => {
+    try {
+      const fetch = async () => {
+        const fetchalldepartment = await (await FetchAllDepartment()).json();
+        fetchalldepartment.unshift({
+          id: "1",
+          departmentName: "All",
+        });
+        setDepartment(fetchalldepartment);
+        // setDepartment((prev) => [...prev, ...fetchalldepartment]);
+        const fetchallusers = await fetchAllEmployeesByTeamLeaderId();
+        setEmployees(fetchallusers.data.employeeData);
+        const fetchallteam = await FetchAllTeam();
+        setTeam(await fetchallteam.json());
+        const fetchallrole = await FetchAllRole();
+        setRole(await fetchallrole.json());
+      };
+
+      fetch();
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }, []);
+
+
   const filteredEmployees =
     filter === "All"
-      ? sampleEmployees
-      : sampleEmployees.filter((emp) => emp.department === filter);
-      const handleEditChange = (e) => {
-        const { name, value } = e.target;
-        setEditingEmployee({ ...editingEmployee, [name]: value });
+      ? employees
+      : employees.filter((emp) => emp.department?.departmentName === filter);
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditingEmployee({ ...editingEmployee, [name]: value });
+  };
+
+  const handleEditSubmit = () => {
+    const updated = employees.map((emp) =>
+      emp.id === editingEmployee.id ? editingEmployee : emp
+    );
+    setEmployees(updated);
+    setEditingEmployee(null);
+  };
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditingEmployee((prev) => ({
+          ...prev,
+          image: reader.result, // Temporarily display preview before upload
+          imageFile: file, // Store actual file for API upload
+        }));
       };
-   
-      const handleEditSubmit = () => {
-        const updated = employees.map((emp) =>
-          emp.id === editingEmployee.id ? editingEmployee : emp
-        );
-        setEmployees(updated);
-        setEditingEmployee(null);
-      };
-      const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            setEditingEmployee((prev) => ({
-              ...prev,
-              image: reader.result, // Temporarily display preview before upload
-              imageFile: file, // Store actual file for API upload
-            }));
-          };
-          reader.readAsDataURL(file);
-        }
-      };
- 
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const submiteAllData = async () => {
+    try {
+      const response = await SubmiteEmployeeData(
+        Name ? Name : editingEmployee?.name,
+        email ? email : editingEmployee?.email,
+        phoneNumber ? phoneNumber : editingEmployee?.phoneNo,
+        designation ? designation : editingEmployee?.designation,
+        image ? image : null,
+        selectedDepartmentId
+          ? selectedDepartmentId
+          : editingEmployee?.departmentId,
+        selectedRoleId ? selectedRoleId : editingEmployee?.roleId,
+        selectedTeamId ? selectedTeamId : editingEmployee?.teamId,
+        editingEmployee?.employeeId
+      );
+      setEmployees(response.data.employeeData);
+    } catch (error) {
+      console.error("Error submitting data:", error);
+    }
+  };
+
   return (
     <div className="page-container">
-      <button className="add-activity-btn" style={{ marginLeft: "auto" }}>
+      <button
+        className="add-activity-btn"
+        style={{ marginLeft: "auto" }}
+        onClick={() => {
+          router.push("/signup");
+          return;
+        }}
+      >
         <span className="plus-icon">+ </span>Add New Employee
       </button>
       <div className="filter-buttons">
-        {departments.map((dept) => (
+        {department.map((dept) => (
           <button
-            key={dept}
-            onClick={() => setFilter(dept)}
-            className={`filter-btn ${filter === dept ? "active" : ""}`}
+            key={dept.id}
+            onClick={() => setFilter(dept?.departmentName)}
+            className={`filter-btn ${
+              filter === dept?.departmentName ? "active" : ""
+            }`}
           >
-            {dept}
+            {dept?.departmentName}
           </button>
         ))}
       </div>
- 
+
       <div className="employee-list">
         {filteredEmployees.map((emp) => (
           <div key={emp.id} className="employee-card">
             <div className="employee-info">
-              <img src={emp.profile} alt={emp.name} className="profile-img" />
+              <img
+                src={
+                  emp?.image?.trim()
+                    ? emp?.image
+                    : `https://api.dicebear.com/7.x/initials/svg?seed=${emp?.name}`
+                }
+                alt={emp.name}
+                className="profile-img"
+              />
               <div className="employee-details">
                 <div>
                   <h2 className="employee-name">{emp.name}</h2>
@@ -121,104 +157,185 @@ export default function EmployeeListPage() {
                 </div>
                 <div className="employee-contact email">📧 {emp.email}</div>
                 <div className="employee-contact phone">📞 {emp.phoneNo}</div>
-                <div className="employee-contact dept">🏢 {emp.department}</div>
+                <div className="employee-contact dept">
+                  🏢 {emp.department?.departmentName}
+                </div>
               </div>
             </div>
- 
-            <button className="edit-btn" onClick={() => setEditingEmployee(emp)}>
+
+            <button
+              className="edit-btn"
+              onClick={() => setEditingEmployee(emp)}
+            >
               <Pencil size={16} /> Edit
             </button>
           </div>
         ))}
       </div>
-     
-{/* EDIT MODAL */}
-{editingEmployee && (
-  <div className="modal-backdrop">
-    <div className="modal-box small-modal">
-      <div className="modal-header">
-        <h3>Edit Employee</h3>
-        <button onClick={() => setEditingEmployee(null)} className="close-btn">
-          <X size={20} />
-        </button>
-      </div>
- 
-      <div className="modal-body">
-        {/* Profile Image */}
-        <div className="form-row center-content">
-          <img src={ "https://randomuser.me/api/portraits/women/44.jpg"} alt="Profile" className="profile-preview" />
+
+      {/* EDIT MODAL */}
+      {editingEmployee && (
+        <div className="modal-backdrop">
+          <div className="modal-box small-modal">
+            <div className="modal-header">
+              <h3>Edit Employee</h3>
+              <button
+                onClick={() => setEditingEmployee(null)}
+                className="close-btn"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              {/* Profile Image */}
+              <div className="form-row center-content">
+                <img
+                  src={
+                    editingEmployee?.image?.trim()
+                      ? editingEmployee?.image
+                      : `https://api.dicebear.com/7.x/initials/svg?seed=${editingEmployee?.name}`
+                  }
+                  alt="Profile"
+                  className="profile-preview"
+                />
+              </div>
+              <div className="form-row">
+                <label>Change Image:</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    setImage(e.target.files[0]);
+                    handleImageChange(e);
+                  }}
+                />
+              </div>
+
+              {/* Name */}
+              <div className="form-row">
+                <label>Name:</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editingEmployee.name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    handleEditChange(e);
+                  }}
+                />
+              </div>
+
+              {/* Designation */}
+              <div className="form-row">
+                <label>Designation:</label>
+                <input
+                  type="text"
+                  name="designation"
+                  value={editingEmployee.designation}
+                  onChange={(e) => {
+                    setDesignation(e.target.value);
+                    handleEditChange(e);
+                  }}
+                />
+              </div>
+
+              {/* Email */}
+              <div className="form-row">
+                <label>Email:</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={editingEmployee.email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    handleEditChange(e);
+                  }}
+                />
+              </div>
+
+              {/* Phone No */}
+              <div className="form-row">
+                <label>Phone No:</label>
+                <input
+                  type="text"
+                  name="phoneNo"
+                  value={editingEmployee.phoneNo}
+                  onChange={(e) => {
+                    setPhoneNumber(e.target.value);
+                    handleEditChange(e);
+                  }}
+                />
+              </div>
+
+              <div className="form-row">
+                <label>Department:</label>
+                <select
+                  name="departmentId"
+                  onChange={(e) => {
+                    setSelectedDepartmentId(e.target.value);
+                    handleEditChange(e);
+                  }}
+                >
+                  <option value="">Select</option>
+                  {department.map((dept, index) => (
+                    <option key={index} value={dept.id}>
+                      {dept.departmentName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-row">
+                <label>Role:</label>
+                <select
+                  name="roleId"
+                  onChange={(e) => {
+                    setSelectedRoleId(e.target.value);
+                    handleEditChange(e);
+                  }}
+                >
+                  <option value="">Select</option>
+                  {role.map((role, index) => (
+                    <option key={index} value={role.id}>
+                      {role.roleName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-row">
+                <label>Team:</label>
+                <select
+                  name="teamId"
+                  onChange={(e) => {
+                    setSelectedTeamId(e.target.value);
+                    handleEditChange(e);
+                  }}
+                >
+                  <option value="">Select</option>
+                  {team.map((team, index) => (
+                    <option key={index} value={team.id}>
+                      {team.teamName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Save Button */}
+              <button
+                className="submit-btn"
+                onClick={async () => {
+                  handleEditSubmit();
+                  await submiteAllData();
+                }}
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="form-row">
-  <label>Change Image:</label>
-  <input type="file" accept="image/*" onChange={handleImageChange} />
-</div>
- 
-        {/* Name */}
-        <div className="form-row">
-          <label>Name:</label>
-          <input type="text" name="name" value={editingEmployee.name} onChange={handleEditChange} />
-        </div>
- 
-        {/* Designation */}
-        <div className="form-row">
-          <label>Designation:</label>
-          <input type="text" name="designation" value={editingEmployee.designation} onChange={handleEditChange} />
-        </div>
- 
-        {/* Email */}
-        <div className="form-row">
-          <label>Email:</label>
-          <input type="email" name="email" value={editingEmployee.email} onChange={handleEditChange} />
-        </div>
- 
-        {/* Phone No */}
-        <div className="form-row">
-          <label>Phone No:</label>
-          <input type="text" name="phoneNo" value={editingEmployee.phoneNo} onChange={handleEditChange} />
-        </div>
- 
-     
-        <div className="form-row">
-          <label>Department:</label>
-          <select name="departmentId" value={editingEmployee.departmentId} onChange={handleEditChange}>
-            <option value="">Select</option>
-            <option value="67bd79deaf1e63e00a86f4fa">IT</option>
-            <option value="someId2">HR</option>
-            <option value="someId3">Finance</option>
-          </select>
-        </div>
- 
-        <div className="form-row">
-          <label>Role:</label>
-          <select name="roleId" value={editingEmployee.roleId} onChange={handleEditChange}>
-            <option value="">Select</option>
-            <option value="67bcaa3170f4fb3a89f41e3a">Team Leader</option>
-            <option value="someRoleId2">Employee</option>
-          </select>
-        </div>
- 
-   
-        <div className="form-row">
-          <label>Team:</label>
-          <select name="teamId" value={editingEmployee.teamId} onChange={handleEditChange}>
-            <option value="">Select</option>
-            <option value="67c5574b52fbf65c01ef86f6">Development</option>
-            <option value="someTeamId2">Design</option>
-          </select>
-        </div>
- 
-        {/* Save Button */}
-        <button className="submit-btn" onClick={handleEditSubmit}>
-          Save Changes
-        </button>
-      </div>
+      )}
     </div>
-  </div>
-)}
- 
- 
- 
-    </div>
-   
   );
 }

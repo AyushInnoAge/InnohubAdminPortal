@@ -28,7 +28,7 @@ export default function Navbar() {
   const [isDropdownOpen, setDropdownOpen] = useState(null);
   const [isProfileOpen, setProfileOpen] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
- 
+
   const pathname = usePathname(); // Get the current path
   const [activeRoute, setActiveRoute] = useState(pathname);
   const router = useRouter();
@@ -106,16 +106,24 @@ export default function Navbar() {
 
           {/* Navigation Links (Visible on Large Screens) */}
           <div className={`nav-links ${isSidebarOpen ? "hide" : ""}    `}>
-            <Link href="/dashboard" className={`nav-link ${activeRoute === "/dashboard" ? "active" : ""}`}   onClick={() => handleNavClick("/dashboard")}>
+            <Link
+              href="/dashboard"
+              className={`nav-link ${
+                activeRoute === "/dashboard" ? "active" : ""
+              }`}
+              onClick={() => handleNavClick("/dashboard")}
+            >
               Dashboard
             </Link>
             <div className="nav-item">
               <div className="dropdown1">
                 <button
-                  className={`nav-link ${activeRoute === "/nominations" ? "active" : ""}`}
+                  className={`nav-link ${
+                    activeRoute === "/nominations" ? "active" : ""
+                  }`}
                   onClick={() => {
                     toggleDropdown("awards");
-                    handleNavClick("/nominations")
+                    handleNavClick("/nominations");
                   }}
                 >
                   Awards
@@ -125,10 +133,11 @@ export default function Navbar() {
             <div className="nav-item">
               <div className="dropdown1">
                 <button
-                   className={`nav-link ${activeRoute === "/funactivity" ? "active" : ""}`}
+                  className={`nav-link ${
+                    activeRoute === "/funactivity" ? "active" : ""
+                  }`}
                   onClick={() => {
-                    handleNavClick("/funactivity")
-                    
+                    handleNavClick("/funactivity");
                   }}
                 >
                   Fun & Social Activities
@@ -136,35 +145,33 @@ export default function Navbar() {
               </div>
             </div>
             <div className="nav-item">
-              {(user?.userRole && (user.userRole === 1 || user.userRole === 2)) && (
-                <div className="nav-item">
-                  <div className="dropdown1">
-                    <button
-                      className="nav-link dropdown-btn"
-                      onClick={() => toggleDropdown("Admin")}
-                    >
-                      Admin
-                    </button>
-                    <FaChevronDown
-                      size={12}
-                      onClick={() => toggleDropdown("Admin")}
-                    />
-                  </div>
-                  {isDropdownOpen === "Admin" && (
-                    <div className="dropdown-content lower-dropdown">
-                      <Link href="/approval" className="dropdown-item">
-                        Review
-                      </Link>
-                      <Link
-                        href="/signup"
-                        className="dropdown-item"
+              {user?.userRole &&
+                (user.userRole === 1 || user.userRole === 2) && (
+                  <div className="nav-item">
+                    <div className="dropdown1">
+                      <button
+                        className="nav-link dropdown-btn"
+                        onClick={() => toggleDropdown("Admin")}
                       >
-                        New Employee
-                      </Link>
+                        Admin
+                      </button>
+                      <FaChevronDown
+                        size={12}
+                        onClick={() => toggleDropdown("Admin")}
+                      />
                     </div>
-                  )}
-                </div>
-              )}
+                    {isDropdownOpen === "Admin" && (
+                      <div className="dropdown-content lower-dropdown">
+                        <Link href="/approval" className="dropdown-item">
+                          Review
+                        </Link>
+                        <Link href="/allemployees" className="dropdown-item">
+                          All Employee
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
             </div>
           </div>
 

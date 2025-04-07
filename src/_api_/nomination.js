@@ -7,7 +7,7 @@ const getToken = () => {
 const fetchAllEmployeesByTeamLeaderId = async ()=>{
     try{
         const token = getToken();
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}user/fetch_my_employees?userid=67c6962d270eb6d72e8c09f9`, {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}user/fetch_my_employees`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

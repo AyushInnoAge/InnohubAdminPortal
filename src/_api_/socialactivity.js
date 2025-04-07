@@ -23,7 +23,6 @@ const addSocialActivity = async (activityName, description, date, timing, organi
         organisers.forEach((organiser, index) => {
             formData.append(`Organisers[${index}]`, organiser);
         });
-        console.log(formData)
 
         const response = await fetch( `${process.env.NEXT_PUBLIC_API_URL}api/SocialActivity`, {
             method: "POST",
