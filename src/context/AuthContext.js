@@ -52,10 +52,11 @@ export const AuthProvider = ({ children }) => {
 
   // Function to log out
   const logout = () => {
+    router.replace("/login");
     setUser(null);
     localStorage.removeItem("user"); // Remove from localStorage
     localStorage.removeItem("token");
-    router.push("/login");
+   
   };
 
   return (

@@ -9,18 +9,24 @@ const categories = ["All", "Star of month"];
 
 export const ApprovalData = createContext()
 export default function ApprovalPage() {
+
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [nominatedEmployee, setNominatedEmployee] = useState([]);
   const { user } = useContext(AuthContext);
   const router = useRouter();
   const [loading, setLoading] = useState(false)
+  const time = new Date();
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
-  useEffect(()=>{
-    if(user && user.userRole!=1 && user.userRole!=2){
+  useEffect(() => {
+    if (user && user.userRole != 1 && user.userRole != 2) {
       router.push("/dashboard");
-      return ;
+      return;
     }
-  },[user])
+  }, [user])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,6 +49,7 @@ export default function ApprovalPage() {
   return (
     <div className="p-4 sm:p-6 md:p-8 min-h-screen bg-gray-100">
       {/* Navbar */}
+
       <div className="flex flex-wrap justify-center gap-4 mb-8">
         {categories.map((category) => (
           <button
@@ -55,10 +62,9 @@ export default function ApprovalPage() {
           </button>
         ))}
       </div>
-
       {/* Events Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-10 place-items-center">
-        {(nominatedEmployee.length > 0 && !loading) ? (
+      <div className={(nominatedEmployee.length == 0 || time.getDate() < 15) ? "w-auto justify-center item-center" : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-10 place-items-center"}>
+        {(nominatedEmployee.length > 0 && !loading && time.getDate() > 15) ? (
           nominatedEmployee.map((event) => (
             <div key={event.id} className="w-full max-w-[28rem] lg:max-w-[32rem] flex justify-center">
               <ApprovalData.Provider value={{ setNominatedEmployee, nominatedEmployee }}>
@@ -75,9 +81,9 @@ export default function ApprovalPage() {
               </ApprovalData.Provider>
             </div>
           ))
-        ) : (nominatedEmployee.length == 0 && !loading) ? (
-          <p className="text-center text-black text-2lg justify-center items-center">not more nomination available</p>
-        ) : <p className="text-center text-black text-2lg justify-center items-center">Loading...</p>}
+        ) : (time.getDate() < 15) ? (
+          <p className="text-center text-black text-3xl justify-center items-center">{`The approval portal will open on 16th ${monthNames[time.getMonth()]}`}</p>
+        ) : <p className="text-center text-black text-3xl justify-center items-center">No further approvals are available</p>}
       </div>
     </div>
   );

@@ -167,7 +167,7 @@ export default function EmployeeListPage() {
               className="edit-btn"
               onClick={() => setEditingEmployee(emp)}
             >
-              <Pencil size={16} /> Edit
+              <Pencil size={18} />
             </button>
           </div>
         ))}

@@ -111,7 +111,7 @@ export default function ProfilePage() {
             userRole
               :
               user.userRole,
-              achievements:user.achievements
+            achievements: user.achievements
 
           }
           localStorage.removeItem("user");
@@ -169,12 +169,12 @@ export default function ProfilePage() {
             <div className="badges">
               <h3 className="badge-title">Badges Earned</h3>
               <div className="badge-list">
-                  {badges.map((badge, index) => (
-                    <span key={index} className={`badge ${badge.color}`}>
-                      {badge.name}
-                    </span>
-                  ))}
-                </div>
+                {badges.map((badge, index) => (
+                  <span key={index} className={`badge ${badge.color}`}>
+                    {badge.name}
+                  </span>
+                ))}
+              </div>
 
             </div>
           </div>

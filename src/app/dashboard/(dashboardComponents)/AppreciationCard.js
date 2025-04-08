@@ -22,13 +22,19 @@ const AppreciationCard = ({
   const [commentValue, setCommentValue] = useState("");
   const [comment, setComment] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const [PostImageUrl, setPostImageUrl] = useState("");
 
   const timing = new Date(Postcreated_At);
-  const time = `${timing.getDate()}-${
-    timing.getMonth() + 1
-  }-${timing.getFullYear()}`;
+  const time = `${timing.getDate()}-${timing.getMonth() + 1
+    }-${timing.getFullYear()}`;
+
+  const words = PostDescription.split(" ");
+  const shouldTruncate = words.length > 20;
+  const displayedText = expanded
+    ? PostDescription
+    : words.slice(0, 20).join(" ") + (shouldTruncate ? "..." : "");
 
   //set image
   useEffect(() => {
@@ -51,12 +57,12 @@ const AppreciationCard = ({
     }
   }, [PostType]);
 
- 
+
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); 
+      setLikeButtonDisable(Like.some((like) => like.userId == user.id));
     }
-  }, []); 
+  }, []);
 
   // Submit Like Button
   const setLikeSubmit = async () => {
@@ -64,16 +70,16 @@ const AppreciationCard = ({
       setLikeButtonDisable(true);
       const likedData = { postId: PostId, userId: user.id };
 
-      
+
       await LikeSubmite(likedData);
 
-      setLike((prev=[]) => [...prev, user.id]); 
+      setLike((prev = []) => [...prev, user.id]);
     } catch (error) {
       console.error(error);
     }
   };
 
- 
+
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
@@ -81,7 +87,7 @@ const AppreciationCard = ({
       const commentData = {
         postId: PostId,
         commentMessage: commentValue,
-        userName: user.name,   
+        userName: user.name,
       };
 
       await CommentAdd(commentData);
@@ -123,15 +129,23 @@ const AppreciationCard = ({
       )}
 
       <div className="p-4">
-        <h2 className="text-2xl font-bold text-gray-900">{`${PostType} goes to ${NominatedUser}, present by ${NominatedBy}`}</h2>
-        <p className="text-gray-700 mt-2 text-base">{PostDescription}</p>
+        <h2 className="text-lg font-medium text-gray-900">{displayedText} {shouldTruncate && (
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            className="text-blue-400  "
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? "View Less" : "View More"}
+          </motion.button>
+        )}</h2>
+        <p className="text-black text-base font-extrabold mt-2">{`${PostType} goes to ${NominatedUser} present by ${NominatedBy}`}</p>
+        
       </div>
 
       <div className="flex items-center justify-between mt-4">
         <button
-          className={`flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors ${
-            likeButtonDisable && "cursor-not-allowed opacity-50"
-          }`}
+          className={`flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors ${likeButtonDisable && "cursor-not-allowed opacity-50"
+            }`}
           disabled={likeButtonDisable}
           onClick={setLikeSubmit}
         >
