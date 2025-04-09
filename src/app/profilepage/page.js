@@ -67,7 +67,10 @@ export default function ProfilePage() {
       // Save Mode: Call API to update profile
       try {
         const res = await updateUserProfile(user.employeeId, email, phoneNo, address, image);
-        if (res.status == 200) {
+
+     
+        if (res.statusCode == 200) {
+          const updateImage=  res.result?.imageUrl;
           toast.success("User Profile updated successfully!");
           const newUser = {
             address: address,
@@ -91,8 +94,8 @@ export default function ProfilePage() {
               :
               user.id,
             image
-              :
-              image,
+              :image
+              ,
             name
               :
               user.name,
@@ -113,6 +116,9 @@ export default function ProfilePage() {
               user.userRole,
             achievements: user.achievements
 
+          }
+          if(updateImage){
+            newUser.image=updateImage;
           }
           localStorage.removeItem("user");
           login(newUser);

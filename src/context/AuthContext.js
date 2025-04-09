@@ -47,15 +47,15 @@ export const AuthProvider = ({ children }) => {
   // Function to log in
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData)); // Save in localStorage
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   // Function to log out
   const logout = () => {
     router.replace("/login");
-    setUser(null);
-    localStorage.removeItem("user"); // Remove from localStorage
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
    
   };
 

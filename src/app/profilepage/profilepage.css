@@ -55,14 +55,13 @@
   }
   
   .profile-img-wrapper {
-    position: sticky;
     top: 20px; /* Keeps profile image at top while scrolling */
     z-index: 10
   }
   
   .profile-img {
     border-radius: 50%;
-    border: 3px solid #707BFF;
+    border: 3px solid hsl(290, 89%, 39%);
     width: 140px; /* Increased size */
     height: 140px; /* Increased size */
     object-fit: cover;
