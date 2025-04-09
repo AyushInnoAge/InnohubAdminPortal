@@ -89,7 +89,7 @@ const BirthdayCard = ({
   };
 
   return (
-    <div className="relative bg-white rounded-lg p-6 w-full max-w-[42rem] mx-auto shadow-xl overflow-hidden border-2 border-gray-200">
+    <div className="relative bg-white rounded-lg p-6 w-full max-w-[40rem] mx-auto shadow-xl overflow-hidden border-2 border-gray-200">
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}

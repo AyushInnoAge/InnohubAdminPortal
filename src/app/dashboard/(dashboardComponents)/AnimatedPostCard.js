@@ -79,7 +79,7 @@ const AnimatedPostCard = ({
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 w-full max-w-[42rem] mx-auto">
+    <div className="bg-white shadow-md rounded-lg p-4 w-full max-w-[40rem] mx-auto">
       <motion.div
         className="relative w-full bg-white rounded-lg overflow-hidden cursor-pointer p-4 sm:p-6"
         onMouseMove={handleMouseMove}

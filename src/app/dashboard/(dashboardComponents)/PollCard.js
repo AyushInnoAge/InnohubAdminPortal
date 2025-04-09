@@ -110,7 +110,7 @@ const PollCard = (
   };
 
   return (
-    <div className="bg-white text-black rounded-lg p-4 w-full max-w-[42rem] mx-auto shadow-lg border border-gray-300">
+    <div className="bg-white text-black rounded-lg p-4 w-full max-w-[40rem] mx-auto shadow-lg border border-gray-300">
       <motion.div
         className="relative w-full bg-white rounded-lg overflow-hidden p-4 sm:p-6"
         whileHover={{ scale: 1.02 }}

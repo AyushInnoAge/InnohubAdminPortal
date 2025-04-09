@@ -100,7 +100,7 @@ const AppreciationCard = ({
 
   return (
     <motion.div
-      className="bg-white rounded-lg p-6 w-full max-w-[42rem] mx-auto shadow-lg border border-gray-300"
+      className="bg-white rounded-lg p-6 w-full max-w-[40rem] mx-auto shadow-lg border border-gray-300"
       whileHover={{ scale: 1.05 }}
       transition={{ type: "spring", stiffness: 160, damping: 10 }}
     >

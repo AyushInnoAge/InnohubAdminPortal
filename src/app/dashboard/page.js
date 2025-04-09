@@ -98,7 +98,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
-      <div className="hidden [@media(min-width:1300px)]:flex w-1/5 p-4 bg-white shadow-md flex-col overflow-y-auto">
+      <div className="hidden [@media(min-width:1300px)]:flex w-1/6 p-4 bg-white shadow-md flex-col overflow-y-auto scrollbar-hide">
         <SidebarProfile
           UserProfileImage={
             user?.image?.trim()
@@ -116,7 +116,7 @@ export default function Home() {
         ) : null}
       </div>
 
-      <div className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6">
+      <div className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6 scrollbar-hide">
         <div className="w-full max-w-4xl mx-auto">
           <DashboardStatus.Provider
             value={{
