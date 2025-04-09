@@ -70,7 +70,7 @@ const CompanyEvent = ({
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 w-full max-w-lg mx-auto shadow-md">
+    <div className="bg-white rounded-lg p-4 w-full max-w-[42rem] mx-auto shadow-md">
       <motion.div
         className="relative w-full bg-white rounded-lg overflow-hidden cursor-pointer p-4 sm:p-6"
         onMouseMove={handleMouseMove}
@@ -93,7 +93,7 @@ const CompanyEvent = ({
           <h2 className="text-xl sm:text-2xl font-bold text-black">
             {PostTitle}
           </h2>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base">
+          <p className="text-black text-xl text-center mt-2 font-medium">
             {PostDescription}
           </p>
         </div>
@@ -107,7 +107,7 @@ const CompanyEvent = ({
             disabled={likeButtonDisable}
             onClick={setLikeSubmit}
           >
-            <ThumbsUp size={24} />
+            <ThumbsUp size={30} />
             <span>Like {Like.length}</span>
           </button>
           <button
@@ -115,7 +115,7 @@ const CompanyEvent = ({
             aria-label="Comment on post"
             onClick={() => setComments(!comments)}
           >
-            <MessageCircle size={24} />
+            <MessageCircle size={30} />
             <span>Comment</span>
           </button>
         </div>

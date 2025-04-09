@@ -100,7 +100,7 @@ const AppreciationCard = ({
 
   return (
     <motion.div
-      className="bg-white rounded-lg p-6 w-full max-w-lg mx-auto shadow-lg border border-gray-300"
+      className="bg-white rounded-lg p-6 w-full max-w-[42rem] mx-auto shadow-lg border border-gray-300"
       whileHover={{ scale: 1.05 }}
       transition={{ type: "spring", stiffness: 160, damping: 10 }}
     >
@@ -129,7 +129,7 @@ const AppreciationCard = ({
       )}
 
       <div className="p-4">
-        <h2 className="text-lg font-medium text-gray-900">{displayedText} {shouldTruncate && (
+        <h2 className="text-xl font-medium text-black">{displayedText} {shouldTruncate && (
           <motion.button
             whileTap={{ scale: 0.9 }}
             className="text-blue-400  "
@@ -149,14 +149,14 @@ const AppreciationCard = ({
           disabled={likeButtonDisable}
           onClick={setLikeSubmit}
         >
-          <ThumbsUp size={24} />
+          <ThumbsUp size={30} />
           <span>Like {Like.length}</span>
         </button>
         <button
           className="flex items-center space-x-2 text-gray-500"
           onClick={() => setComment(!comment)}
         >
-          <MessageCircle size={24} />
+          <MessageCircle size={30} />
           <span>Comment</span>
         </button>
       </div>

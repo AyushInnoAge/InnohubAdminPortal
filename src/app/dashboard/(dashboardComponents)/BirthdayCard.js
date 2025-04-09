@@ -89,7 +89,7 @@ const BirthdayCard = ({
   };
 
   return (
-    <div className="relative bg-white rounded-lg p-6 w-full max-w-lg mx-auto shadow-xl overflow-hidden border-2 border-gray-200">
+    <div className="relative bg-white rounded-lg p-6 w-full max-w-[42rem] mx-auto shadow-xl overflow-hidden border-2 border-gray-200">
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
@@ -123,7 +123,7 @@ const BirthdayCard = ({
       <h2 className="text-xl font-extrabold text-gray-900 text-center mt-4">
         {PostType=="Anniversary"? `Congratulations On ${Time}${grammer[Time-1]} ${PostTitle}, ${userName}`: `${PostTitle}, ${userName}`}
       </h2>
-      <p className="text-gray-600 text-center mt-2 font-medium">
+      <p className="text-black text-xl text-center mt-2 font-medium">
         {PostDescription}
       </p>
 
@@ -135,14 +135,14 @@ const BirthdayCard = ({
           disabled={likeButtonDisable}
           onClick={setLikeSubmit}
         >
-          <ThumbsUp size={24} />
+          <ThumbsUp size={30} />
           <span>Like {Like.length}</span>
         </button>
         <button
           className="flex items-center space-x-2 text-gray-500"
           onClick={() => setComments(!comments)}
         >
-          <MessageCircle size={24} />
+          <MessageCircle size={30} />
           <span>Comment</span>
         </button>
       </div>

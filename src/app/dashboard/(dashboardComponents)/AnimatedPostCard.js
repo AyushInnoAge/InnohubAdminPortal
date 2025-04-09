@@ -79,7 +79,7 @@ const AnimatedPostCard = ({
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 w-full max-w-lg mx-auto shadow-md">
+    <div className="bg-white shadow-md rounded-lg p-4 w-full max-w-[42rem] mx-auto">
       <motion.div
         className="relative w-full bg-white rounded-lg overflow-hidden cursor-pointer p-4 sm:p-6"
         onMouseMove={handleMouseMove}
@@ -110,10 +110,10 @@ const AnimatedPostCard = ({
 
           </button>
           <div className="flex flex-col">
-            <span className="text-gray-800 font-semibold text-base sm:text-lg">
+            <span className="text-gray-800 font-semibold text-xl sm:text-lg">
               {PostUser}
             </span>
-            <span className="text-gray-500 text-sm sm:text-xs">{time}</span>
+            <span className="text-gray-500 text-lg sm:text-xs">{time}</span>
           </div>
         </div>
 
@@ -132,7 +132,7 @@ const AnimatedPostCard = ({
           <h2 className="text-xl sm:text-2xl font-bold text-black">
             {PostTitle}
           </h2>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base">
+          <p className="text-xl sm:text-xl  text-black mt-2">
             {displayedText}{shouldTruncate && (
               <motion.button
                 whileTap={{ scale: 0.9 }}
@@ -153,7 +153,7 @@ const AnimatedPostCard = ({
             disabled={likeButtonDisable}
             onClick={setLikeSubmit}
           >
-            <ThumbsUp size={24} />
+            <ThumbsUp size={30} />
             <span>Like {Like.length}</span>
           </button>
           <button
@@ -161,7 +161,7 @@ const AnimatedPostCard = ({
             aria-label="Comment on post"
             onClick={() => setComments(!comments)}
           >
-            <MessageCircle size={24} />
+            <MessageCircle size={30} />
             <span>Comment</span>
           </button>
         </div>

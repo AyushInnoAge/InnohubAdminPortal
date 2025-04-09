@@ -18,9 +18,7 @@ const cardVariant = {
   },
 };
 
-export default function ShoutoutLeaderboard({
-  shoutouts = []
-}) {
+export default function ShoutoutLeaderboard({ shoutouts = [] }) {
   return (
     <motion.div
       className="w-full space-y-4"
@@ -30,9 +28,7 @@ export default function ShoutoutLeaderboard({
     >
       {/* Header */}
       <div className="flex items-center justify-between border-b px-2 pb-1">
-        <h2 className="text-lg font-bold text-purple-700">Top Shoutouts</h2>
-
-
+        <h2 className="text-xl font-bold text-purple-700">Top Shoutouts</h2>
       </div>
 
       {/* Leaderboard */}
@@ -44,19 +40,20 @@ export default function ShoutoutLeaderboard({
                 {/* Profile image */}
                 <img
                   src={
-                    emp.find(item => item.name === "Users")
-                      ?.value
-                      ?.find(field => field.name === "Image")
-                      ?.value?.length > 0
-                      ? emp.find(item => item.name === "Users")
-                        ?.value
-                        ?.find(field => field.name === "Image")
-                        ?.value
-                      : `https://api.dicebear.com/7.x/initials/svg?seed=${emp.find(item => item.name === "Users")
-                        ?.value
-                        ?.find(field => field.name === "Name")
-                        ?.value
-                      }`
+                    emp
+                      .find((item) => item.name === "Users")
+                      ?.value?.find((field) => field.name === "Image")?.value
+                      ?.length > 0
+                      ? emp
+                          .find((item) => item.name === "Users")
+                          ?.value?.find((field) => field.name === "Image")
+                          ?.value
+                      : `https://api.dicebear.com/7.x/initials/svg?seed=${
+                          emp
+                            .find((item) => item.name === "Users")
+                            ?.value?.find((field) => field.name === "Name")
+                            ?.value
+                        }`
                   }
                   alt={emp.name}
                   className="w-10 h-10 rounded-full object-cover border"
@@ -64,23 +61,31 @@ export default function ShoutoutLeaderboard({
 
                 {/* Info */}
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-800">{emp.find(item => item.name === "Users")
-                    ?.value
-                    ?.find(field => field.name === "Name")
-                    ?.value}</p>
-                  <div className="flex items-center text-xs text-gray-600 gap-1 mt-1">
+                  <p className="text-base font-semibold text-gray-800">
+                    {
+                      emp
+                        .find((item) => item.name === "Users")
+                        ?.value?.find((field) => field.name === "Name")?.value
+                    }
+                  </p>
+                  <div className="flex items-center text-base text-gray-600 gap-1 mt-1">
                     <Trophy className="w-4 h-4 text-amber-500" />
-                    <span>{emp.find(field => field.name == "count")?.value} shoutout{emp.shoutoutCount > 1 ? "s" : ""}</span>
+                    <span>
+                      {emp.find((field) => field.name == "count")?.value}{" "}
+                      shoutout{emp.shoutoutCount > 1 ? "s" : ""}
+                    </span>
                   </div>
                 </div>
 
                 {/* Rank */}
-                <span className="text-sm text-purple-600 font-bold">#{i + 1}</span>
+                <span className="text-base text-purple-600 font-bold">
+                  #{i + 1}
+                </span>
               </Card>
             </motion.div>
           ))
         ) : (
-          <p className="text-sm text-gray-500 text-center">No data available</p>
+          <p className="text-base text-gray-500 text-center">No data available</p>
         )}
       </div>
     </motion.div>

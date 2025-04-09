@@ -25,15 +25,15 @@ export default function SidebarProfile2({
             src={UserProfileImage}
             className="w-16 h-16 mb-3 border-4 border-gray-300"
           />
-          <h2 className="text-lg font-semibold text-black">{UserName}</h2>
-          <p className="mt-1 text-sm text-gray-700 text-center">
+          <h2 className="text-xl font-semibold text-black">{UserName}</h2>
+          <p className="mt-1 text-base text-gray-900 text-center">
             {Designation}
           </p>
         </div>
 
         {achievements.length > 0 ? (
           <div className="mt-6">
-            <h3 className="text-md font-semibold mb-3 text-gray-800">
+            <h3 className="text-lg font-semibold mb-3 text-blue-600">
               Achievements
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
