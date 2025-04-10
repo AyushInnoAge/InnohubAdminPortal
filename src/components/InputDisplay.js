@@ -61,24 +61,24 @@ export default function ShoutoutLeaderboard({ shoutouts = [] }) {
 
                 {/* Info */}
                 <div className="flex-1">
-                  <p className="text-base font-semibold text-gray-800">
+                  <p className="text-sm font-semibold text-gray-800">
                     {
                       emp
                         .find((item) => item.name === "Users")
                         ?.value?.find((field) => field.name === "Name")?.value
                     }
                   </p>
-                  <div className="flex items-center text-base text-gray-600 gap-1 mt-1">
+                  <div className="flex items-center text-sm text-gray-600 gap-1 mt-1">
                     <Trophy className="w-4 h-4 text-amber-500" />
                     <span>
                       {emp.find((field) => field.name == "count")?.value}{" "}
-                      shoutout{emp.shoutoutCount > 1 ? "s" : ""}
+                      Shoutout{emp.shoutoutCount > 1 ? "s" : ""}
                     </span>
                   </div>
                 </div>
 
                 {/* Rank */}
-                <span className="text-base text-blue-600 font-bold">
+                <span className="text-sm text-blue-600 font-bold">
                   #{i + 1}
                 </span>
               </Card>
