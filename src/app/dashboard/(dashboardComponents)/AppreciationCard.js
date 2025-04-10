@@ -52,7 +52,7 @@ const AppreciationCard = ({
       );
     } else {
       setPostImageUrl(
-        "https://res.cloudinary.com/de4oinuvo/image/upload/v1742137065/InnoAge/elariszsyxugq2ns8ymn.webp"
+        "https://res.cloudinary.com/dnx8ycr6n/image/upload/v1744260852/uploads/ConstntImage/Shoutout.png"
       );
     }
   }, [PostType]);

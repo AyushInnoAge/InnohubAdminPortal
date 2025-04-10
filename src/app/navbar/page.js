@@ -3,17 +3,16 @@ import { useContext, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import "./navbar.css";
-import { FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
-import { IoNotificationsSharp } from "react-icons/io5";
+import { FaBars, FaTimes } from "react-icons/fa";
 import { FaTrophy } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa";
-import { GrDocumentPerformance } from "react-icons/gr";
+import { FaListUl } from "react-icons/fa6";
 import { MdOutlineEvent } from "react-icons/md";
-import { IoBicycleOutline } from "react-icons/io5";
-import { RiGalleryFill } from "react-icons/ri";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+
+import { MdOutlinePreview } from "react-icons/md";
 import {
   FaThLarge,
   FaBox,
@@ -108,9 +107,8 @@ export default function Navbar() {
           <div className={`nav-links ${isSidebarOpen ? "hide" : ""}    `}>
             <Link
               href="/dashboard"
-              className={`nav-link ${
-                activeRoute === "/dashboard" ? "active" : ""
-              }`}
+              className={`nav-link ${activeRoute === "/dashboard" ? "active" : ""
+                }`}
               onClick={() => handleNavClick("/dashboard")}
             >
               Dashboard
@@ -118,9 +116,8 @@ export default function Navbar() {
             <div className="nav-item">
               <div className="dropdown1">
                 <button
-                  className={`nav-link ${
-                    activeRoute === "/nominations" ? "active" : ""
-                  }`}
+                  className={`nav-link ${activeRoute === "/nominations" ? "active" : ""
+                    }`}
                   onClick={() => {
                     toggleDropdown("awards");
                     handleNavClick("/nominations");
@@ -133,9 +130,8 @@ export default function Navbar() {
             <div className="nav-item">
               <div className="dropdown1">
                 <button
-                  className={`nav-link ${
-                    activeRoute === "/funactivity" ? "active" : ""
-                  }`}
+                  className={`nav-link ${activeRoute === "/funactivity" ? "active" : ""
+                    }`}
                   onClick={() => {
                     handleNavClick("/funactivity");
                   }}
@@ -230,40 +226,47 @@ export default function Navbar() {
               <FaThLarge /> Dashboard
             </Link>
 
-            {/* Admin Section */}
-            <div className="sidebar-section">Awards</div>
             <Link
-              href="/account"
+              href="/nominations"
               className="sidebar-link"
               onClick={toggleSidebar}
             >
               <FaTrophy />
-              Employee of the Month
+              Awards
             </Link>
-            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
-              <GrDocumentPerformance />
-              Top Performers
-            </Link>
-            <div className="sidebar-section">Fun & Social Activities</div>
+
             <Link
-              href="/account"
+              href="/funactivity"
               className="sidebar-link"
               onClick={toggleSidebar}
             >
-              <FaUserCog /> Team Building
-            </Link>
-            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
               <MdOutlineEvent />
-              Company Events
+              Fun And Social Activities
             </Link>
-            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
-              <IoBicycleOutline />
-              Recent Outings
-            </Link>
-            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
-              <RiGalleryFill />
-              Gallery
-            </Link>
+            {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
+              <div className="sidebar-section"> Admin</div>
+            )}
+
+            {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
+              <Link
+                href="/approval"
+                className="sidebar-link"
+                onClick={toggleSidebar}
+              >
+                <MdOutlinePreview />
+                Review
+              </Link>
+            )}
+            {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
+              <Link
+                href="/allemployees"
+                className="sidebar-link"
+                onClick={toggleSidebar}
+              >
+                <FaListUl />
+                All Employees
+              </Link>
+            )}
           </div>
         </div>
       )}

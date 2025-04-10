@@ -129,10 +129,10 @@ const AnimatedPostCard = ({
         )}
 
         <div className="p-4 sm:p-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-black">
+          <h2 className="text-xl font-semibold text-black mb-2">
             {PostTitle}
           </h2>
-          <p className="text-xl sm:text-xl  text-black mt-2">
+          <p className="text-black text-base mt-2 font-medium">
             {displayedText}{shouldTruncate && (
               <motion.button
                 whileTap={{ scale: 0.9 }}

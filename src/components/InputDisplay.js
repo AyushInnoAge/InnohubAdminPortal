@@ -28,7 +28,7 @@ export default function ShoutoutLeaderboard({ shoutouts = [] }) {
     >
       {/* Header */}
       <div className="flex items-center justify-between border-b px-2 pb-1">
-        <h2 className="text-xl font-bold text-purple-700">Top Shoutouts</h2>
+        <h2 className="text-xl font-bold text-blue-600">Top Shoutouts</h2>
       </div>
 
       {/* Leaderboard */}
@@ -78,7 +78,7 @@ export default function ShoutoutLeaderboard({ shoutouts = [] }) {
                 </div>
 
                 {/* Rank */}
-                <span className="text-base text-purple-600 font-bold">
+                <span className="text-base text-blue-600 font-bold">
                   #{i + 1}
                 </span>
               </Card>

@@ -135,11 +135,11 @@ const PollCard = (
         </div>
 
         {/* Poll Title */}
-        <h2 className="text-xl font-bold text-black mb-2">{PostTitle}</h2>
+        <h2 className="text-xl font-semibold text-black mb-2">{PostTitle}</h2>
 
         {/* Total Votes */}
-        <p className="text-black text-xl mb-2">Total Yes: {totalyes}</p>
-        <p className="text-black text-xl mb-2">Total No: {totalno}</p>
+        <p className="text-black text-base mb-2">Total Yes: {totalyes}</p>
+        <p className="text-black text-base mb-2">Total No: {totalno}</p>
 
         {/* Poll Options */}
         <div className="space-y-3">

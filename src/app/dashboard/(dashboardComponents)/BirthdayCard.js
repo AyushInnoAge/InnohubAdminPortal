@@ -46,8 +46,8 @@ const BirthdayCard = ({
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
   const {userDOJ, userName} = PostUserDetailed;
-  const [birthdayImage, setBirthdayImage] = useState("https://images.pexels.com/photos/1543762/pexels-photo-1543762.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1  ");
-  const [anniversaryImage, setAnniversaryImage] = useState("https://res.cloudinary.com/dnx8ycr6n/image/upload/v1742145427/uploads/pqbi5xdwrzoqkxvmll1r.jpg");
+  const [birthdayImage, setBirthdayImage] = useState("https://images.pexels.com/photos/1543762/pexels-photo-1543762.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1");
+  const [anniversaryImage, setAnniversaryImage] = useState("https://res.cloudinary.com/dnx8ycr6n/image/upload/v1744261082/uploads/ConstntImage/WorkAnnirversary.png");
 
   const getYearGap = (date) => new Date().getFullYear() - new Date(date).getFullYear();
   const Time =getYearGap(userDOJ);
@@ -123,7 +123,7 @@ const BirthdayCard = ({
       <h2 className="text-xl font-extrabold text-gray-900 text-center mt-4">
         {PostType=="Anniversary"? `Congratulations On ${Time}${grammer[Time-1]} ${PostTitle}, ${userName}`: `${PostTitle}, ${userName}`}
       </h2>
-      <p className="text-black text-xl text-center mt-2 font-medium">
+      <p className="text-black text-base text-center mt-2 font-medium">
         {PostDescription}
       </p>
 
