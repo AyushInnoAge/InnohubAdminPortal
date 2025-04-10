@@ -9,8 +9,7 @@ import AppreciationCard from "./(dashboardComponents)/AppreciationCard";
 import { DashboardDataFetch } from "@/_api_/dashboard";
 import { AuthContext } from "@/context/AuthContext";
 import CompanyEvent from "./(dashboardComponents)/Festivale";
-import InputDisplay from "@/components/InputDisplay";
-import NotificationSection from "@/components/InputDisplay";
+import ShoutoutLeaderboard from "@/components/InputDisplay";
 
 export const DashboardStatus = createContext();
 export default function Home() {
@@ -23,6 +22,7 @@ export default function Home() {
   const [lastFetchedDate, setLastFetchedDate] = useState(null);
   const [hasMoredata, setHasMoreData] = useState(true);
   const [achievements, setAchievements] = useState([]);
+  const [topshoutOutWinner, setTopShoutOutWinner] = useState([]);
 
   useEffect(() => {
     setPage(1);
@@ -49,6 +49,9 @@ export default function Home() {
 
       if (res.message.currentUserAchievements.length > 0) {
         setAchievements(res.message.currentUserAchievements);
+      }
+      if (res.message?.topShoutout) {
+        setTopShoutOutWinner(res.message?.topShoutout);
       }
 
       if (response.length > 0) {
@@ -95,7 +98,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
-      <div className="hidden md:flex md:w-1/5 lg:w-1/6 p-4 bg-white shadow-md flex-col overflow-y-auto scrollbar-hide">
+      <div className="hidden [@media(min-width:1300px)]:flex w-1/6 p-4 bg-white shadow-md flex-col overflow-y-auto scrollbar-hide">
         <SidebarProfile
           UserProfileImage={
             user?.image?.trim()
@@ -106,12 +109,14 @@ export default function Home() {
           Designation={user?.designation || ""}
           achievements={achievements}
         />
-        <div className="pt-8">
-          <NotificationSection />
-        </div>
+        {topshoutOutWinner?.length > 0 ? (
+          <div className="pt-8">
+            <ShoutoutLeaderboard shoutouts={topshoutOutWinner} />
+          </div>
+        ) : null}
       </div>
 
-      <div className="flex flex-col w-full md:w-4/5 lg:w-5/6 p-4 overflow-y-auto h-screen space-y-6 scrollbar-hide">
+      <div className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6 scrollbar-hide">
         <div className="w-full max-w-4xl mx-auto">
           <DashboardStatus.Provider
             value={{
@@ -132,11 +137,11 @@ export default function Home() {
         </div>
 
         {loading && dashboardData.length == 0 ? (
-          <h1 className="text-black  text-center text-3xl">Loading...</h1>
+          <h1 className="text-black text-center text-3xl">Loading...</h1>
         ) : (
           <div className="w-full max-w-4xl mx-auto space-y-6">
             {dashboardData.length == 0 ? (
-              <h1 className="text-black  text-center text-2xl">No more Post</h1>
+              <h1 className="text-black text-center text-2xl">No more Post</h1>
             ) : (
               dashboardData.map((post, index) => (
                 <div

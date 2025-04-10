@@ -20,6 +20,13 @@ const CompanyEvent = ({
   const [commentValue, setCommentValue] = useState("");
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  const words = PostDescription?.split(" ");
+  const shouldTruncate = words?.length > 20;
+  const displayedText = expanded
+    ? PostDescription
+    : words?.slice(0, 20).join(" ") + (shouldTruncate ? "..." : "");
 
   const timing = new Date(Postcreated_At);
   const time = `${timing.getDate()}-${
@@ -70,7 +77,7 @@ const CompanyEvent = ({
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 w-full max-w-lg mx-auto shadow-md">
+    <div className="bg-white rounded-lg p-4 w-full max-w-[40rem] mx-auto shadow-md">
       <motion.div
         className="relative w-full bg-white rounded-lg overflow-hidden cursor-pointer p-4 sm:p-6"
         onMouseMove={handleMouseMove}
@@ -90,11 +97,19 @@ const CompanyEvent = ({
         )}
 
         <div className="p-4 sm:p-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-black">
+          <h2 className="text-xl font-semibold text-black mb-2">
             {PostTitle}
           </h2>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base">
-            {PostDescription}
+          <p className="text-black text-base mt-2 font-medium">
+          {displayedText}{shouldTruncate && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                className="text-blue-400  "
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? "View Less" : "View More"}
+              </motion.button>
+            )}
           </p>
         </div>
 
@@ -107,7 +122,7 @@ const CompanyEvent = ({
             disabled={likeButtonDisable}
             onClick={setLikeSubmit}
           >
-            <ThumbsUp size={24} />
+            <ThumbsUp size={30} />
             <span>Like {Like.length}</span>
           </button>
           <button
@@ -115,7 +130,7 @@ const CompanyEvent = ({
             aria-label="Comment on post"
             onClick={() => setComments(!comments)}
           >
-            <MessageCircle size={24} />
+            <MessageCircle size={30} />
             <span>Comment</span>
           </button>
         </div>

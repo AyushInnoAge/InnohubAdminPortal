@@ -69,7 +69,7 @@ export default function LoginPage() {
       const data = await loginUser(email, password); // Call API from separate folder
 
       if (data.statusCode === 200 && !data.message.isVerified && !data.isError) {
-        router.push("/ResetPasswordEmail")
+        router.push(`/ResetPasswordEmail?email=${encodeURIComponent(email)}`);
         return;
       } else if (data.statusCode === 200 && data.message.isVerified && data.message?.token && !data.isError) {
         const token = data.message.token;

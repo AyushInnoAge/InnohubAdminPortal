@@ -1,11 +1,15 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./resetpasswordemail.module.css";
 import { sendResetPasswordOtp, verifyOtpAndUpdatePassword } from "@/_api_/resetpasswordEmail";
+import { useRouter, useSearchParams } from "next/navigation";
+
 
 export default function ResetPasswordPage() {
+  const router = useSearchParams();
+  const route= useRouter();
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -16,6 +20,15 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const formRef = useRef(null);
+
+  useEffect(() => {
+    const emailFromParams = router.get("email");
+    if (emailFromParams) {
+      setEmail(emailFromParams);
+    }
+  }, [])
+
+
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -75,9 +88,7 @@ export default function ResetPasswordPage() {
     try {
       await verifyOtpAndUpdatePassword(email, otp, newPassword); // Call API from separate folder
       setMessage("Password updated successfully! Redirecting to login...");
-      setTimeout(() => {
-        window.location.href = "/login"; // Redirect to login page
-      }, 2000);
+      route.push("/login");
     } catch (error) {
       setError(error.message);
     } finally {
@@ -86,7 +97,7 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className={styles.container}>  
+    <div className={styles.container}>
       <div className={styles.card}>
         <img src="/logo.svg" alt="Innoage Logo" className={styles.logo} />
         <h2 className={styles.title}>Welcome To InnoAge</h2>
@@ -158,7 +169,7 @@ export default function ResetPasswordPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
-                 <button
+                <button
                   type="button"
                   className={styles.eyeButton}
                   onClick={() => setShowPassword(!showPassword)}

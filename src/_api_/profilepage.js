@@ -33,8 +33,8 @@ const updateUserProfile = async (empID, email, phone, address, image) => {
       },
       body: formData,
     });
-
-    return response;
+    const res = await response.json();
+    return res;
   } catch (error) {
     throw new Error(error.message);
   }

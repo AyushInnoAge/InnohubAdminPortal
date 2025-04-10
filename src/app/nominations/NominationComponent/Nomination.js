@@ -244,7 +244,7 @@ export default function Nomination({
               className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition 
             disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={submitedShoutout}
-              disabled={!selectedId || !reason || disablebutton || totalShoutOutRemaing == 0 || selectedCategory!="Shoutout"}
+              disabled={!selectedId || !reason || disablebutton || totalShoutOutRemaing <= 0 || selectedCategory!="Shoutout"}
             >
               Submit
             </button>) :

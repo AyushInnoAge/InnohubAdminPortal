@@ -110,7 +110,7 @@ const PollCard = (
   };
 
   return (
-    <div className="bg-white text-black rounded-lg p-4 w-full max-w-lg mx-auto shadow-lg border border-gray-300">
+    <div className="bg-white text-black rounded-lg p-4 w-full max-w-[40rem] mx-auto shadow-lg border border-gray-300">
       <motion.div
         className="relative w-full bg-white rounded-lg overflow-hidden p-4 sm:p-6"
         whileHover={{ scale: 1.02 }}
@@ -130,16 +130,16 @@ const PollCard = (
             <span className="text-gray-800 font-semibold text-base sm:text-lg">
               {PostUser}
             </span>
-            <span className="text-gray-500 text-sm sm:text-xs">{time}</span>
+            <span className="text-black text-sm sm:text-xs">{time}</span>
           </div>
         </div>
 
         {/* Poll Title */}
-        <h2 className="text-lg font-bold text-black mb-2">{PostTitle}</h2>
+        <h2 className="text-xl font-semibold text-black mb-2">{PostTitle}</h2>
 
         {/* Total Votes */}
-        <p className="text-gray-600 text-sm mb-2">Total Yes: {totalyes}</p>
-        <p className="text-gray-600 text-sm mb-2">Total No: {totalno}</p>
+        <p className="text-black text-base mb-2">Total Yes: {totalyes}</p>
+        <p className="text-black text-base mb-2">Total No: {totalno}</p>
 
         {/* Poll Options */}
         <div className="space-y-3">
