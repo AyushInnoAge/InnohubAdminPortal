@@ -5,12 +5,13 @@ const getToken = () => {
 };
 
 
-const SubmitedApproval = async (userId) => {
+const SubmitedApproval = async (subData) => {
     try {
         const token = getToken();
+
         const response = await axios.post(
             `${process.env.NEXT_PUBLIC_API_URL}api/verify_Nominations`,
-            { userId },
+            subData,
             {
                 headers: {
                     "Content-Type": "application/json",
