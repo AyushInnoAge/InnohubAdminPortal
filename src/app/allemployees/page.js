@@ -43,8 +43,8 @@ export default function EmployeeListPage() {
           departmentName: "All",
         });
         setDepartment(fetchalldepartment);
-        // setDepartment((prev) => [...prev, ...fetchalldepartment]);
-        const fetchallusers = await fetchAllEmployeesByTeamLeaderId();
+        
+        const fetchallusers = await fetchAllEmployeesByTeamLeaderId(true);
         setEmployees(fetchallusers.data.employeeData);
         const fetchallteam = await FetchAllTeam();
         setTeam(await fetchallteam.json());
