@@ -175,6 +175,11 @@
   border: 1px solid white;
   object-fit: cover;
   margin-right: 5px;
+  image-rendering: -webkit-optimize-contrast; /* Improve sharpness on Chrome */
+  image-rendering: crisp-edges; /* Improve sharpness on Firefox */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
 }
  
 /* Profile Dropdown */
@@ -207,6 +212,15 @@
 .profile-dropdown-item:hover {
   background: #f1f1f1;
 }
+@media (max-width: 767px) {
+  .brand-name{
+    display: none;
+  }
+  .profile-text{
+    display: none;
+  }
+}
+
  
 /* Mobile Responsive Styles */
 @media (max-width: 932px) {
@@ -219,6 +233,7 @@
     padding: 0 10px;
    
   }
+
   .nav-links {
     display: none;
     flex-direction: column;

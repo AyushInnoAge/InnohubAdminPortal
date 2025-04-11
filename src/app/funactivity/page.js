@@ -10,23 +10,23 @@ const categoryMapping = {
   All: "All",
   "Team Lunch And Outings": 1,
   "Social": 2,
-  "Work": 3,
-  "Sports Event": 4,
+  "Festivals": 3,
+  "Sports": 4,
 };
 
 const categories = [
   "All",
   "Team Lunch And Outings",
   "Social",
-  "Work",
-  "Sports Event",
+  "Festivals",
+  "Sports",
 ];
 const categories_display = [
   "All",
   "TeamLunchAndOutings",
   "Social",
-  "Work",
-  "SportsEvent",
+  "Festivals",
+  "Sports",
 ];
 
 export default function EventsPage() {
@@ -147,14 +147,50 @@ export default function EventsPage() {
               }
               required
             />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                setNewEvent({ ...newEvent, image: e.target.files[0] })
-              }
-              required
-            />
+           <div className="image-upload-container">
+              {/* Image preview container */}
+              <div id="imagePreview" style={{ 
+                maxWidth: '200px', 
+                maxHeight: '200px',
+                marginBottom: '10px',
+                display: 'none' // Initially hidden
+              }}>
+                <img 
+                  id="preview"
+                  src={null}
+                  alt="Preview" 
+                  style={{ 
+                    width: '100%',
+                    height: 'auto',
+                    objectFit: 'contain'
+                  }}
+                />
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  setNewEvent({ ...newEvent, image: file });
+                  
+                  // Handle image preview
+                  const preview = document.getElementById('preview');
+                  const previewContainer = document.getElementById('imagePreview');
+                  
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                      preview.src = e.target.result;
+                      previewContainer.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                  } else {
+                    previewContainer.style.display = 'none';
+                  }
+                }}
+                required
+              />
+            </div>
             <input
               type="text"
               placeholder="Description"

@@ -12,14 +12,13 @@ const addSocialActivity = async (activityName, description, date, timing, organi
        
 
 
-        // Append image only if it's valid
+        
         if (image && image instanceof File) {
             formData.append("Image", image);
         } else {
             console.warn("No valid image file provided.");
         }
 
-        // Append organisers as an array
         organisers.forEach((organiser, index) => {
             formData.append(`Organisers[${index}]`, organiser);
         });
@@ -28,7 +27,7 @@ const addSocialActivity = async (activityName, description, date, timing, organi
             method: "POST",
             body: formData,
             headers: {
-              // Optional: Add token if required
+            
             }
         });
 
