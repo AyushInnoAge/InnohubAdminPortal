@@ -36,8 +36,8 @@ export const SubmiteEmployeeData = async (
         },
       }
     );
-
-  return  await fetchAllEmployeesByTeamLeaderId();
+    
+  return response.data;
   
   } catch (error) {
     console.error("Update failed:", error.message);
