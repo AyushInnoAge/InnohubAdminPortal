@@ -7,8 +7,11 @@ import { FetchAllDepartment, FetchAllRole, FetchAllTeam } from "@/_api_/signup";
 import { SubmiteEmployeeData } from "@/_api_/allemployees";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
+import { ImBlocked } from "react-icons/im";
+import { lockUserProfile } from "@/_api_/profilepage";
+import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 export default function EmployeeListPage() {
-
   const { user } = useContext(AuthContext);
   const router = useRouter();
   const [filter, setFilter] = useState("All");
@@ -26,13 +29,14 @@ export default function EmployeeListPage() {
   const [designation, setDesignation] = useState(null);
   const [image, setImage] = useState(null);
   const [Empid, setEmpid] = useState(null);
+  const [deactivateModal, setDeactivateModal] = useState(null);
 
   useEffect(() => {
     if (user && user.userRole != 1 && user.userRole != 2) {
-        router.push("/dashboard");
-        return;
+      router.push("/dashboard");
+      return;
     }
-}, [user])
+  }, [user]);
 
   useEffect(() => {
     try {
@@ -43,7 +47,7 @@ export default function EmployeeListPage() {
           departmentName: "All",
         });
         setDepartment(fetchalldepartment);
-        // setDepartment((prev) => [...prev, ...fetchalldepartment]);
+
         const fetchallusers = await fetchAllEmployeesByTeamLeaderId();
         setEmployees(fetchallusers.data.employeeData);
         const fetchallteam = await FetchAllTeam();
@@ -57,7 +61,6 @@ export default function EmployeeListPage() {
       console.error("Error fetching data:", error);
     }
   }, []);
-
 
   const filteredEmployees =
     filter === "All"
@@ -105,7 +108,11 @@ export default function EmployeeListPage() {
         selectedTeamId ? selectedTeamId : editingEmployee?.teamId,
         editingEmployee?.employeeId
       );
-      setEmployees(response.data.employeeData);
+      if(response.statusCode === 200) {
+        console.log(response);
+        toast.success("Employee data updated successfully!");
+        // setEmployees(response.data.employeeData); 
+      }
     } catch (error) {
       console.error("Error submitting data:", error);
     }
@@ -113,6 +120,49 @@ export default function EmployeeListPage() {
 
   return (
     <div className="page-container">
+      <ToastContainer position="top-right" autoClose={3000} />
+      {deactivateModal && (
+        <div className="modal-backdrop">
+          <div className="warning-modal">
+            <div className="warning-content">
+              <h3>Warning!</h3>
+              <p>Are you sure you want to deactivate this user?</p>
+              <div className="warning-buttons">
+                <button
+                  className="no-btn"
+                  onClick={() => setDeactivateModal(null)}
+                >
+                  No
+                </button>
+                <button
+                  className="yes-btn"
+                  onClick={async () => {
+                    try {
+                      const resp = await lockUserProfile(
+                        deactivateModal.employeeId
+                      );
+                      if (resp.statusCode === 200) {
+                        toast.success("User deactivated successfully!");
+
+                        const fetchallusers =
+                          await fetchAllEmployeesByTeamLeaderId();
+                        setEmployees(fetchallusers.data.employeeData);
+
+                        setDeactivateModal(null);
+                      }
+                    } catch (error) {
+                      console.error("Error deactivating user:", error);
+                      alert("Failed to deactivate user. Please try again.");
+                    }
+                  }}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <button
         className="add-activity-btn"
         style={{ marginLeft: "auto" }}
@@ -168,6 +218,12 @@ export default function EmployeeListPage() {
               onClick={() => setEditingEmployee(emp)}
             >
               <Pencil size={18} />
+            </button>
+            <button
+              className="deactivate-btn"
+              onClick={() => setDeactivateModal(emp)}
+            >
+              <ImBlocked />
             </button>
           </div>
         ))}

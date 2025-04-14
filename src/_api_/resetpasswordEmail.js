@@ -1,5 +1,5 @@
 import API_ENDPOINTS from "../app/config/apiconfig";
-// Send OTP for password reset
+
 export const sendResetPasswordOtp = async (email) => {
   try {
     const response = await fetch(API_ENDPOINTS.RESET_PASSWORD_PAGE_API, {
@@ -18,7 +18,7 @@ export const sendResetPasswordOtp = async (email) => {
   }
 };
 
-// Verify OTP and update password
+
 export const verifyOtpAndUpdatePassword = async (email, otp, newPassword) => {
   try {
     const response = await fetch(API_ENDPOINTS.RESET_PASSWORD_API, {
