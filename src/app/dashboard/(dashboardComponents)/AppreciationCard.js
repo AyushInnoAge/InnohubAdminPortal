@@ -40,7 +40,7 @@ const AppreciationCard = ({
   useEffect(() => {
     if (PostType == "Star of the month") {
       setPostImageUrl(
-        "https://res.cloudinary.com/de4oinuvo/image/upload/v1742135213/InnoAge/wakumrf9xf3rwqd67lpq.jpg"
+        "https://res.cloudinary.com/dnx8ycr6n/image/upload/v1744284131/uploads/ConstntImage/StarOfTheMonth.png"
       );
     } else if (PostType == "Best team") {
       setPostImageUrl(

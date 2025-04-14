@@ -16,7 +16,11 @@ const EventCard = ({ NominationType, NominationReason, NominatedName, userId, No
 
   const submitedApproval = async () => {
     try {
-      const response = await SubmitedApproval(userId)
+      const subData = {
+        UserId: userId,
+        Reason: NominationReason,
+      };
+      const response = await SubmitedApproval(subData)
       setNominatedEmployee((prev) => prev.filter((item) => item.user?.id !== userId));
     } catch (error) {
       throw error;
