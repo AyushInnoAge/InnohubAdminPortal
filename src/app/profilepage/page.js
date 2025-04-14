@@ -43,10 +43,10 @@ export default function ProfilePage() {
   useEffect(() => {
     const badgeData = [];
     if (starOfTheMonthCount > 0) {
-      badgeData.push({ name: `${starOfTheMonthCount} Star${starOfTheMonthCount > 1 ? "s" : ""} of the Month`, color: "badge-yellow" });
+      badgeData.push({ name: `${starOfTheMonthCount} Star${starOfTheMonthCount > 1 ? "s" : ""} of the Month`, color: "badge-red" });
     }
     if (shoutoutCount > 0) {
-      badgeData.push({ name: `${shoutoutCount} Shoutout${shoutoutCount > 1 ? "s" : ""}`, color: "badge-blue" });
+      badgeData.push({ name: `${shoutoutCount} Shoutout${shoutoutCount > 1 ? "s" : ""}`, color: "badge-yellow" });
     }
     setBadges(badgeData);
   }, [starOfTheMonthCount, shoutoutCount]);
