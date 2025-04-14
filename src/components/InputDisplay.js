@@ -28,7 +28,7 @@ export default function ShoutoutLeaderboard({ shoutouts = [] }) {
     >
       {/* Header */}
       <div className="flex items-center justify-between border-b px-2 pb-1">
-        <h2 className="text-xl font-bold text-blue-600">Top Shoutouts</h2>
+        <h2 className=" font-bold text-blue-600"style={{ fontSize: '18px' }}>Top Shoutouts</h2>
       </div>
 
       {/* Leaderboard */}

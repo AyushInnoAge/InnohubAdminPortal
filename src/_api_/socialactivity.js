@@ -2,24 +2,23 @@ const addSocialActivity = async (activityName, description, date, timing, organi
     try {
         const formData = new FormData();
 
-        // Append fields
+       
         formData.append("ActivityName", activityName);
         formData.append("Description", description);
-        formData.append("Date", new Date(date).toISOString().split("T")[0]); // Format date
+        formData.append("Date", new Date(date).toISOString().split("T")[0]); 
         formData.append("Timing", timing);
         formData.append("Category", category);
 
        
 
 
-        // Append image only if it's valid
+        
         if (image && image instanceof File) {
             formData.append("Image", image);
         } else {
             console.warn("No valid image file provided.");
         }
 
-        // Append organisers as an array
         organisers.forEach((organiser, index) => {
             formData.append(`Organisers[${index}]`, organiser);
         });
@@ -28,7 +27,7 @@ const addSocialActivity = async (activityName, description, date, timing, organi
             method: "POST",
             body: formData,
             headers: {
-              // Optional: Add token if required
+            
             }
         });
 
@@ -45,7 +44,7 @@ const addSocialActivity = async (activityName, description, date, timing, organi
 };
 const getSocialActivities = async (pageNumber = 7, category = "ALL", pageSize = 10) => {
     try {
-        // Format category for API request
+     
         const categoryQuery = category === "All" ? "" : `&category=${category}`;
 
         const response = await fetch(
@@ -55,7 +54,7 @@ const getSocialActivities = async (pageNumber = 7, category = "ALL", pageSize = 
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    // Optional: Add Authorization token if needed
+                   
                 },
             }
         );

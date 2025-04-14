@@ -187,3 +187,186 @@ h1 {
 .success {
   color: green; /* Green for success messages */
 }
+
+/* Base styles remain the same, adding mobile-specific adjustments */
+
+
+@media screen and (max-width: 768px) {
+  .events-container {
+    padding: 10px;
+    max-width: 100%;
+  }
+
+  /* Category Filter Adjustments */
+  .categories {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 15px 5px;
+  }
+
+  .categories button {
+    padding: 8px 12px;
+    font-size: 14px;
+    flex: 1 1 auto;
+    min-width: calc(50% - 8px); /* Two buttons per row */
+    max-width: calc(50% - 8px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Event Grid Adjustments */
+  .events-grid {
+    grid-template-columns: 1fr; /* Single column for mobile */
+    gap: 20px;
+    margin-top: 20px;
+    padding: 0 5px;
+  }
+
+  /* Event Card Adjustments */
+  .event-card {
+    width: 100%;
+    margin: 0;
+  }
+
+  .event-card img {
+    height: 200px; /* Slightly taller for mobile */
+  }
+
+  .event-card h2 {
+    font-size: 18px;
+    margin: 8px 12px;
+  }
+
+  .event-card p {
+    font-size: 14px;
+    margin: 0 12px 8px;
+    line-height: 1.4;
+  }
+
+  .event-card::before {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  /* Event Timing Adjustments */
+  .event-timing {
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+    margin: 8px 12px;
+    font-size: 12px;
+  }
+
+  .organisers {
+    font-size: 12px;
+    margin: 8px 12px;
+    word-wrap: break-word;
+  }
+
+  /* Form Popup Adjustments */
+  .form-popup {
+    width: 90%;
+    max-width: 350px;
+    padding: 15px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .activity-form input,
+  .activity-form select {
+    font-size: 16px; /* Prevent zoom on iOS */
+    padding: 10px;
+    margin: 6px 0;
+  }
+
+  /* Image Preview Adjustments */
+  .image-upload-container {
+    margin: 10px 0;
+  }
+
+  #imagePreview {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Add Activity Button Adjustments */
+  .add-activity-btn {
+    padding: 10px 15px;
+    font-size: 14px;
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .plus-icon {
+    margin-right: 4px;
+  }
+}
+
+/* Extra Small Devices */
+@media screen and (max-width: 375px) {
+  .categories button {
+    min-width: 100%; /* Full width for very small screens */
+    margin: 2px 0;
+  }
+
+  .event-card h2 {
+    font-size: 16px;
+  }
+
+  .event-card p {
+    font-size: 13px;
+  }
+
+  .event-timing {
+    font-size: 11px;
+  }
+
+  .form-popup {
+    padding: 12px;
+  }
+
+  .activity-form button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}
+
+/* Landscape Mode Adjustments */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .form-popup {
+    top: 0;
+    transform: translate(-50%, 0);
+    max-height: 100vh;
+    margin: 10px 0;
+  }
+
+  .events-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+  .event-card:hover {
+    transform: none;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .categories button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .activity-form button {
+    padding: 12px 10px; /* Larger touch target */
+  }
+}
+
+/* Fix for iOS Input Styles */
+@supports (-webkit-touch-callout: none) {
+  .activity-form input,
+  .activity-form select {
+    -webkit-appearance: none;
+    border-radius: 5px;
+  }
+}
