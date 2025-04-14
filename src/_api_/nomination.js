@@ -4,10 +4,11 @@ const getToken = () => {
     return typeof window !== "undefined" ? localStorage.getItem("token") : null;
   };
 
-const fetchAllEmployeesByTeamLeaderId = async ()=>{
+const fetchAllEmployeesByTeamLeaderId = async (Admin=false)=>{
     try{
         const token = getToken();
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}user/fetch_my_employees`, {
+        var url = Admin?`${process.env.NEXT_PUBLIC_API_URL}user/fetch_my_employees?UserRole=Admin`:`${process.env.NEXT_PUBLIC_API_URL}user/fetch_my_employees`
+        const response = await axios.get(url, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

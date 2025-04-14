@@ -36,7 +36,7 @@ export default function Nomination({
     try {
       setDisableButton(true);
       var data;
-      if (user?.userRole == 3) {
+      if ((user?.userRole == 1 || user?.userRole == 2 || user?.userRole == 3)) {
         data = {
           UserId: selectedId,
           ManagerIds: [user.id],
@@ -59,7 +59,7 @@ export default function Nomination({
       console.log(response);
       response.data.success
         ? toast.success(`${selectedCategory} SuccessFully added`)
-        : (selectedCategory=="Star of the month" && !response.data.success)?(toast.error(response.data.message)):null;
+        : (selectedCategory == "Star of the month" && !response.data.success) ? (toast.error(response.data.message)) : null;
       if (selectedCategory === "Shoutout" && response.data.success) {
         setTotalShoutOutRemaing(prev => Math.max(0, prev - 1));
       }
@@ -115,7 +115,7 @@ export default function Nomination({
             <label className="block font-medium text-gray-700">
               Nomination Category:
             </label>
-            {user?.userRole == 3 ? (<select
+            {(user?.userRole == 1 || user?.userRole == 2 || user?.userRole == 3) ? (<select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="w-full border p-2 rounded bg-white text-black"
@@ -141,7 +141,7 @@ export default function Nomination({
             <label className="block font-medium text-gray-700">
               Search Employee:
             </label>
-            {selectedCategory === "Star of the month" ? (<div className="border p-2 rounded bg-white relative text-black">
+            {(selectedCategory === "Star of the month" && user?.userRole == 3) ? (<div className="border p-2 rounded bg-white relative text-black">
               <select
                 onChange={(e) => {
                   const selectedOption = emmployeeofteam.find(
@@ -190,7 +190,7 @@ export default function Nomination({
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               <label className="block font-medium text-gray-700">
-              Nominated By:
+                Nominated By:
               </label>
               <Input
                 placeholder="Nominater..."
@@ -240,11 +240,11 @@ export default function Nomination({
             transition={{ duration: 0.5, delay: 0.8 }}
           >
 
-            {(selectedCategory == "Shoutout" || user?.userRole != 3) ? (<button
+            {(selectedCategory == "Shoutout") ? (<button
               className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition 
             disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={submitedShoutout}
-              disabled={!selectedId || !reason || disablebutton || totalShoutOutRemaing <= 0 || selectedCategory!="Shoutout"}
+              disabled={!selectedId || !reason || disablebutton || totalShoutOutRemaing <= 0 || selectedCategory != "Shoutout"}
             >
               Submit
             </button>) :
@@ -252,7 +252,7 @@ export default function Nomination({
                 className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition 
           disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={submitedShoutout}
-                disabled={!selectedId || !reason || disablebutton || selectedCategory!="Star of the month"}
+                disabled={!selectedId || !reason || disablebutton || selectedCategory != "Star of the month"}
               >
                 Submit
               </button>)

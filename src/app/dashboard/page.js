@@ -98,50 +98,56 @@ export default function Home() {
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
-      <div className="hidden [@media(min-width:1300px)]:flex w-1/6 p-4 bg-white shadow-md flex-col overflow-y-auto scrollbar-hide">
-        <SidebarProfile
-          UserProfileImage={
-            user?.image?.trim()
-              ? user.image
-              : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
-          }
-          UserName={user?.name || ""}
-          Designation={user?.designation || ""}
-          achievements={achievements}
-        />
-        {topshoutOutWinner?.length > 0 ? (
-          <div className="pt-8">
-            <ShoutoutLeaderboard shoutouts={topshoutOutWinner} />
-          </div>
-        ) : null}
-      </div>
+      {user != null ? (
+        <div className="hidden [@media(min-width:1300px)]:flex w-1/6 p-4 bg-white shadow-md flex-col overflow-y-auto scrollbar-hide">
+          <SidebarProfile
+            UserProfileImage={
+              user?.image?.trim()
+                ? user.image
+                : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
+            }
+            UserName={user?.name || ""}
+            Designation={user?.designation || ""}
+            achievements={achievements}
+          />
+          {topshoutOutWinner?.length > 0 ? (
+            <div className="pt-8">
+              <ShoutoutLeaderboard shoutouts={topshoutOutWinner} />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6 scrollbar-hide">
-        <div className="w-full max-w-4xl mx-auto">
-          <DashboardStatus.Provider
-            value={{
-              setDashboardData,
-              setLoading,
-              setLastFetchedDate,
-              setHasMoreData,
-            }}
-          >
-            <PostInput
-              UserProfileImage={
-                user?.image?.trim()
-                  ? user.image
-                  : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
-              }
-            />
-          </DashboardStatus.Provider>
-        </div>
+        {user != null ? (
+          <div className="w-full max-w-4xl mx-auto">
+            <DashboardStatus.Provider
+              value={{
+                setDashboardData,
+                setLoading,
+                setLastFetchedDate,
+                setHasMoreData,
+              }}
+            >
+              <PostInput
+                UserProfileImage={
+                  user?.image?.trim()
+                    ? user.image
+                    : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
+                }
+              />
+            </DashboardStatus.Provider>
+          </div>
+        ) : null}
 
         {loading && dashboardData.length == 0 ? (
-          <h1 className="text-black text-center text-3xl">Loading...</h1>
+          <h1 className="text-black text-center text-3xl justify-center">
+            Loading...
+          </h1>
         ) : (
           <div className="w-full max-w-4xl mx-auto space-y-6">
             {dashboardData.length == 0 ? (
-              <h1 className="text-black text-center text-2xl">No more Post</h1>
+              <h1 className="text-black text-center text-3xl">Loading..</h1>
             ) : (
               dashboardData.map((post, index) => (
                 <div
