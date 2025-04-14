@@ -108,7 +108,11 @@ export default function EmployeeListPage() {
         selectedTeamId ? selectedTeamId : editingEmployee?.teamId,
         editingEmployee?.employeeId
       );
-      setEmployees(response.data.employeeData);
+      if(response.statusCode === 200) {
+        console.log(response);
+        toast.success("Employee data updated successfully!");
+        // setEmployees(response.data.employeeData); 
+      }
     } catch (error) {
       console.error("Error submitting data:", error);
     }
