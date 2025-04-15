@@ -41,19 +41,26 @@ export default function Signup() {
             try {
                 const roleRes = await FetchAllRole();
                 const deptRes = await FetchAllDepartment()
-                const teamRes= await fetchAllEmployeesByTeamLeaderId(true);
-                console.log(teamRes);
-                if (!roleRes.ok|| !deptRes.ok) {
+                const teamRes = await fetchAllEmployeesByTeamLeaderId(true);
+
+                if (!roleRes.ok || !deptRes.ok) {
                     throw new Error("Failed to fetch data");
                 }
                 setRoles(await roleRes.json());
                 setDepartments(await deptRes.json());
-                teamRes.data.employeeData.forEach((element) => {
-                    const roleName = element.role.roleName;
-                    if (roleName === "TeamLeader" || roleName === "HR" || roleName === "Admin") {
-                      setTeams((prev) => [...prev, { id: element.id, teamName: element.name }]);
+
+                const seen = new Set();
+                const filtered = [];
+
+                for (const e of teamRes.data.employeeData) {
+                    const role = e.role.roleName;
+                    if (["TeamLeader", "HR", "Admin"].includes(role) && !seen.has(e.id)) {
+                        seen.add(e.id);
+                        filtered.push({ id: e.id, teamName: e.name });
                     }
-                  });
+                }
+
+                setTeams(filtered);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -102,7 +109,7 @@ export default function Signup() {
             <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
                 <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Register Users</h2>
                 <form onSubmit={handleSubmit} className="space-y-5">
-                    {[ 
+                    {[
                         { label: "Name", name: "Name", type: "text" },
                         { label: "Email", name: "Email", type: "email" },
                         { label: "Phone Number", name: "PhoneNO", type: "text" },
@@ -137,9 +144,8 @@ export default function Signup() {
                                 value={formData[name]}
                                 onChange={handleChange}
                                 disabled={name === "TeamId" && disableTeam}
-                                className={`w-full p-3 border rounded-lg text-gray-900 ${
-                                    name === "TeamId" && disableTeam ? "bg-gray-200 cursor-not-allowed" : ""
-                                }`}
+                                className={`w-full p-3 border rounded-lg text-gray-900 ${name === "TeamId" && disableTeam ? "bg-gray-200 cursor-not-allowed" : ""
+                                    }`}
                                 {...(isRequired ? { required: true } : {})}
                             >
                                 <option value="">Select {label}</option>
