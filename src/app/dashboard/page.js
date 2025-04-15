@@ -118,27 +118,27 @@ export default function Home() {
         </div>
       ) : null}
 
-      <div className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6 scrollbar-hide">
-        {user != null ? (
-          <div className="w-full max-w-4xl mx-auto">
-            <DashboardStatus.Provider
-              value={{
-                setDashboardData,
-                setLoading,
-                setLastFetchedDate,
-                setHasMoreData,
-              }}
-            >
-              <PostInput
-                UserProfileImage={
-                  user?.image?.trim()
-                    ? user.image
-                    : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
-                }
-              />
-            </DashboardStatus.Provider>
-          </div>
-        ) : null}
+      {user != null ? (<div className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6 scrollbar-hide">
+        (
+        <div className="w-full max-w-4xl mx-auto">
+          <DashboardStatus.Provider
+            value={{
+              setDashboardData,
+              setLoading,
+              setLastFetchedDate,
+              setHasMoreData,
+            }}
+          >
+            <PostInput
+              UserProfileImage={
+                user?.image?.trim()
+                  ? user.image
+                  : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
+              }
+            />
+          </DashboardStatus.Provider>
+        </div>
+        )
 
         {loading && dashboardData.length == 0 ? (
           <h1 className="text-black text-center text-3xl justify-center">
@@ -226,7 +226,8 @@ export default function Home() {
             )}
           </div>
         )}
-      </div>
+      </div>) : null}
+
     </div>
   );
 }
