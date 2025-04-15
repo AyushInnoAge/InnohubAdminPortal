@@ -48,14 +48,24 @@ export default function EmployeeListPage() {
         });
         setDepartment(fetchalldepartment);
 
-        
+
         const fetchallusers = await fetchAllEmployeesByTeamLeaderId(true);
 
         setEmployees(fetchallusers.data.employeeData);
-        const fetchallteam = await FetchAllTeam();
-        setTeam(await fetchallteam.json());
+
         const fetchallrole = await FetchAllRole();
         setRole(await fetchallrole.json());
+        const seen = new Set();
+        const filtered = [];
+
+        for (const e of fetchallusers.data.employeeData) {
+          const role = e.role.roleName;
+          if (["TeamLeader", "HR", "Admin"].includes(role) && !seen.has(e.id)) {
+            seen.add(e.id);
+            filtered.push({ id: e.id, teamName: e.name, teamLeader:e.id });
+          }
+        }
+        setTeam(filtered);
       };
 
       fetch();
@@ -110,7 +120,7 @@ export default function EmployeeListPage() {
         selectedTeamId ? selectedTeamId : editingEmployee?.teamId,
         editingEmployee?.employeeId
       );
-      if(response.statusCode === 200) {
+      if (response.statusCode === 200) {
         console.log(response);
         toast.success("Employee data updated successfully!");
         // setEmployees(response.data.employeeData); 
@@ -180,9 +190,8 @@ export default function EmployeeListPage() {
           <button
             key={dept.id}
             onClick={() => setFilter(dept?.departmentName)}
-            className={`filter-btn ${
-              filter === dept?.departmentName ? "active" : ""
-            }`}
+            className={`filter-btn ${filter === dept?.departmentName ? "active" : ""
+              }`}
           >
             {dept?.departmentName}
           </button>

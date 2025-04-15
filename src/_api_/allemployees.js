@@ -17,9 +17,9 @@ export const SubmiteEmployeeData = async (
       { op: "replace", path: "/Designation", value: designation },
       { op: "replace", path: "/DepartmentId", value: selectedDepartmentId },
       { op: "replace", path: "/RoleId", value: selectedRoleId },
-      { op: "replace", path: "/TeamId", value: selectedTeamId },
+      { op: "replace", path: "/TeamLeaderId", value: selectedTeamId },
     ];
-
+    
     const formData = new FormData();
     formData.append("patchDoc", JSON.stringify(patchData));
     if (image) {
