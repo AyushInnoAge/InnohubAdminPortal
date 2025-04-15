@@ -101,7 +101,7 @@ export default function Signup() {
     };
 
     const selectedRole = roles.find((r) => r.id === formData.RoleId);
-    const disableTeam = selectedRole && ["Admin", "HR", "TeamLeader"].includes(selectedRole.roleName);
+    const disableTeam = selectedRole && ["Admin"].includes(selectedRole.roleName);
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
