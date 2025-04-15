@@ -4,6 +4,8 @@ import { useState, useEffect, useContext } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { fetchAllEmployeesByTeamLeaderId } from "@/_api_/nomination";
+
 export default function Signup() {
     const [formData, setFormData] = useState({
         Name: "",
@@ -38,16 +40,20 @@ export default function Signup() {
         async function fetchData() {
             try {
                 const roleRes = await FetchAllRole();
-                const teamRes = await FetchAllTeam();
                 const deptRes = await FetchAllDepartment()
-
-                if (!roleRes.ok || !teamRes.ok || !deptRes.ok) {
+                const teamRes= await fetchAllEmployeesByTeamLeaderId(true);
+                console.log(teamRes);
+                if (!roleRes.ok|| !deptRes.ok) {
                     throw new Error("Failed to fetch data");
                 }
-
                 setRoles(await roleRes.json());
-                setTeams(await teamRes.json());
                 setDepartments(await deptRes.json());
+                teamRes.data.employeeData.forEach((element) => {
+                    const roleName = element.role.roleName;
+                    if (roleName === "TeamLeader" || roleName === "HR" || roleName === "Admin") {
+                      setTeams((prev) => [...prev, { id: element.id, teamName: element.name }]);
+                    }
+                  });
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -63,10 +69,9 @@ export default function Signup() {
         event.preventDefault();
 
         try {
-
             const response = await SingnUpSubmite(formData);
-            response.data.statusCode == 200 ? toast.success(`${response.data.message}`) : toast.error(`${response.data.message}`)
-            if(response.data.statusCode==200){
+            response.data.statusCode === 200 ? toast.success(`${response.data.message}`) : toast.error(`${response.data.message}`);
+            if (response.data.statusCode === 200) {
                 setFormData({
                     Name: "",
                     Email: "",
@@ -80,14 +85,16 @@ export default function Signup() {
                     TeamId: "",
                     DepartmentId: "",
                     Password: "",
-                })
+                });
             }
-            
         } catch (error) {
             console.error("Error:", error);
             alert("Signup failed. Please try again.");
         }
     };
+
+    const selectedRole = roles.find((r) => r.id === formData.RoleId);
+    const disableTeam = selectedRole && ["Admin", "HR", "TeamLeader"].includes(selectedRole.roleName);
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -95,7 +102,7 @@ export default function Signup() {
             <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
                 <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Register Users</h2>
                 <form onSubmit={handleSubmit} className="space-y-5">
-                    {[
+                    {[ 
                         { label: "Name", name: "Name", type: "text" },
                         { label: "Email", name: "Email", type: "email" },
                         { label: "Phone Number", name: "PhoneNO", type: "text" },
@@ -107,21 +114,39 @@ export default function Signup() {
                     ].map(({ label, name, type }) => (
                         <div key={name}>
                             <label className="block font-medium text-gray-700">{label}:</label>
-                            <input type={type} name={name} value={formData[name]} onChange={handleChange} required className="w-full p-3 border rounded-lg text-gray-900" />
+                            <input
+                                type={type}
+                                name={name}
+                                value={formData[name]}
+                                onChange={handleChange}
+                                required
+                                className="w-full p-3 border rounded-lg text-gray-900"
+                            />
                         </div>
                     ))}
 
                     {[
-                        { label: "Role", name: "RoleId", options: roles },
-                        { label: "Team", name: "TeamId", options: teams },
-                        { label: "Department", name: "DepartmentId", options: departments },
-                    ].map(({ label, name, options }) => (
+                        { label: "Role", name: "RoleId", options: roles, isRequired: true },
+                        { label: "Team", name: "TeamId", options: teams, isRequired: false },
+                        { label: "Department", name: "DepartmentId", options: departments, isRequired: true },
+                    ].map(({ label, name, options, isRequired }) => (
                         <div key={name}>
                             <label className="block font-medium text-gray-700">{label}:</label>
-                            <select name={name} value={formData[name]} onChange={handleChange} required className="w-full p-3 border rounded-lg text-gray-900">
+                            <select
+                                name={name}
+                                value={formData[name]}
+                                onChange={handleChange}
+                                disabled={name === "TeamId" && disableTeam}
+                                className={`w-full p-3 border rounded-lg text-gray-900 ${
+                                    name === "TeamId" && disableTeam ? "bg-gray-200 cursor-not-allowed" : ""
+                                }`}
+                                {...(isRequired ? { required: true } : {})}
+                            >
                                 <option value="">Select {label}</option>
                                 {options.map((option) => (
-                                    <option key={option.id} value={option.id}>{option[`${label.toLowerCase()}Name`]}</option>
+                                    <option key={option.id} value={option.id}>
+                                        {option[`${label.toLowerCase()}Name`]}
+                                    </option>
                                 ))}
                             </select>
                         </div>
@@ -130,14 +155,27 @@ export default function Signup() {
                     <div>
                         <label className="block font-medium text-gray-700">Password:</label>
                         <div className="relative">
-                            <input type={showPassword ? "text" : "password"} name="Password" value={formData.Password} onChange={handleChange} required className="w-full p-3 border rounded-lg text-gray-900" />
-                            <span className="absolute right-3 top-3 cursor-pointer text-gray-600" onClick={() => setShowPassword(!showPassword)}>
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="Password"
+                                value={formData.Password}
+                                onChange={handleChange}
+                                required
+                                className="w-full p-3 border rounded-lg text-gray-900"
+                            />
+                            <span
+                                className="absolute right-3 top-3 cursor-pointer text-gray-600"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
                                 {showPassword ? "👁️" : "👁️‍🗨️"}
                             </span>
                         </div>
                     </div>
 
-                    <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition font-semibold text-lg">
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition font-semibold text-lg"
+                    >
                         Register User
                     </button>
                 </form>
