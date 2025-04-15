@@ -4,6 +4,8 @@ import { useState, useEffect, useContext } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { fetchAllEmployeesByTeamLeaderId } from "@/_api_/nomination";
+
 export default function Signup() {
     const [formData, setFormData] = useState({
         Name: "",
@@ -38,16 +40,27 @@ export default function Signup() {
         async function fetchData() {
             try {
                 const roleRes = await FetchAllRole();
-                const teamRes = await FetchAllTeam();
                 const deptRes = await FetchAllDepartment()
+                const teamRes = await fetchAllEmployeesByTeamLeaderId(true);
 
-                if (!roleRes.ok || !teamRes.ok || !deptRes.ok) {
+                if (!roleRes.ok || !deptRes.ok) {
                     throw new Error("Failed to fetch data");
                 }
-
                 setRoles(await roleRes.json());
-                setTeams(await teamRes.json());
                 setDepartments(await deptRes.json());
+
+                const seen = new Set();
+                const filtered = [];
+
+                for (const e of teamRes.data.employeeData) {
+                    const role = e.role.roleName;
+                    if (["TeamLeader", "HR", "Admin"].includes(role) && !seen.has(e.id)) {
+                        seen.add(e.id);
+                        filtered.push({ id: e.id, teamName: e.name });
+                    }
+                }
+
+                setTeams(filtered);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -63,10 +76,9 @@ export default function Signup() {
         event.preventDefault();
 
         try {
-
             const response = await SingnUpSubmite(formData);
-            response.data.statusCode == 200 ? toast.success(`${response.data.message}`) : toast.error(`${response.data.message}`)
-            if(response.data.statusCode==200){
+            response.data.statusCode === 200 ? toast.success(`${response.data.message}`) : toast.error(`${response.data.message}`);
+            if (response.data.statusCode === 200) {
                 setFormData({
                     Name: "",
                     Email: "",
@@ -80,14 +92,16 @@ export default function Signup() {
                     TeamId: "",
                     DepartmentId: "",
                     Password: "",
-                })
+                });
             }
-            
         } catch (error) {
             console.error("Error:", error);
             alert("Signup failed. Please try again.");
         }
     };
+
+    const selectedRole = roles.find((r) => r.id === formData.RoleId);
+    const disableTeam = selectedRole && ["Admin"].includes(selectedRole.roleName);
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -107,21 +121,38 @@ export default function Signup() {
                     ].map(({ label, name, type }) => (
                         <div key={name}>
                             <label className="block font-medium text-gray-700">{label}:</label>
-                            <input type={type} name={name} value={formData[name]} onChange={handleChange} required className="w-full p-3 border rounded-lg text-gray-900" />
+                            <input
+                                type={type}
+                                name={name}
+                                value={formData[name]}
+                                onChange={handleChange}
+                                required
+                                className="w-full p-3 border rounded-lg text-gray-900"
+                            />
                         </div>
                     ))}
 
                     {[
-                        { label: "Role", name: "RoleId", options: roles },
-                        { label: "Team", name: "TeamId", options: teams },
-                        { label: "Department", name: "DepartmentId", options: departments },
-                    ].map(({ label, name, options }) => (
+                        { label: "Role", name: "RoleId", options: roles, isRequired: true },
+                        { label: "Team", name: "TeamId", options: teams, isRequired: false },
+                        { label: "Department", name: "DepartmentId", options: departments, isRequired: true },
+                    ].map(({ label, name, options, isRequired }) => (
                         <div key={name}>
                             <label className="block font-medium text-gray-700">{label}:</label>
-                            <select name={name} value={formData[name]} onChange={handleChange} required className="w-full p-3 border rounded-lg text-gray-900">
+                            <select
+                                name={name}
+                                value={formData[name]}
+                                onChange={handleChange}
+                                disabled={name === "TeamId" && disableTeam}
+                                className={`w-full p-3 border rounded-lg text-gray-900 ${name === "TeamId" && disableTeam ? "bg-gray-200 cursor-not-allowed" : ""
+                                    }`}
+                                {...(isRequired ? { required: true } : {})}
+                            >
                                 <option value="">Select {label}</option>
                                 {options.map((option) => (
-                                    <option key={option.id} value={option.id}>{option[`${label.toLowerCase()}Name`]}</option>
+                                    <option key={option.id} value={option.id}>
+                                        {option[`${label.toLowerCase()}Name`]}
+                                    </option>
                                 ))}
                             </select>
                         </div>
@@ -130,14 +161,27 @@ export default function Signup() {
                     <div>
                         <label className="block font-medium text-gray-700">Password:</label>
                         <div className="relative">
-                            <input type={showPassword ? "text" : "password"} name="Password" value={formData.Password} onChange={handleChange} required className="w-full p-3 border rounded-lg text-gray-900" />
-                            <span className="absolute right-3 top-3 cursor-pointer text-gray-600" onClick={() => setShowPassword(!showPassword)}>
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="Password"
+                                value={formData.Password}
+                                onChange={handleChange}
+                                required
+                                className="w-full p-3 border rounded-lg text-gray-900"
+                            />
+                            <span
+                                className="absolute right-3 top-3 cursor-pointer text-gray-600"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
                                 {showPassword ? "👁️" : "👁️‍🗨️"}
                             </span>
                         </div>
                     </div>
 
-                    <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition font-semibold text-lg">
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition font-semibold text-lg"
+                    >
                         Register User
                     </button>
                 </form>
