@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { AuthContext } from "@/context/AuthContext";
 import { submiteNomination } from "@/_api_/nomination";
 import { toast, ToastContainer } from "react-toastify";
+import StarTable from "./StarsGet";
 
 export default function Nomination({
   AllEmployees,
@@ -215,7 +216,9 @@ export default function Nomination({
             />
           </motion.div>)}
 
-
+          {/* Stare Table */}
+          {selectedCategory === "Star of the month"?<StarTable />:null}
+          
           {/* Reason for Nomination */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}

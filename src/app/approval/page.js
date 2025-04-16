@@ -63,12 +63,13 @@ export default function ApprovalPage() {
         ))}
       </div>
       {/* Events Grid */}
-      <div className={(nominatedEmployee.length == 0 || time.getDate() < 16) ? "w-auto justify-center item-center" : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-10 place-items-center"}>
-        {(nominatedEmployee.length > 0 && !loading && time.getDate() > 16) ? (
+      <div className={(nominatedEmployee.length == 0 || time.getDate() <= 16) ? "w-auto justify-center item-center" : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-10 place-items-center"}>
+        {(nominatedEmployee.length > 0 && !loading && time.getDate() >= 16) ? (
           nominatedEmployee.map((event) => (
-            <div key={event.id} className="w-full max-w-[28rem] lg:max-w-[32rem] flex justify-center">
-              <ApprovalData.Provider value={{ setNominatedEmployee, nominatedEmployee }}>
-                {(selectedCategory == "All" || selectedCategory == "Star of month") ? (<EventCard
+            <div key={event.id} className="w-full max-w-[28rem] lg:max-w-[32rem] grid place-items-center">
+            <ApprovalData.Provider value={{ setNominatedEmployee, nominatedEmployee }}>
+              {(selectedCategory == "All" || selectedCategory == "Star of month") ? (
+                <EventCard
                   NominationType={event.nomination_Type}
                   NominationReason={event.reason}
                   NominatedName={event.user.name}
@@ -76,10 +77,10 @@ export default function ApprovalPage() {
                   userId={event.user.id}
                   NominatedBy={event.nominator_detail.name}
                   NominationId={event.id}
-                />) : null}
-
-              </ApprovalData.Provider>
-            </div>
+                />
+              ) : null}
+            </ApprovalData.Provider>
+          </div>
           ))
         ) : (time.getDate() < 16) ? (
           <p className="text-center text-black text-3xl justify-center items-center">{`The approval portal will open on 16th ${monthNames[time.getMonth()]}`}</p>

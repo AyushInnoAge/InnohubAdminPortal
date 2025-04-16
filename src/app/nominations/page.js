@@ -25,7 +25,7 @@ export default function NominateEmployee() {
         <Nomination AllEmployees={selectedEmployee} 
         NominationHeading="Recognize an Employee"
         ShoutoutRemaing={shoutoutRemaing}
-        /> 
+        />
     </div>
   );
 }
