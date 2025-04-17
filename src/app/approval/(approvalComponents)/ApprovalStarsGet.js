@@ -41,13 +41,13 @@ const ApprovalStarTable = ({ UserRole }) => {
                                     {[...Array(5)].map((_, i) => (
                                         <button
                                             key={i}
-                                            className={`text-2xl ${i < (manager[letter] || 0) ? "text-yellow-500" : "text-gray-400"
+                                            className={`text-2xl ${i < (managerRating[letter] || 0) ? "text-yellow-500" : "text-gray-400"
                                                 }`}
                                         >
                                             ★
                                         </button>
                                     ))}<span className="ml-2 text-sm text-gray-700">
-                                        {manager[letter] || 0}/5
+                                        {managerRating[letter] || 0}/5
                                     </span>
                                 </td>
                                 <td className="border px-4 py-2">

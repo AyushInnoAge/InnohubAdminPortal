@@ -18,12 +18,6 @@ const EventCard = ({ NominationType, NominationReason, NominatedName, userId, No
     try {
       setApprovalModeData(NominationId);
       setApprovalModeActivated(true);
-      // const subData = {
-      //   UserId: userId,
-      //   Reason: NominationReason,
-      // };
-      // const response = await SubmitedApproval(subData)
-      // setNominatedEmployee((prev) => prev.filter((item) => item.user?.id !== userId));
     } catch (error) {
       throw error;
     }

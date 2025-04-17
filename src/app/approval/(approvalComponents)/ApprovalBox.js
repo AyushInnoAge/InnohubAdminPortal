@@ -20,10 +20,11 @@ export default function ApprovalBox({
   ManagerReson,
   HrReason,
   NominatedName,
-  NominatedBy
+  NominatedBy,
+  NominatedEmployeeId
 }) {
   const { user } = useContext(AuthContext);
-  const {setApprovalModeActivated}=useContext(ApprovalData);
+  const {setApprovalModeActivated, setSubnmiteData, approvalModeActivated}=useContext(ApprovalData);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [reason, setReason] = useState("");
   const [selectedId, setSelectedId] = useState("");
@@ -36,50 +37,26 @@ export default function ApprovalBox({
   const submitedShoutout = async () => {
     try {
       setDisableButton(true);
-      let data;
-      if ((user?.userRole === 1 || user?.userRole === 2 || user?.userRole === 3) && selectedCategory === "Star of the month") {
-        data = {
-          UserId: selectedId,
-          ManagerIds: [user.id],
-          Nomination_Type: selectedCategory,
-        };
-
-        if (user?.userRole === 1) {
-          data.AdminReason = reason;
-          data.AdminRating = Object.keys(ratings).length > 0 ? ratings : undefined;
-        } else if (user?.userRole === 2) {
-          data.HrReason = reason;
-          data.HrRating = Object.keys(ratings).length > 0 ? ratings : undefined;
-        } else {
-          data.ManagerReason = reason;
-          data.ManagerRating = Object.keys(ratings).length > 0 ? ratings : undefined;
-        }
-      } else {
-        data = {
-          UserId: selectedId,
-          ManagerIds: [user.id],
-          Nomination_Type: "Shoutout",
-          ShoutoutReason: reason,
-        };
+      let data={
+      UserId:NominatedEmployeeId,
+      Reason:reason,
+      Rating:ratings
       }
+      setSubnmiteData(data);
 
-      const response = await submiteNomination(data);
-      setSelectedEmployee(null);
-      setSelectedId("");
-      setReason("");
-      setRatings({});
-
-      if (response.data.success) {
-        toast.success(`${selectedCategory} Successfully added`);
-      } else if (selectedCategory === "Star of the month") {
-        toast.error(response.data.message);
-      }
     } catch (error) {
       console.error(error);
     } finally {
       setDisableButton(false);
     }
   };
+
+  useEffect(()=>{
+    if(approvalModeActivated==false){
+      setReason("");
+      setRatings({});
+    }
+  },[approvalModeActivated])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 shadow-md overflow-auto scrollbar-hide">
@@ -215,7 +192,7 @@ export default function ApprovalBox({
             <button
               className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={submitedShoutout}
-              disabled={!selectedId || !reason || disablebutton || selectedCategory !== "Star of the month" || Object.keys(ratings)?.length !== 9}
+              disabled={!reason || disablebutton || Object.keys(ratings)?.length !== 9}
             >
               Submit
             </button>
