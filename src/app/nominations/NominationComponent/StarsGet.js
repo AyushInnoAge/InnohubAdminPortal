@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { Ratings } from "./Nomination";
 
-const StarTable = () => {
+const StarTable = ({UserRole}) => {
     const alphabets = [
         "Performance",
         "Excellence",
@@ -12,8 +13,8 @@ const StarTable = () => {
         "Learning and Development",
         "Timely"
     ];
-    const [ratings, setRatings] = useState({});
-
+    const {ratings, setRatings}=useContext(Ratings)
+    // const [ratings, setRatings] = useState({});
     const handleRating = (letter, index) => {
         setRatings((prev) => ({ ...prev, [letter]: index + 1 }));
     };
@@ -24,7 +25,7 @@ const StarTable = () => {
                 <thead className="bg-black">
                     <tr>
                         <th className="border px-4 py-2 text-left">Key Parameters</th>
-                        <th className="border px-4 py-2 text-left">Manager Rating</th>
+                        <th className="border px-4 py-2 text-left">{`${UserRole} Ratings`}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,5 +57,3 @@ const StarTable = () => {
 
 export default StarTable;
 
-
-//manager data store in form of array of manager Data in data base and its string

@@ -4,9 +4,9 @@ import { motion } from "framer-motion";
 import { ApprovalData } from "../page";
 import { RejectApproval, SubmitedApproval } from "@/_api_/approval";
 
-const EventCard = ({ NominationType, NominationReason, NominatedName, userId, NominatedBy, NominationId }) => {
+const EventCard = ({ NominationType, NominationReason, NominatedName, userId, NominatedBy, NominationId, Role }) => {
   const [expanded, setExpanded] = useState(false);
-  const { setNominatedEmployee, nominatedEmployee } = useContext(ApprovalData)
+  const { setNominatedEmployee, nominatedEmployee, setApprovalModeData, setApprovalModeActivated } = useContext(ApprovalData)
 
   const words = NominationReason.split(" ");
   const shouldTruncate = words.length > 20;
@@ -16,12 +16,14 @@ const EventCard = ({ NominationType, NominationReason, NominatedName, userId, No
 
   const submitedApproval = async () => {
     try {
-      const subData = {
-        UserId: userId,
-        Reason: NominationReason,
-      };
-      const response = await SubmitedApproval(subData)
-      setNominatedEmployee((prev) => prev.filter((item) => item.user?.id !== userId));
+      setApprovalModeData(NominationId);
+      setApprovalModeActivated(true);
+      // const subData = {
+      //   UserId: userId,
+      //   Reason: NominationReason,
+      // };
+      // const response = await SubmitedApproval(subData)
+      // setNominatedEmployee((prev) => prev.filter((item) => item.user?.id !== userId));
     } catch (error) {
       throw error;
     }
@@ -73,7 +75,7 @@ const EventCard = ({ NominationType, NominationReason, NominatedName, userId, No
           className="bg-green-500 text-white px-4 py-2 rounded-lg"
           onClick={submitedApproval}
         >
-          Approve
+          {Role == 1 ? "Approve" : "Review"}
         </motion.button>
         <motion.button
           whileTap={{ scale: 0.9 }}

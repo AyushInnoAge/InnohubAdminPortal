@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, createContext } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import { submiteNomination } from "@/_api_/nomination";
 import { toast, ToastContainer } from "react-toastify";
 import StarTable from "./StarsGet";
 
+export const Ratings = createContext();
 export default function Nomination({
   AllEmployees,
   NominationHeading,
@@ -23,6 +24,8 @@ export default function Nomination({
   const [selectedCategory, setSelectedCategory] = useState("");
   const [emmployeeofteam, setEmployeeOfTeam] = useState([]);
   const [totalShoutOutRemaing, setTotalShoutOutRemaing] = useState(ShoutoutRemaing);
+  const [ratings, setRatings] = useState({});
+
   useEffect(() => {
     if (user?.userRole != 3) {
       setSelectedCategory("Shoutout")
@@ -37,19 +40,21 @@ export default function Nomination({
     try {
       setDisableButton(true);
       var data;
-      if ((user?.userRole == 1 || user?.userRole == 2 || user?.userRole == 3)) {
+      if ((user?.userRole == 1 || user?.userRole == 2 || user?.userRole == 3) && selectedCategory == "Star of the month") {
         data = {
           UserId: selectedId,
           ManagerIds: [user.id],
           Nomination_Type: selectedCategory,
-          Reason: reason,
         };
+        user?.userRole == 1 ? (data.AdminReason = reason, data.AdminRating = Object.keys(ratings).length > 0 ? ratings : undefined) : user?.userRole == 2 ? (
+          data.HrReason = reason, data.HrRating = Object.keys(ratings).length > 0 ? ratings : undefined
+        ) : (data.ManagerReason = reason, data.ManagerRating = Object.keys(ratings).length > 0 ? ratings : undefined)
       } else {
         data = {
           UserId: selectedId,
           ManagerIds: [user.id],
           Nomination_Type: "Shoutout",
-          Reason: reason,
+          ShoutoutReason: reason,
         }
       }
 
@@ -57,6 +62,7 @@ export default function Nomination({
       setSelectedEmployee(null);
       setSelectedId("");
       setReason("");
+      setRatings({});
       console.log(response);
       response.data.success
         ? toast.success(`${selectedCategory} SuccessFully added`)
@@ -79,6 +85,7 @@ export default function Nomination({
       setEmployeeOfTeam(filteredEmployees);
     }
   }, [user, AllEmployees]);
+
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 p-4 w-full bg-transparent">
@@ -217,8 +224,14 @@ export default function Nomination({
           </motion.div>)}
 
           {/* Stare Table */}
-          {selectedCategory === "Star of the month"?<StarTable />:null}
-          
+          {selectedCategory === "Star of the month" ?
+            <Ratings.Provider value={{ ratings, setRatings }}>
+              <StarTable
+                UserRole={user?.userRole == 1 ? "Admin" : user?.userRole == 2 ? "HR" : "Manager"}
+              />
+            </Ratings.Provider>
+            : null}
+
           {/* Reason for Nomination */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -255,7 +268,7 @@ export default function Nomination({
                 className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition 
           disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={submitedShoutout}
-                disabled={!selectedId || !reason || disablebutton || selectedCategory != "Star of the month"}
+                disabled={!selectedId || !reason || disablebutton || selectedCategory != "Star of the month" || Object.keys(ratings)?.length != 9}
               >
                 Submit
               </button>)
