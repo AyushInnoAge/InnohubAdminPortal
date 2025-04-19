@@ -24,6 +24,8 @@ const AnimatedPostCard = ({
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [expandedTitle, setExpandedTitle] = useState(false);
+
 
   const words = PostDescription?.split(" ");
   const shouldTruncate = words?.length > 20;
@@ -31,9 +33,14 @@ const AnimatedPostCard = ({
     ? PostDescription
     : words?.slice(0, 20).join(" ") + (shouldTruncate ? "..." : "");
 
+  const wordTitle = PostTitle?.split(" ");
+  const shouldTruncateTitle= wordTitle?.length > 10;
+  const displayedTextTitle= expandedTitle?PostTitle:wordTitle?.slice(0,10).join(" ")+(shouldTruncateTitle? "...":"");
+
   const timing = new Date(Postcreated_At);
-  const time = `${timing.getDate()}-${timing.getMonth() + 1
-    }-${timing.getFullYear()}`;
+  const time = `${timing.getDate()}-${
+    timing.getMonth() + 1
+  }-${timing.getFullYear()}`;
 
   useEffect(() => {
     if (Like.length !== 0) {
@@ -49,7 +56,6 @@ const AnimatedPostCard = ({
     setHoverDirection({ x, y });
   };
 
-
   const setLikeSubmit = async () => {
     try {
       setLikeButtonDisable(true);
@@ -60,7 +66,6 @@ const AnimatedPostCard = ({
       console.error(error);
     }
   };
-
 
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
@@ -91,7 +96,7 @@ const AnimatedPostCard = ({
             onClick={() =>
               window.open(
                 PostUser?.image ||
-                `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser}`,
+                  `https://api.dicebear.com/7.x/initials/svg?seed=${PostUser}`,
                 "_blank"
               )
             }
@@ -107,7 +112,6 @@ const AnimatedPostCard = ({
               alt={`Profile`}
               className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover hover:scale-110 transition-transform"
             />
-
           </button>
           <div className="flex flex-col">
             <span className="text-gray-800 font-semibold text-xl sm:text-lg">
@@ -129,26 +133,42 @@ const AnimatedPostCard = ({
         )}
 
         <div className="p-4 sm:p-6">
-          <h2 className="text-xl font-semibold text-black mb-2">
-            {PostTitle}
-          </h2>
-          <p className="text-black text-base mt-2 font-medium">
-            {displayedText}{shouldTruncate && (
-              <motion.button
+          {PostTitle && (
+            <h2 className="text-xl font-semibold text-black mb-2">
+              {displayedTextTitle}
+              {shouldTruncateTitle && (
+                <motion.button
                 whileTap={{ scale: 0.9 }}
                 className="text-blue-400  "
-                onClick={() => setExpanded(!expanded)}
+                onClick={() => setExpandedTitle(!expandedTitle)}
               >
                 {expanded ? "View Less" : "View More"}
               </motion.button>
-            )}
-          </p>
+              )}
+            </h2>
+          )}
+
+          {PostDescription && (
+            <p className="text-black text-base mt-2 font-medium">
+              {displayedText}
+              {shouldTruncate && (
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  className="text-blue-400  "
+                  onClick={() => setExpanded(!expanded)}
+                >
+                  {expanded ? "View Less" : "View More"}
+                </motion.button>
+              )}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-4">
           <button
-            className={`flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors ${likeButtonDisable && "cursor-not-allowed opacity-50"
-              }`}
+            className={`flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors ${
+              likeButtonDisable && "cursor-not-allowed opacity-50"
+            }`}
             aria-label="Like post"
             disabled={likeButtonDisable}
             onClick={setLikeSubmit}
