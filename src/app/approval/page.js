@@ -59,20 +59,13 @@ export default function ApprovalPage() {
   }, [user]);
 
   useEffect(() => {
-    if (submiteData != null) {
+    if (submiteData) {
       const SubmiteApproval = async () => {
         try {
-          const response = await SubmitedApproval(submiteData, user?.userRole);
-          response.data.success
-            ? toast.success("Review Submit SuccessFully")
-            : toast.error("Review not submit please try again");
-          response.data.success
-            ? setNominatedEmployee((prev) =>
-                prev.filter(
-                  (item) => item.employeeName?.id !== submiteData.UserId
-                )
-              )
-            : null;
+          toast.success("Submit successfull");
+          setNominatedEmployee((prev) =>
+            prev.filter((item) => item.employeeName?.id !== submiteData.UserId)
+          );
           setSubnmiteData(null);
           setApprovalModeActivated(false);
         } catch (error) {
@@ -112,12 +105,31 @@ export default function ApprovalPage() {
       {/* Event Cards Grid */}
       <div
         className={`${
-          nominatedEmployee.length === 0 || time.getDate() <= 16
+          (time.getDate() < 16 || time.getDate() > 20) && user?.userRole == 2
             ? "flex justify-center items-center"
-            : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8"
+            : nominatedEmployee.length != 0 &&
+              time.getDate() >= 16 &&
+              time.getDate() <= 20 &&
+              user?.userRole == 2
+            ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8"
+            : (time.getDate() < 20 || time.getDate() > 25) &&
+              user?.userRole == 1
+            ? "flex justify-center items-center"
+            : nominatedEmployee.length != 0 &&
+              time.getDate() >= 21 &&
+              time.getDate() <= 25 &&
+              user?.userRole == 1
+            ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8"
+            : nominatedEmployee.length == 0
+            ? "flex justify-center items-center"
+            : "flex justify-center items-center"
         }`}
       >
-        {nominatedEmployee.length > 0 && !loading && time.getDate() >= 16 ? (
+        {nominatedEmployee.length > 0 &&
+        !loading &&
+        time.getDate() >= 16 &&
+        time.getDate() <= 20 &&
+        user?.userRole == 2 ? (
           nominatedEmployee.map((event, index) => (
             <div
               key={event.id}
@@ -147,9 +159,55 @@ export default function ApprovalPage() {
               </ApprovalData.Provider>
             </div>
           ))
-        ) : time.getDate() < 16 ? (
+        ) : time.getDate() < 16 && user?.userRole == 2 ? (
+          <p className="text-center text-black text-xl sm:text-2xl md:text-3xl px-4">
+            The review portal will open on 16th {monthNames[time.getMonth()]}
+          </p>
+        ) : time.getDate() > 20 && user?.userRole == 2 ? (
+          <p className="text-center justify-center text-black text-xl sm:text-2xl md:text-3xl px-4">
+            The review portal will close for {monthNames[time.getMonth()]}
+          </p>
+        ) : nominatedEmployee.length > 0 &&
+          !loading &&
+          time.getDate() > 20 &&
+          time.getDate() <= 25 &&
+          user?.userRole == 1 ? (
+          nominatedEmployee.map((event, index) => (
+            <div
+              key={event.id}
+              className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg flex justify-center"
+            >
+              <ApprovalData.Provider
+                value={{
+                  setNominatedEmployee,
+                  nominatedEmployee,
+                  setApprovalModeActivated,
+                  setApprovalModeData,
+                }}
+              >
+                {(selectedCategory === "All" ||
+                  selectedCategory === "Star of month") && (
+                  <EventCard
+                    NominationType={event.nomination_Type}
+                    NominationReason={event.managerReason}
+                    NominatedName={event.employeeName.name}
+                    Image={event.employeeName?.image}
+                    userId={event.employeeName?.id}
+                    NominatedBy={event.nominated_ByUser?.name}
+                    NominationId={index}
+                    Role={user.userRole}
+                  />
+                )}
+              </ApprovalData.Provider>
+            </div>
+          ))
+        ) : time.getDate() < 21 && user?.userRole == 1 ? (
           <p className="text-center text-black text-xl sm:text-2xl md:text-3xl px-4">
             The approval portal will open on 16th {monthNames[time.getMonth()]}
+          </p>
+        ) : time.getDate() > 25 && user?.userRole == 1 ? (
+          <p className="text-center text-black text-xl sm:text-2xl md:text-3xl px-4">
+            The approval portal will close for {monthNames[time.getMonth()]}
           </p>
         ) : (
           <p className="text-center text-black text-xl sm:text-2xl md:text-3xl px-4">

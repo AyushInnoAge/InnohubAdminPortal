@@ -4,15 +4,28 @@ import { motion } from "framer-motion";
 import { ApprovalData } from "../page";
 import { RejectApproval, SubmitedApproval } from "@/_api_/approval";
 
-const EventCard = ({ NominationType, NominationReason, NominatedName, userId, NominatedBy, NominationId, Role }) => {
+const EventCard = ({
+  NominationType,
+  NominationReason,
+  NominatedName,
+  userId,
+  NominatedBy,
+  NominationId,
+  Role,
+}) => {
   const [expanded, setExpanded] = useState(false);
-  const { setNominatedEmployee, nominatedEmployee, setApprovalModeData, setApprovalModeActivated } = useContext(ApprovalData)
+  const {
+    setNominatedEmployee,
+    nominatedEmployee,
+    setApprovalModeData,
+    setApprovalModeActivated,
+  } = useContext(ApprovalData);
 
-  const words = NominationReason.split(" ");
-  const shouldTruncate = words.length > 20;
+  const words = NominationReason?.split(" ");
+  const shouldTruncate = words?.length > 20;
   const displayedText = expanded
     ? NominationReason
-    : words.slice(0, 20).join(" ") + (shouldTruncate ? "..." : "");
+    : words?.slice(0, 20).join(" ") + (shouldTruncate ? "..." : "");
 
   const submitedApproval = async () => {
     try {
@@ -25,11 +38,13 @@ const EventCard = ({ NominationType, NominationReason, NominatedName, userId, No
 
   const submiteReject = async () => {
     try {
-      setNominatedEmployee((prev) => prev.filter((item) => item.user?.id !== userId));
+      setNominatedEmployee((prev) =>
+        prev.filter((item) => item.user?.id !== userId)
+      );
     } catch (error) {
-      throw error
+      throw error;
     }
-  }
+  };
 
   return (
     <motion.div
@@ -48,8 +63,12 @@ const EventCard = ({ NominationType, NominationReason, NominatedName, userId, No
         >
           {NominationType}
         </motion.h3>
-        <p className="text-md font-semibold mt-2 text-black"> {NominatedName} </p>
-        <p className="text-gray-600 text-md flex-grow overflow-y-auto scrollbar-hide mt-2">{displayedText}
+        <p className="text-md font-semibold mt-2 text-black">
+          {" "}
+          {NominatedName}{" "}
+        </p>
+        <p className="text-gray-600 text-md flex-grow overflow-y-auto scrollbar-hide mt-2">
+          {displayedText}
           {shouldTruncate && (
             <motion.button
               whileTap={{ scale: 0.9 }}
@@ -60,8 +79,9 @@ const EventCard = ({ NominationType, NominationReason, NominatedName, userId, No
             </motion.button>
           )}
         </p>
-        <p className="text-md font-semibold mt-2 text-black">Nominated By : {NominatedBy} </p>
-
+        <p className="text-md font-semibold mt-2 text-black">
+          Nominated By : {NominatedBy}{" "}
+        </p>
       </div>
       <div className="p-4 flex justify-between">
         <motion.button

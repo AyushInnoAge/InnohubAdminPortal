@@ -11,6 +11,7 @@ import ApprovalStarTable from "./ApprovalStarsGet";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { ApprovalData } from "../page";
+import { SubmitedApproval } from "@/_api_/approval";
 
 export const Ratings = createContext();
 
@@ -21,10 +22,11 @@ export default function ApprovalBox({
   HrReason,
   NominatedName,
   NominatedBy,
-  NominatedEmployeeId
+  NominatedEmployeeId,
 }) {
   const { user } = useContext(AuthContext);
-  const {setApprovalModeActivated, setSubnmiteData, approvalModeActivated}=useContext(ApprovalData);
+  const { setApprovalModeActivated, setSubnmiteData, approvalModeActivated } =
+    useContext(ApprovalData);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [reason, setReason] = useState("");
   const [selectedId, setSelectedId] = useState("");
@@ -37,13 +39,20 @@ export default function ApprovalBox({
   const submitedShoutout = async () => {
     try {
       setDisableButton(true);
-      let data={
-      UserId:NominatedEmployeeId,
-      Reason:reason,
-      Rating:ratings
-      }
-      setSubnmiteData(data);
+      let data = {
+        UserId: NominatedEmployeeId,
+        Reason: reason,
+        Rating: ratings,
+      };
 
+      const response = await SubmitedApproval(data, user?.userRole);
+      response.data.success ? setSubnmiteData(data) : null;
+      setReason("");
+      setRatings({});
+      response.data.success
+        ? toast.success("Approval Submite")
+        : toast.error("Approval not submit");
+      setApprovalModeActivated(false);
     } catch (error) {
       console.error(error);
     } finally {
@@ -51,12 +60,12 @@ export default function ApprovalBox({
     }
   };
 
-  useEffect(()=>{
-    if(approvalModeActivated==false){
+  useEffect(() => {
+    if (approvalModeActivated == false) {
       setReason("");
       setRatings({});
     }
-  },[approvalModeActivated])
+  }, [approvalModeActivated]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 shadow-md overflow-auto scrollbar-hide">
@@ -71,9 +80,11 @@ export default function ApprovalBox({
         >
           {`Star of the month approval`}
           <Button
-          onClick={()=>{setApprovalModeActivated(false)}}
+            onClick={() => {
+              setApprovalModeActivated(false);
+            }}
           >
-          <X size={20} />
+            <X size={20} />
           </Button>
         </motion.h2>
 
@@ -123,12 +134,20 @@ export default function ApprovalBox({
             />
           </motion.div>
 
-
-          <Ratings.Provider value={{ ratings, setRatings, hrRating, setHrRating, managerRating, setManagerRating }}>
+          <Ratings.Provider
+            value={{
+              ratings,
+              setRatings,
+              hrRating,
+              setHrRating,
+              managerRating,
+              setManagerRating,
+            }}
+          >
             <ApprovalStarTable />
           </Ratings.Provider>
 
-          {(user?.userRole === 1 && ManagerRating != null && HrRating != null) ? (
+          {user?.userRole === 1 && ManagerRating != null && HrRating != null ? (
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -144,7 +163,9 @@ export default function ApprovalBox({
               </label>
               <p className="text-black">{HrReason}</p>
             </motion.div>
-          ) : (user?.userRole === 1 && HrRating != null && ManagerRating == null) ? (
+          ) : user?.userRole === 1 &&
+            HrRating != null &&
+            ManagerRating == null ? (
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -155,7 +176,7 @@ export default function ApprovalBox({
               </label>
               <p className="text-black">{HrReason}</p>
             </motion.div>
-          ) : (user?.userRole === 2 && ManagerRating != null) ? (
+          ) : user?.userRole === 2 && ManagerRating != null ? (
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -192,7 +213,9 @@ export default function ApprovalBox({
             <button
               className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={submitedShoutout}
-              disabled={!reason || disablebutton || Object.keys(ratings)?.length !== 9}
+              disabled={
+                !reason || disablebutton || Object.keys(ratings)?.length !== 9
+              }
             >
               Submit
             </button>

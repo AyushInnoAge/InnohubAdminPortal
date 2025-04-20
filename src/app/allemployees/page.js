@@ -48,7 +48,6 @@ export default function EmployeeListPage() {
         });
         setDepartment(fetchalldepartment);
 
-
         const fetchallusers = await fetchAllEmployeesByTeamLeaderId(true);
 
         setEmployees(fetchallusers.data.employeeData);
@@ -62,7 +61,7 @@ export default function EmployeeListPage() {
           const role = e.role.roleName;
           if (["TeamLeader", "HR", "Admin"].includes(role) && !seen.has(e.id)) {
             seen.add(e.id);
-            filtered.push({ id: e.id, teamName: e.name, teamLeader:e.id });
+            filtered.push({ id: e.id, teamName: e.name, teamLeader: e.id });
           }
         }
         setTeam(filtered);
@@ -121,9 +120,9 @@ export default function EmployeeListPage() {
         editingEmployee?.employeeId
       );
       if (response.statusCode === 200) {
-        console.log(response);
+        const fetchallUser = await fetchAllEmployeesByTeamLeaderId(true);
+        setEmployees(fetchallUser.data.employeeData);
         toast.success("Employee data updated successfully!");
-        // setEmployees(response.data.employeeData); 
       }
     } catch (error) {
       console.error("Error submitting data:", error);
@@ -190,8 +189,9 @@ export default function EmployeeListPage() {
           <button
             key={dept.id}
             onClick={() => setFilter(dept?.departmentName)}
-            className={`filter-btn ${filter === dept?.departmentName ? "active" : ""
-              }`}
+            className={`filter-btn ${
+              filter === dept?.departmentName ? "active" : ""
+            }`}
           >
             {dept?.departmentName}
           </button>
