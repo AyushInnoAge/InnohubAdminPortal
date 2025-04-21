@@ -55,7 +55,7 @@ const lockUserProfile = async (empID,image) => {
     if (image) {
       formData.append("imageFile", image);
     }
-    console.log("formData",formData);
+  
 
   
     const url = `${process.env.NEXT_PUBLIC_API_URL}User/UpdateUserProfile/${empID}`;

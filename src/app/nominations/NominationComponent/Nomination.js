@@ -241,7 +241,7 @@ export default function Nomination({
                   className="w-full bg-white p-2 border rounded text-sm"
                 >
                   <option value="">Select a category</option>
-                  {shoutoutCatagorys.map((item) => (
+                  {shoutoutCatagorys?.map((item) => (
                     <option key={item.id} value={item.catagory}>
                       {`${item.catagory}: ${item.description}`}
                     </option>
@@ -335,6 +335,7 @@ export default function Nomination({
                   disablebutton ||
                   totalShoutOutRemaing <= 0 ||
                   selectedCategory != "Shoutout"
+                  ||!shoutoutCatagory
                 }
               >
                 Submit
