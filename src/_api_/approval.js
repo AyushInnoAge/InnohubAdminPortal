@@ -25,7 +25,6 @@ const SubmitedApproval = async (subData, userRole) => {
 const fetchAllApproval = async (userRole) => {
   try {
     const token = getToken();
-    console.log(userRole)
     var Role = userRole == 1 ? "Admin" : "HR";
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}users/fetch_nominated_employees?Role=${Role}`,

@@ -76,10 +76,7 @@ export default function ApprovalPage() {
     }
   }, [submiteData]);
 
-  useEffect(() => {
-    console.log("All Nominated Employee", nominatedEmployee[0]);
-    console.log("All Nomination Employee", approvlemodeData);
-  }, [nominatedEmployee, approvlemodeData]);
+
   return (
     <div className="p-4 sm:p-6 md:p-8 min-h-screen bg-gray-100">
       {/* Toast Notification */}
