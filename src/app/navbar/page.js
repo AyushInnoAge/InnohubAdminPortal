@@ -98,7 +98,7 @@ export default function Navbar() {
           {/* Logo */}
           <div className="logo-container">
             <Image src="/logo.svg" alt="Logo" width={40} height={40} />
-            <span className="brand-name">InnoAge</span>
+            <span className="brand-name">InnoHub</span>
           </div>
 
           {/* Hamburger Menu for Small Screens */}
@@ -107,8 +107,9 @@ export default function Navbar() {
           <div className={`nav-links ${isSidebarOpen ? "hide" : ""}    `}>
             <Link
               href="/dashboard"
-              className={`nav-link ${activeRoute === "/dashboard" ? "active" : ""
-                }`}
+              className={`nav-link ${
+                activeRoute === "/dashboard" ? "active" : ""
+              }`}
               onClick={() => handleNavClick("/dashboard")}
             >
               Dashboard
@@ -116,8 +117,9 @@ export default function Navbar() {
             <div className="nav-item">
               <div className="dropdown1">
                 <button
-                  className={`nav-link ${activeRoute === "/nominations" ? "active" : ""
-                    }`}
+                  className={`nav-link ${
+                    activeRoute === "/nominations" ? "active" : ""
+                  }`}
                   onClick={() => {
                     toggleDropdown("awards");
                     handleNavClick("/nominations");
@@ -130,8 +132,9 @@ export default function Navbar() {
             <div className="nav-item">
               <div className="dropdown1">
                 <button
-                  className={`nav-link ${activeRoute === "/funactivity" ? "active" : ""
-                    }`}
+                  className={`nav-link ${
+                    activeRoute === "/funactivity" ? "active" : ""
+                  }`}
                   onClick={() => {
                     handleNavClick("/funactivity");
                   }}
@@ -159,7 +162,7 @@ export default function Navbar() {
                     {isDropdownOpen === "Admin" && (
                       <div className="dropdown-content lower-dropdown">
                         <Link href="/approval" className="dropdown-item">
-                          Review
+                          {user.userRole === 1 ? "Approval" : "Review"}
                         </Link>
                         <Link href="/allemployees" className="dropdown-item">
                           All Employee
@@ -254,7 +257,7 @@ export default function Navbar() {
                 onClick={toggleSidebar}
               >
                 <MdOutlinePreview />
-                Review
+                {user.userRole === 1 ? "Approval" : "Review"}
               </Link>
             )}
             {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (

@@ -20,36 +20,41 @@ export default function ProfilePage() {
   const [phoneNo, setPhoneNo] = useState(user?.phoneNo)
   const [address, setAddress] = useState(user?.address)
   const starOfTheMonthCount = user?.achievements
-    .split(",")
-    .filter(a => a.trim().startsWith("Star of the month"))
-    .length;
-  const shoutoutCount = user?.achievements
-    .split(",")
-    .filter(a => a.trim().startsWith("Shoutout"))
-    .length;
+  .split(",")
+  .filter(a => a.trim().startsWith("Star of the month"))
+  .length;
 
-  const starOfTheMonthDates = (user?.achievements
-    ?.split(",")
-    .filter(a => a.trim().startsWith("Star of the month"))
-    .map(a => {
-      const datePart = a.split(" - ")[1];
-      const date = new Date(datePart?.trim());
-      return isNaN(date.getTime()) ? null : date.toLocaleString("default", { month: "long", year: "numeric" });
-    })
-    .filter(month => month !== null)) || [];// Filter out invalid months
-  const achievementsCount = starOfTheMonthDates?.length || 0;
-  const achievementsMonths = [...new Set(starOfTheMonthDates)].join(", ");
+const shoutoutCount = user?.achievements
+  .split(",")
+  .filter(a => a.trim().startsWith("Shoutout"))
+  .length;
 
-  useEffect(() => {
-    const badgeData = [];
-    if (starOfTheMonthCount > 0) {
-      badgeData.push({ name: `${starOfTheMonthCount} Star${starOfTheMonthCount > 1 ? "s" : ""} of the Month`, color: "badge-red" });
-    }
-    if (shoutoutCount > 0) {
-      badgeData.push({ name: `${shoutoutCount} Shoutout${shoutoutCount > 1 ? "s" : ""}`, color: "badge-yellow" });
-    }
-    setBadges(badgeData);
-  }, [starOfTheMonthCount, shoutoutCount]);
+const starOfTheMonthDates = (user?.achievements
+  ?.split(",")
+  .filter(a => a.trim().startsWith("Star of the month"))
+  .map(a => {
+    const datePart = a.split(" - ")[2]; // Take the date part
+    const date = new Date(datePart?.trim());
+    return isNaN(date.getTime()) ? null : date.toLocaleString("default", { month: "long", year: "numeric" });
+  })
+  .filter(month => month !== null)) || []; // Filter out invalid months
+
+const achievementsCount = starOfTheMonthDates?.length || 0;
+const achievementsMonths = [...new Set(starOfTheMonthDates)].join(", ");
+
+// Generate badges based on counts
+useEffect(() => {
+  const badgeData = [];
+  if (starOfTheMonthCount > 0) {
+    badgeData.push({ name: `${starOfTheMonthCount} Star${starOfTheMonthCount > 1 ? "s" : ""} of the Month`, color: "badge-red" });
+  }
+  if (shoutoutCount > 0) {
+    badgeData.push({ name: `${shoutoutCount} Shoutout${shoutoutCount > 1 ? "s" : ""}`, color: "badge-yellow" });
+  }
+  setBadges(badgeData);
+}, [starOfTheMonthCount, shoutoutCount]);
+
+
   const handleEditClick = () => {
     if (!editMode) {
       setEmail(user?.email || "");
