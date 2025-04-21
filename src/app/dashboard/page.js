@@ -46,6 +46,7 @@ export default function Home() {
     try {
       const res = await DashboardDataFetch(lastFetchedDate);
       const response = res.message.dashboardData;
+      console.log("Dashboard Data", response);
       
       if (res.message.currentUserAchievements.length > 0) {
         setAchievements(res.message.currentUserAchievements);
