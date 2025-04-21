@@ -46,7 +46,7 @@ export default function Home() {
     try {
       const res = await DashboardDataFetch(lastFetchedDate);
       const response = res.message.dashboardData;
-
+      
       if (res.message.currentUserAchievements.length > 0) {
         setAchievements(res.message.currentUserAchievements);
       }
@@ -118,116 +118,130 @@ export default function Home() {
         </div>
       ) : null}
 
-      {user != null ? (<div className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6 scrollbar-hide">
-        (
-        <div className="w-full max-w-4xl mx-auto">
-          <DashboardStatus.Provider
-            value={{
-              setDashboardData,
-              setLoading,
-              setLastFetchedDate,
-              setHasMoreData,
-            }}
-          >
-            <PostInput
-              UserProfileImage={
-                user?.image?.trim()
-                  ? user.image
-                  : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
-              }
-            />
-          </DashboardStatus.Provider>
-        </div>
-        )
-
-        {loading && dashboardData.length == 0 ? (
-          <h1 className="text-black text-center text-3xl justify-center">
-            Loading...
-          </h1>
-        ) : (
-          <div className="w-full max-w-4xl mx-auto space-y-6">
-            {dashboardData.length == 0 ? (
-              <h1 className="text-black text-center text-3xl">Loading..</h1>
-            ) : (
-              dashboardData.map((post, index) => (
-                <div
-                  key={index}
-                  ref={index === dashboardData.length - 1 ? lastPostRef : null}
-                >
-                  {post.postData != null && post.postData?.type === "Post" ? (
-                    <AnimatedPostCard
-                      PostId={post.postData?.id}
-                      PostUser={post.userData?.userName}
-                      PostUserProfile={post.userData?.profileImage}
-                      PostImageUrl={post.postData?.image}
-                      PostLike={post.postData?.postLikes}
-                      PostComment={post.postData?.postComments}
-                      PostType={post.postData?.type}
-                      PostTitle={post.postData?.title}
-                      PostDescription={post.postData?.description}
-                      Postcreated_At={post.postData?.created_at}
-                    />
-                  ) : post.postData != null &&
-                    post.postData?.type === "Poll" ? (
-                    <PollCard
-                      PostId={post.postData?.id}
-                      PostUser={post?.userData?.userName}
-                      PostUserProfile={post?.userData?.profileImage}
-                      PostTotalYes={post?.postData?.totalYes}
-                      PostTotalNo={post?.postData?.totalNo}
-                      PostType={post.postData?.type}
-                      PostTitle={post.postData.title}
-                      Postcreated_At={post.postData?.created_at}
-                    />
-                  ) : post.postData != null &&
-                    (post.postData?.type === "Birthday" ||
-                      post.postData?.type === "Anniversary") ? (
-                    <BirthdayCard
-                      PostId={post.postData?.id}
-                      PostImageUrl={post.postData?.image}
-                      PostLike={post.postData?.postLikes}
-                      PostComment={post.postData?.postComments}
-                      PostType={post.postData?.type}
-                      PostTitle={post.postData?.title}
-                      PostDescription={post.postData?.description}
-                      Postcreated_At={post.postData?.created_at}
-                      PostUserDetailed={post?.userData}
-                    />
-                  ) : post.postData != null &&
-                    post.postData?.type == "Company Event" ? (
-                    <CompanyEvent
-                      PostId={post.postData?.id}
-                      PostImageUrl={post?.postData?.image}
-                      PostLike={post.postData?.postLikes}
-                      PostComment={post.postData?.postComments}
-                      PostType={post.postData?.type}
-                      PostTitle={post.postData?.title}
-                      PostDescription={post.postData?.description}
-                      Postcreated_At={post.postData?.created_at}
-                    />
-                  ) : post.nominationData != null &&
-                    (post.nominationData?.nomination_Type ===
-                      "Star of the month" ||
-                      post.nominationData?.nomination_Type === "Shoutout" ||
-                      post.nominationData?.nomination_Type == "Best team" ||
-                      post.nominationData?.nomination_Type == "Best leader") ? (
-                    <AppreciationCard
-                      PostId={post.nominationData?.id}
-                      NominatedUser={post.nominationData?.userId}
-                      NominatedBy={post.nominationData?.nominated_By}
-                      PostType={post.nominationData?.nomination_Type}
-                      PostDescription={post.nominationData?.reason}
-                      PostLike={post.nominationData?.postLikes}
-                      PostComment={post.nominationData?.postComments}
-                    />
-                  ) : null}
-                </div>
-              ))
-            )}
+      {user != null ? (
+        <div className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6 scrollbar-hide">
+          (
+          <div className="w-full max-w-4xl mx-auto">
+            <DashboardStatus.Provider
+              value={{
+                setDashboardData,
+                setLoading,
+                setLastFetchedDate,
+                setHasMoreData,
+              }}
+            >
+              <PostInput
+                UserProfileImage={
+                  user?.image?.trim()
+                    ? user.image
+                    : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
+                }
+              />
+            </DashboardStatus.Provider>
           </div>
-        )}
-      </div>) : null}
-
+          )
+          {loading && dashboardData.length == 0 ? (
+            <h1 className="text-black text-center text-3xl justify-center">
+              Loading...
+            </h1>
+          ) : (
+            <div className="w-full max-w-4xl mx-auto space-y-6">
+              {dashboardData.length == 0 ? (
+                <h1 className="text-black text-center text-3xl">Loading..</h1>
+              ) : (
+                dashboardData.map((post, index) => (
+                  <div
+                    key={index}
+                    ref={
+                      index === dashboardData.length - 1 ? lastPostRef : null
+                    }
+                  >
+                    {post.postData != null && post.postData?.type === "Post" ? (
+                      <AnimatedPostCard
+                        PostId={post.postData?.id}
+                        PostUser={post.userData?.userName}
+                        PostUserProfile={post.userData?.profileImage}
+                        PostImageUrl={post.postData?.image}
+                        PostLike={post.postData?.postLikes}
+                        PostComment={post.postData?.postComments}
+                        PostType={post.postData?.type}
+                        PostTitle={post.postData?.title}
+                        PostDescription={post.postData?.description}
+                        Postcreated_At={post.postData?.created_at}
+                      />
+                    ) : post.postData != null &&
+                      post.postData?.type === "Poll" ? (
+                      <PollCard
+                        PostId={post.postData?.id}
+                        PostUser={post?.userData?.userName}
+                        PostUserProfile={post?.userData?.profileImage}
+                        PostTotalYes={post?.postData?.totalYes}
+                        PostTotalNo={post?.postData?.totalNo}
+                        PostType={post.postData?.type}
+                        PostTitle={post.postData.title}
+                        Postcreated_At={post.postData?.created_at}
+                      />
+                    ) : post.postData != null &&
+                      (post.postData?.type === "Birthday" ||
+                        post.postData?.type === "Anniversary") ? (
+                      <BirthdayCard
+                        PostId={post.postData?.id}
+                        PostImageUrl={post.postData?.image}
+                        PostLike={post.postData?.postLikes}
+                        PostComment={post.postData?.postComments}
+                        PostType={post.postData?.type}
+                        PostTitle={post.postData?.title}
+                        PostDescription={post.postData?.description}
+                        Postcreated_At={post.postData?.created_at}
+                        PostUserDetailed={post?.userData}
+                      />
+                    ) : post.postData != null &&
+                      post.postData?.type == "Company Event" ? (
+                      <CompanyEvent
+                        PostId={post.postData?.id}
+                        PostImageUrl={post?.postData?.image}
+                        PostLike={post.postData?.postLikes}
+                        PostComment={post.postData?.postComments}
+                        PostType={post.postData?.type}
+                        PostTitle={post.postData?.title}
+                        PostDescription={post.postData?.description}
+                        Postcreated_At={post.postData?.created_at}
+                      />
+                    ) : post.postData != null &&
+                      post.postData?.type == "New Joining" ? (
+                      <AppreciationCard
+                        PostId={post.postData?.id}
+                        PostType={post.postData?.type}
+                        PostDescription={post?.postData?.description}
+                        PostLike={post.postData?.postLikes}
+                        PostComment={post.postData?.postComments}
+                        PostTitle={post.postData?.title}
+                      />
+                    ) : post.nominationData != null &&
+                      (post.nominationData?.nomination_Type ===
+                        "Star of the month" ||
+                        post.nominationData?.nomination_Type === "Shoutout") ? (
+                      <AppreciationCard
+                        PostId={post.nominationData?.id}
+                        NominatedUser={post.nominationData?.userId}
+                        NominatedBy={post.nominationData?.nominated_By}
+                        PostType={post.nominationData?.nomination_Type}
+                        PostDescription={post.nominationData?.shoutoutReason}
+                        PostLike={post.nominationData?.postLikes}
+                        PostComment={post.nominationData?.postComments}
+                        PostShoutoutCatagory={
+                          post.nominationData?.shoutoutCatagory
+                        }
+                        PostImage={post.nominationData?.image}
+                      />
+                    ) : null}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

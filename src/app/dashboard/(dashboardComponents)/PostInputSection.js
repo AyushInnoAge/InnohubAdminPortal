@@ -172,7 +172,7 @@ const PostInput = ({ UserProfileImage }) => {
               <textarea
                 value={postTitle}
                 onChange={(e) => setPostTitle(e.target.value)}
-                placeholder="Title of You Post"
+                placeholder="Title of You Post (option)"
                 className="w-full mt-4 p-2 border rounded-lg resize-none text-black"
               />
 
