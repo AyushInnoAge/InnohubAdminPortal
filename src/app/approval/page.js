@@ -186,7 +186,7 @@ export default function ApprovalPage() {
                   selectedCategory === "Star of month") && (
                   <EventCard
                     NominationType={event.nomination_Type}
-                    NominationReason={event.managerReason}
+                    NominationReason={event?.managerReason!=null?event?.managerReason: event?.hrReason}
                     NominatedName={event.employeeName.name}
                     Image={event.employeeName?.image}
                     userId={event.employeeName?.id}

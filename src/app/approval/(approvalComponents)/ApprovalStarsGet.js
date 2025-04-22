@@ -17,12 +17,12 @@ const ApprovalStarTable = ({ UserRole }) => {
     const handleRating = (letter, index) => {
         setRatings((prev) => ({ ...prev, [letter]: index + 1 }));
     };
-
+    
     return (
         <div className="p-6">
 
             {/* star of the month selected by leader And Send to Admin */}
-            {(managerRating != null && hrRating != null) ?
+            {(Object.keys(managerRating).length != 0 && hrRating!=null) ?
                 (<table className="table-auto w-full border border-gray-300">
                     <thead className="bg-black">
                         <tr>
@@ -81,7 +81,7 @@ const ApprovalStarTable = ({ UserRole }) => {
                         ))}
                     </tbody>
                 </table>)
-                : (managerRating == null && hrRating != null) ? (
+                : (Object.keys(managerRating).length == 0 && Object.keys(hrRating).length != 0) ? (
                     <table className="table-auto w-full border border-gray-300">
                         <thead className="bg-black">
                             <tr>
@@ -129,7 +129,7 @@ const ApprovalStarTable = ({ UserRole }) => {
                         </tbody>
                     </table>
                 )
-                    : (managerRating != null && hrRating == null) ? (
+                    : (Object.keys(managerRating).length != 0 && hrRating==null) ? (
                         <table className="table-auto w-full border border-gray-300">
                             <thead className="bg-black">
                                 <tr>

@@ -147,7 +147,7 @@ export default function ApprovalBox({
             <ApprovalStarTable />
           </Ratings.Provider>
 
-          {user?.userRole === 1 && ManagerRating != null && HrRating != null ? (
+          {user?.userRole === 1 && ManagerReson != null && HrReason != null ? (
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -164,8 +164,8 @@ export default function ApprovalBox({
               <p className="text-black">{HrReason}</p>
             </motion.div>
           ) : user?.userRole === 1 &&
-            HrRating != null &&
-            ManagerRating == null ? (
+            HrReason != null &&
+            ManagerReson == null ? (
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -176,7 +176,7 @@ export default function ApprovalBox({
               </label>
               <p className="text-black">{HrReason}</p>
             </motion.div>
-          ) : user?.userRole === 2 && ManagerRating != null ? (
+          ) : user?.userRole === 2 && ManagerReson != null ? (
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
