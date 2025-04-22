@@ -17,7 +17,7 @@ const ApprovalStarTable = ({ UserRole }) => {
     const handleRating = (letter, index) => {
         setRatings((prev) => ({ ...prev, [letter]: index + 1 }));
     };
-    console.log(managerRating);
+    
     return (
         <div className="p-6">
 
