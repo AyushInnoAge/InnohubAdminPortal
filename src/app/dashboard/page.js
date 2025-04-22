@@ -100,7 +100,7 @@ export default function Home() {
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
       {user != null ? (
-        <div className="hidden [@media(min-width:1300px)]:flex w-1/6 p-4 bg-white shadow-md flex-col overflow-y-auto scrollbar-hide">
+        <div className="hidden [@media(min-width:1200px)]:flex w-1/5.5 p-4 bg-white shadow-md flex-col overflow-y-auto scrollbar-hide">
           <SidebarProfile
             UserProfileImage={
               user?.image?.trim()
