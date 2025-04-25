@@ -142,7 +142,7 @@ const AnimatedPostCard = ({
                 className="text-blue-400  "
                 onClick={() => setExpandedTitle(!expandedTitle)}
               >
-                {expanded ? "View Less" : "View More"}
+                {expandedTitle ? "View Less" : "View More"}
               </motion.button>
               )}
             </h2>

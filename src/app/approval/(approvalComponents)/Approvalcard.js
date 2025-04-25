@@ -39,7 +39,7 @@ const EventCard = ({
   const submiteReject = async () => {
     try {
       setNominatedEmployee((prev) =>
-        prev.filter((item) => item.user?.id !== userId)
+        prev.filter((item) => item.employeeName?.id !== userId)
       );
     } catch (error) {
       throw error;
