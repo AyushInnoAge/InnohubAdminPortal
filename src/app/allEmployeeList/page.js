@@ -41,7 +41,7 @@ const employees = [
     voilations: "Absent More Than 2 Days",
   },
   {
-    id: 1,
+    id: 4,
     name: "Rohan Sharma",
     employeeId: "101",
     department: "Design",
@@ -52,7 +52,7 @@ const employees = [
     voilations: "ComeLate",
   },
   {
-    id: 2,
+    id: 5,
     name: "Rahul Verma",
     employeeId: "102",
     department: "IT",
@@ -63,7 +63,7 @@ const employees = [
     voilations: "Not Follow Shift",
   },
   {
-    id: 3,
+    id: 6,
     name: "John Doe",
     employeeId: "103",
     department: "IT",
@@ -74,7 +74,7 @@ const employees = [
     voilations: "Absent More Than 2 Days",
   },
   {
-    id: 1,
+    id: 7,
     name: "Rohan Sharma",
     employeeId: "101",
     department: "Design",
@@ -85,7 +85,7 @@ const employees = [
     voilations: "ComeLate",
   },
   {
-    id: 2,
+    id: 8,
     name: "Rahul Verma",
     employeeId: "102",
     department: "IT",
@@ -96,7 +96,7 @@ const employees = [
     voilations: "Not Follow Shift",
   },
   {
-    id: 3,
+    id: 9,
     name: "John Doe",
     employeeId: "103",
     department: "IT",
