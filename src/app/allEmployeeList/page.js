@@ -57,8 +57,8 @@ export default function EmployeesPage() {
     const [filterDept, setFilterDept] = useState('');
     const [searchId, setSearchId] = useState('');
     const [selectedEmployee, setSelectedEmployee] = useState('');
-    const [AllDepartment, setAllDepartment] = useState(["Design", "IT"]);
-    const [allVoilations, setAllViolations] = useState(["ComeLate", "Not Follow Shift", "Absent More Than 2 Days"]);
+    const AllDepartment = ["Design", "IT"];
+    const allVoilations = ["ComeLate", "Not Follow Shift", "Absent More Than 2 Days"]
     const [voilationsType, setVoilationsType] = useState('');
 
 
