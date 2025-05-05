@@ -25,11 +25,14 @@ export default function EmployeeTable({ columns, data }) {
                                 <td key={j} className="p-4">
                                     {col.key === 'image' ? (
                                         <img
-                                            src={row[col.key]}
+                                            src={(row[col.key]).length > 0 ? row[col.key] : '/default-profile.png'}
                                             alt="Profile"
                                             className="w-10 h-10 rounded-full object-cover"
                                         />
-                                    ) : (
+                                    ) : col.key==="manager"?(
+                                        row[col.key]!=null?row[col.key]:"Admin"
+                                    ):
+                                    (
                                         row[col.key]
                                     )}
                                 </td>
