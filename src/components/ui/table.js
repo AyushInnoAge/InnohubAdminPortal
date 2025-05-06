@@ -1,7 +1,11 @@
 import { Pencil } from 'lucide-react';
 import { Button } from './button';
 
-export default function EmployeeTable({ columns, data }) {
+export default function EmployeeTable({ columns, data, buttonClick, ButtonClicked=false }) {
+    console.log("buttonclicked", buttonClick) 
+    const toggleButtonClick = () => {
+        ButtonClicked(!buttonClick); 
+      };
     return (
         <div className="overflow-x-auto">
             <table className="w-full text-sm border-separate border-spacing-y-4 font-semibold">
@@ -41,6 +45,7 @@ export default function EmployeeTable({ columns, data }) {
                                 <Button
                                     className="text-gray-500 hover:text-blue-600 hover:bg-gray-100 p-2 rounded-full transition"
                                     variant="success"
+                                    onClick={toggleButtonClick}
                                 >
                                     <Pencil size={16} />
                                 </Button>
