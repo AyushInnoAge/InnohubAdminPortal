@@ -18,6 +18,19 @@ const columns = [
   { key: "manager", label: "Manager" },
 ];
 
+
+function useDebouncedValue(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+
 export default function EmployeesPage() {
   const { user } = useContext(AuthContext);
   const router = useRouter();
@@ -30,9 +43,8 @@ export default function EmployeesPage() {
 
   const [filterDept, setFilterDept] = useState("");
   const [searchId, setSearchId] = useState("");
-  const [selectedEmployee, setSelectedEmployee] = useState("");
+  const [selectedManager, setSelectedManager] = useState("");
   const [buttonClicked, setButtonClicked] = useState(false);
-  //Need to change this to the actual violation types
   const allVoilations = [
     "ComeLate",
     "Not Follow Shift",
@@ -41,13 +53,19 @@ export default function EmployeesPage() {
   const [voilationsType, setVoilationsType] = useState("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
-  console.log("UserAaaya", user)
+  const [selectedTeamleader, setSelectTeamleader] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedUser, setSelectedUser] = useState("");
+
+  const debouncedSearch = useDebouncedValue(selectedUser, 3000);
+
   const employee = useQuery({
-    queryKey: ["employee", page, limit, user?.Role, user?.userId],
-    queryFn: () => GetAllEmployeesList(page, limit, user?.userRole, user?.id),
+    queryKey: ["employee", page, limit, user?.Role, user?.userId, selectedTeamleader, selectedDepartment, debouncedSearch],
+    queryFn: () => GetAllEmployeesList(page, limit, user?.userRole, user?.id, selectedTeamleader, selectedDepartment, selectedUser),
     enabled: !!user?.userRole && !!user?.id,
   }
   );
+
 
   const uniqueEmployees = Array.from(
     new Map(employee.data?.allManager?.map((emp) => [emp.id, emp])).values()
@@ -57,14 +75,6 @@ export default function EmployeesPage() {
     new Map(employee.data?.allDepartment?.map((emp) => [emp.id, emp])).values()
   )
 
-  const filtered = employee.data?.userDetailed?.userDetailed?.filter((e) => {
-    const matchId = e.name.toLowerCase().includes(searchId.toLowerCase());
-    const matchSelected = selectedEmployee === "" || e.manager === selectedEmployee;
-    const matchDepartment = filterDept === "" || e.departmentName === filterDept;
-    const matchVoilations =
-      voilationsType === "" || e.voilations === voilationsType;
-    return matchDepartment && matchId && matchSelected && matchVoilations;
-  });
 
   if (employee.isLoading) {
     return (
@@ -81,11 +91,6 @@ export default function EmployeesPage() {
     );
   }
 
-  // useEffect(() => {
-  //   if (buttonClicked) {
-  //     console.log("Button clicked successfully");
-  //   }
-  // }, [buttonClicked]);
 
   return (
     <div className="min-h-screen bg-white text-gray-800 p-6">
@@ -96,11 +101,15 @@ export default function EmployeesPage() {
 
           {(user?.userRole == 1 || user?.userRole == 2) ? (<Dropdown
             label="Select Manager"
-            value={selectedEmployee}
-            onChange={(e) => setSelectedEmployee(e.target.value)}
+            value={selectedManager}
+            onChange={(e) => {
+              setSelectedManager(e.target.value)
+              setSelectTeamleader(e.target.value)
+            }
+            }
             options={uniqueEmployees.map((emp) => ({
               label: `${emp.name}`,
-              value: emp.name,
+              value: emp.id,
             }))}
             ClassName="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-blue-400 focus:outline-none"
           />) :
@@ -115,10 +124,14 @@ export default function EmployeesPage() {
           <Dropdown
             label="Select Department"
             value={filterDept}
-            onChange={(e) => setFilterDept(e.target.value)}
+            onChange={(e) => {
+              setFilterDept(e.target.value)
+              console.log("Selected Department", e.target.value)
+              setSelectedDepartment(e.target.value)
+            }}
             options={uniqueDepartments.map((emp) => ({
               label: `${emp.departmentName}`,
-              value: emp.departmentName,
+              value: emp.id,
             }))}
             ClassName="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-blue-400 focus:outline-none"
           />
@@ -140,15 +153,18 @@ export default function EmployeesPage() {
               type="text"
               placeholder="Search by Employee Name"
               value={searchId}
-              onChange={(e) => setSearchId(e.target.value)}
+              onChange={(e) => {
+                setSearchId(e.target.value)
+                setSelectedUser(e.target.value)
+              }}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
             />
           </div>
         </div>
       </div>
 
-      {filtered?.length > 0 ? (
-        <EmployeeTable columns={columns} data={filtered} buttonClick={buttonClicked} ButtonClicked={setButtonClicked}/>
+      {employee.data?.userDetailed?.userDetailed?.length > 0 ? (
+        <EmployeeTable columns={columns} data={employee.data?.userDetailed?.userDetailed} buttonClick={buttonClicked} ButtonClicked={setButtonClicked} />
       ) : (
         <div className="text-center text-gray-500 mt-10">
           <p className="text-lg">
