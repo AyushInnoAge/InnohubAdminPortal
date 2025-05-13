@@ -146,8 +146,8 @@ export default function Home() {
             </h1>
           ) : (
             <div className="w-full max-w-4xl mx-auto space-y-6">
-              {dashboardData.length == 0 ? (
-                <h1 className="text-black text-center text-3xl">Loading..</h1>
+              {dashboardData.length == 0 &&  !loading? (
+                <h1 className="text-black text-center text-3xl">No data available</h1>
               ) : (
                 dashboardData.map((post, index) => (
                   <div
