@@ -6,7 +6,7 @@ definitions:
 
 pipelines:
   branches:
-    deploy:
+    develop:
       - step:
           name: Build and Deploy to Production
           caches:
