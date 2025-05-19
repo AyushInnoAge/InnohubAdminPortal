@@ -1,0 +1,22 @@
+image: node:20
+
+definitions:
+  caches:
+    npm: ~/.npm
+
+pipelines:
+  branches:
+    develop:
+      - step:
+          name: Build and Deploy to Production
+          caches:
+            - npm
+          script:
+            - npm install --force
+            - npm run build          
+            - npm install -g @azure/static-web-apps-cli
+            - swa deploy ./out --env production --deployment-token=$LIVE_DEPLOYEMENT_TOKEN --env=production
+          artifacts:
+            - out/**
+
+      
