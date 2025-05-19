@@ -13,7 +13,7 @@ pipelines:
             - npm
           script:
             # Install dependencies
-            - npm ci
+            - npm install --force
             
             # Try both build approaches
             - npm run build
