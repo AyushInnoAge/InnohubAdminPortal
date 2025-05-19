@@ -12,65 +12,14 @@ pipelines:
           caches:
             - npm
           script:
-            # Install dependencies
             - npm install --force
-            
-            # Try both build approaches
-            - npm run build
-            - echo "Build completed. Now checking output directory..."
-            
-            # Debug steps
+            - npm run build          
             - ls -la
-            - echo "Checking for 'out' directory..."
-            - ls -la out || echo "out directory not found!"
-            
-            # If out directory doesn't exist, try export command
-            - if [ ! -d "out" ]; then npm run export || echo "Export command failed"; fi
-            - echo "Directory structure after export attempt:"
-            - ls -la
-            - echo "Checking for 'out' directory again..."
-            - ls -la out || echo "out directory still not found!"
-            
-            # Install Azure SWA CLI and deploy
+          
             - npm install -g @azure/static-web-apps-cli
             - echo "Deploying files from ./out directory..."
-            - swa deploy ./out --env production --deployment-token d3bf934a4d8023e52ed3d936783cc6b3fbdb1e11625f73863f418afe257e145306-27ceff17-5640-435a-aacc-7b48cec568ef00024250b21df900
-          artifacts:
-            - out/**
-    develop:
-      - step:
-          name: Build and Deploy to Staging
-          caches:
-            - npm
-          script:
-            - npm ci
-            - npm run build
-            
-            # Debug steps
-            - echo "Checking output directory structure:"
-            - ls -la
-            - ls -la out || echo "out directory not found!"
-            
-            # Try export if build didn't create output directory
-            - if [ ! -d "out" ]; then npm run export || echo "Export command failed"; fi
-            
-            - npm install -g @azure/static-web-apps-cli
-            - swa deploy ./out --env staging --deployment-token $AZURE_DEPLOYMENT_TOKEN_STAGING
+            - swa deploy ./out --env production --deployment-token=$LIVE_DEPLOYEMENT_TOKEN --env=production
           artifacts:
             - out/**
 
-  pull-requests:
-    '**':
-      - step:
-          name: Build and Test PR
-          caches:
-            - npm
-          script:
-            - npm ci
-            - npm run build
-            - echo "Checking build output:"
-            - ls -la
-            - ls -la out || echo "out directory not found!"
-            - echo "Build successful! Ready for review."
-          artifacts:
-            - out/**
+      
