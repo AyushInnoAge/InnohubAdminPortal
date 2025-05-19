@@ -14,10 +14,7 @@ pipelines:
           script:
             - npm install --force
             - npm run build          
-            - ls -la
-          
             - npm install -g @azure/static-web-apps-cli
-            - echo "Deploying files from ./out directory..."
             - swa deploy ./out --env production --deployment-token=$LIVE_DEPLOYEMENT_TOKEN --env=production
           artifacts:
             - out/**
