@@ -1,0 +1,45 @@
+image: node:20
+
+definitions:
+  caches:
+    npm: ~/.npm
+
+pipelines:
+  branches:
+    deploy:
+      - step:
+          name: Build and Deploy to Production
+          caches:
+            - npm
+          script:
+            - npm ci
+            - npm run build
+            - npm install -g @azure/static-web-apps-cli
+            - swa deploy ./out --env production --deployment-token d3bf934a4d8023e52ed3d936783cc6b3fbdb1e11625f73863f418afe257e145306-27ceff17-5640-435a-aacc-7b48cec568ef00024250b21df900
+          artifacts:
+            - out/**
+    develop:
+      - step:
+          name: Build and Deploy to Staging
+          caches:
+            - npm
+          script:
+            - npm ci
+            - npm run build
+            - npm install -g @azure/static-web-apps-cli
+            - swa deploy ./out --env staging --deployment-token $AZURE_DEPLOYMENT_TOKEN_STAGING
+          artifacts:
+            - out/**
+
+  pull-requests:
+    '**':
+      - step:
+          name: Build and Test PR
+          caches:
+            - npm
+          script:
+            - npm ci
+            - npm run build
+            - echo "Build successful! Ready for review."
+          artifacts:
+            - out/**
