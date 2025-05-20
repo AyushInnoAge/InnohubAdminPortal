@@ -57,4 +57,21 @@ const RejectApproval = async (NominationId) => {
   }
 };
 
-export { SubmitedApproval, fetchAllApproval, RejectApproval };
+const PublishApproval = async ()=>{
+  try {
+     const token = getToken();
+     const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}publishApproval`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export { SubmitedApproval, fetchAllApproval, RejectApproval,PublishApproval };
