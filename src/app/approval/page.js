@@ -1,11 +1,12 @@
 "use client";
 import { useState, useEffect, createContext, useContext } from "react";
 import EventCard from "./(approvalComponents)/Approvalcard";
-import { fetchAllApproval, SubmitedApproval } from "@/_api_/approval";
+import { fetchAllApproval, SubmitedApproval,PublishApproval } from "@/_api_/approval";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import ApprovalBox from "./(approvalComponents)/ApprovalBox";
 import { toast, ToastContainer } from "react-toastify";
+import { Button } from "@/components/ui/button";
 
 const categories = ["All", "Star of month"];
 
@@ -76,6 +77,17 @@ export default function ApprovalPage() {
     }
   }, [submiteData]);
 
+  const PublishApprovalButton = async () => {
+    setLoading(true)
+    try {
+      var response = await PublishApproval();
+      toast.success(response.data);
+    } catch (error) {
+      console.log(error);
+    }finally{
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="p-4 sm:p-6 md:p-8 min-h-screen bg-gray-100">
@@ -87,46 +99,53 @@ export default function ApprovalPage() {
         {categories.map((category) => (
           <button
             key={category}
-            className={`px-4 py-2 rounded-full text-sm sm:text-base md:text-lg font-semibold transition-all shadow-md  ${
-              selectedCategory === category
-                ? "bg-purple-600 text-white"
-                : "bg-gray-300 text-black hover:bg-gray-400"
-            }`}
+            className={`px-4 py-2 rounded-full text-sm sm:text-base md:text-lg font-semibold transition-all shadow-md  ${selectedCategory === category
+              ? "bg-purple-600 text-white"
+              : "bg-gray-300 text-black hover:bg-gray-400"
+              }`}
             onClick={() => setSelectedCategory(category)}
           >
             {category}
           </button>
         ))}
       </div>
-
+         {user?.userRole == 1 && time.getDate() > 25 &&
+        <div className="flex flex-wrap justify-end gap-4 mb-8">
+          <Button
+            variant={loading?"disabled":"success"}
+            className={`px-4 py-2 mt-4 rounded-full text-sm sm:text-base md:text-lg font-semibold transition-all shadow-md text-white text-end }`}
+            onClick={PublishApprovalButton}
+          >
+            Publish Approval
+          </Button>
+        </div>}
       {/* Event Cards Grid */}
       <div
-        className={`${
-          (time.getDate() < 16 || time.getDate() > 20) && user?.userRole == 2
-            ? "flex justify-center items-center"
-            : nominatedEmployee.length != 0 &&
-              time.getDate() >= 16 &&
-              time.getDate() <= 20 &&
-              user?.userRole == 2
+        className={`${(time.getDate() < 16 || time.getDate() > 20) && user?.userRole == 2
+          ? "flex justify-center items-center"
+          : nominatedEmployee.length != 0 &&
+            time.getDate() >= 16 &&
+            time.getDate() <= 20 &&
+            user?.userRole == 2
             ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8"
             : (time.getDate() < 20 || time.getDate() > 25) &&
               user?.userRole == 1
             ? "flex justify-center items-center"
-            : nominatedEmployee.length != 0 &&
-              time.getDate() >= 21 &&
-              time.getDate() <= 25 &&
-              user?.userRole == 1
-            ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8"
-            : nominatedEmployee.length == 0
-            ? "flex justify-center items-center"
-            : "flex justify-center items-center"
-        }`}
+              : nominatedEmployee.length != 0 &&
+                time.getDate() >= 21 &&
+                time.getDate() <= 25 &&
+                user?.userRole == 1
+                ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8"
+                : nominatedEmployee.length == 0
+                  ? "flex justify-center items-center"
+                  : "flex justify-center items-center"
+          }`}
       >
         {nominatedEmployee.length > 0 &&
         !loading &&
-        time.getDate() >= 16 &&
-        time.getDate() <= 20 &&
-        user?.userRole == 2 ? (
+          time.getDate() >= 16 &&
+          time.getDate() <= 20 &&
+          user?.userRole == 2 ? (
           nominatedEmployee.map((event, index) => (
             <div
               key={event.id}
@@ -142,17 +161,17 @@ export default function ApprovalPage() {
               >
                 {(selectedCategory === "All" ||
                   selectedCategory === "Star of month") && (
-                  <EventCard
-                    NominationType={event.nomination_Type}
-                    NominationReason={event.managerReason}
-                    NominatedName={event.employeeName.name}
-                    Image={event.employeeName?.image}
-                    userId={event.employeeName?.id}
-                    NominatedBy={event.nominated_ByUser?.name}
-                    NominationId={index}
-                    Role={user.userRole}
-                  />
-                )}
+                <EventCard
+                      NominationType={event.nomination_Type}
+                      NominationReason={event?.managerReason ? event?.managerReason : event?.hrReason}
+                      NominatedName={event.employeeName.name}
+                      Image={event.employeeName?.image}
+                      userId={event.employeeName?.id}
+                      NominatedBy={event.nominated_ByUser?.name}
+                      NominationId={index}
+                      Role={user.userRole}
+                    />
+                  )}  
               </ApprovalData.Provider>
             </div>
           ))
@@ -185,22 +204,22 @@ export default function ApprovalPage() {
                 {(selectedCategory === "All" ||
                   selectedCategory === "Star of month") && (
                   <EventCard
-                    NominationType={event.nomination_Type}
-                    NominationReason={event?.managerReason!=null?event?.managerReason: event?.hrReason}
-                    NominatedName={event.employeeName.name}
-                    Image={event.employeeName?.image}
-                    userId={event.employeeName?.id}
-                    NominatedBy={event.nominated_ByUser?.name}
-                    NominationId={index}
-                    Role={user.userRole}
-                  />
-                )}
+                      NominationType={event.nomination_Type}
+                      NominationReason={event?.managerReason != null ? event?.managerReason : event?.hrReason}
+                      NominatedName={event.employeeName.name}
+                      Image={event.employeeName?.image}
+                      userId={event.employeeName?.id}
+                      NominatedBy={event.nominated_ByUser?.name}
+                      NominationId={index}
+                      Role={user.userRole}
+                    />
+                  )}
               </ApprovalData.Provider>
             </div>
           ))
         ) : time.getDate() < 21 && user?.userRole == 1 ? (
           <p className="text-center text-black text-xl sm:text-2xl md:text-3xl px-4">
-            The approval portal will open on 16th {monthNames[time.getMonth()]}
+            The approval portal will open on 21st {monthNames[time.getMonth()]}
           </p>
         ) : time.getDate() > 25 && user?.userRole == 1 ? (
           <p className="text-center text-black text-xl sm:text-2xl md:text-3xl px-4">

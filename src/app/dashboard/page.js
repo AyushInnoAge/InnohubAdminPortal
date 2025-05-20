@@ -17,29 +17,14 @@ export default function Home() {
   const [dashboardData, setDashboardData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const observerRef = useRef(null);
   const lastPostRef = useRef(null);
   const [lastFetchedDate, setLastFetchedDate] = useState(null);
   const [hasMoredata, setHasMoreData] = useState(true);
   const [achievements, setAchievements] = useState([]);
   const [topshoutOutWinner, setTopShoutOutWinner] = useState([]);
 
-  useEffect(() => {
-    setPage(1);
-    setDashboardData([]);
-    setLastFetchedDate(null);
-    setHasMoreData(true);
-  }, []);
 
-  useEffect(() => {
-    if (page === 1) {
-      setDashboardData([]);
-      setLastFetchedDate(null);
-      setHasMoreData(true);
-    }
-    fetchPosts();
-  }, [page]);
-
+const feedRef = useRef(null);
   const fetchPosts = async () => {
     if (loading || !hasMoredata) return;
     setLoading(true);
@@ -56,9 +41,14 @@ export default function Home() {
 
       if (response.length > 0) {
         setDashboardData((prev) => {
-          const newPosts = response.filter(
-            (post) => !prev.some((p) => p.postData?.id === post.postData?.id)
+           const existingIds = new Set(
+            prev.map((p) => p.postData?.id || p.nominationData?.id)
           );
+
+          const newPosts = response.filter((post) => {
+            const id = post.postData?.id || post.nominationData?.id;
+            return !existingIds.has(id);
+          });
           return [...prev, ...newPosts];
         });
 
@@ -77,24 +67,20 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!observerRef.current) {
-      observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !loading) {
-          setPage((prev) => prev + 1);
-        }
-      });
-    }
+    fetchPosts();
+  }, [page, user]);
 
-    if (lastPostRef.current) {
-      observerRef.current.observe(lastPostRef.current);
-    }
+ const handleFeedScroll = () => {
+    const feed = feedRef.current;
+    if (!feed || loading || !hasMoredata) return;
+    const threshold = 300;
+    const scrolledToBottom =
+      feed.scrollTop + feed.clientHeight >= feed.scrollHeight - threshold;
 
-    return () => {
-      if (lastPostRef.current) {
-        observerRef.current.unobserve(lastPostRef.current);
-      }
-    };
-  }, [dashboardData, loading]);
+    if (scrolledToBottom) {
+      setPage((prev) => prev + 1);
+    }
+  };
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 w-full">
@@ -119,7 +105,11 @@ export default function Home() {
       ) : null}
 
       {user != null ? (
-        <div className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6 scrollbar-hide">
+         <div
+          className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6 scrollbar-hide"
+          ref={feedRef}
+          onScroll={handleFeedScroll}
+        >
 
           <div className="w-full max-w-4xl mx-auto">
             <DashboardStatus.Provider
@@ -140,13 +130,13 @@ export default function Home() {
             </DashboardStatus.Provider>
           </div>
 
-          {loading && dashboardData.length == 0 ? (
+          {loading && dashboardData.length === 0 ? (
             <h1 className="text-black text-center text-3xl justify-center">
               Loading...
             </h1>
           ) : (
             <div className="w-full max-w-4xl mx-auto space-y-6">
-              {dashboardData.length == 0 &&  !loading? (
+              {dashboardData.length === 0 &&  !loading? (
                 <h1 className="text-black text-center text-3xl">No data available</h1>
               ) : (
                 dashboardData.map((post, index) => (
@@ -156,7 +146,7 @@ export default function Home() {
                       index === dashboardData.length - 1 ? lastPostRef : null
                     }
                   >
-                    {post.postData != null && post.postData?.type === "Post" ? (
+                    {post.postData?.type === "Post" ? (
                       <AnimatedPostCard
                         PostId={post.postData?.id}
                         PostUser={post.userData?.userName}
@@ -169,8 +159,7 @@ export default function Home() {
                         PostDescription={post.postData?.description}
                         Postcreated_At={post.postData?.created_at}
                       />
-                    ) : post.postData != null &&
-                      post.postData?.type === "Poll" ? (
+                    ) : post.postData?.type === "Poll" ? (
                       <PollCard
                         PostId={post.postData?.id}
                         PostUser={post?.userData?.userName}
@@ -181,9 +170,7 @@ export default function Home() {
                         PostTitle={post.postData.title}
                         Postcreated_At={post.postData?.created_at}
                       />
-                    ) : post.postData != null &&
-                      (post.postData?.type === "Birthday" ||
-                        post.postData?.type === "Anniversary") ? (
+                    ) : ["Birthday", "Anniversary"].includes(post.postData?.type) ? (
                       <BirthdayCard
                         PostId={post.postData?.id}
                         PostImageUrl={post.postData?.image}
@@ -195,8 +182,7 @@ export default function Home() {
                         Postcreated_At={post.postData?.created_at}
                         PostUserDetailed={post?.userData}
                       />
-                    ) : post.postData != null &&
-                      post.postData?.type == "Company Event" ? (
+                    ) : post.postData?.type === "Company Event" ? (
                       <CompanyEvent
                         PostId={post.postData?.id}
                         PostImageUrl={post?.postData?.image}
@@ -207,8 +193,7 @@ export default function Home() {
                         PostDescription={post.postData?.description}
                         Postcreated_At={post.postData?.created_at}
                       />
-                    ) : post.postData != null &&
-                      post.postData?.type == "New Joining" ? (
+                    ) : post.postData?.type === "New Joining" ? (
                       <AppreciationCard
                         PostId={post.postData?.id}
                         PostType={post.postData?.type}
@@ -217,10 +202,9 @@ export default function Home() {
                         PostComment={post.postData?.postComments}
                         PostTitle={post.postData?.title}
                       />
-                    ) : post.nominationData != null &&
-                      (post.nominationData?.nomination_Type ===
-                        "Star of the month" ||
-                        post.nominationData?.nomination_Type === "Shoutout") ? (
+                    ) : ["Star of the month", "Shoutout"].includes(
+                      post.nominationData?.nomination_Type
+                    ) ? (
                       <AppreciationCard
                         PostId={post.nominationData?.id}
                         NominatedUser={post.nominationData?.userId}
@@ -229,9 +213,7 @@ export default function Home() {
                         PostDescription={post.nominationData?.shoutoutReason}
                         PostLike={post.nominationData?.postLikes}
                         PostComment={post.nominationData?.postComments}
-                        PostShoutoutCatagory={
-                          post.nominationData?.shoutoutCatagory
-                        }
+                        PostShoutoutCatagory={post.nominationData?.shoutoutCatagory}
                         PostImage={post.nominationData?.image}
                       />
                     ) : null}
