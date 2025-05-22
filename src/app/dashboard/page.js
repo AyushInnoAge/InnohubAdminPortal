@@ -46,8 +46,7 @@ export default function Home() {
     try {
       const res = await DashboardDataFetch(lastFetchedDate);
       const response = res.message.dashboardData;
-      console.log("Dashboard Data", response);
-      
+
       if (res.message.currentUserAchievements.length > 0) {
         setAchievements(res.message.currentUserAchievements);
       }
@@ -121,7 +120,7 @@ export default function Home() {
 
       {user != null ? (
         <div className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6 scrollbar-hide">
-          (
+
           <div className="w-full max-w-4xl mx-auto">
             <DashboardStatus.Provider
               value={{
@@ -140,15 +139,15 @@ export default function Home() {
               />
             </DashboardStatus.Provider>
           </div>
-          )
+
           {loading && dashboardData.length == 0 ? (
             <h1 className="text-black text-center text-3xl justify-center">
               Loading...
             </h1>
           ) : (
             <div className="w-full max-w-4xl mx-auto space-y-6">
-              {dashboardData.length == 0 ? (
-                <h1 className="text-black text-center text-3xl">Loading..</h1>
+              {dashboardData.length == 0 &&  !loading? (
+                <h1 className="text-black text-center text-3xl">No data available</h1>
               ) : (
                 dashboardData.map((post, index) => (
                   <div
