@@ -44,7 +44,7 @@ export default function EmployeesPage() {
   const [filterDept, setFilterDept] = useState("");
   const [searchId, setSearchId] = useState("");
   const [selectedManager, setSelectedManager] = useState("");
-  const [buttonClicked, setButtonClicked] = useState(false);
+  const [buttonClicked, setButtonClicked] = useState(null);
   const allVoilations = [
     "ComeLate",
     "Not Follow Shift",
@@ -91,6 +91,9 @@ export default function EmployeesPage() {
     );
   }
 
+//   useEffect(()=>{
+// console.log("buttonClick", buttonClicked)
+//   },[buttonClicked])
 
   return (
     <div className="min-h-screen bg-white text-gray-800 p-6">

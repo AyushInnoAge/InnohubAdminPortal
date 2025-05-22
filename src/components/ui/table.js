@@ -1,11 +1,13 @@
 import { Pencil } from 'lucide-react';
 import { Button } from './button';
+import { useRouter } from "next/navigation";
+export default function EmployeeTable({ columns, data, buttonClick, ButtonClicked }) {
+    const router = useRouter();
 
-export default function EmployeeTable({ columns, data, buttonClick, ButtonClicked=false }) {
-    console.log("buttonclicked", buttonClick) 
-    const toggleButtonClick = () => {
-        ButtonClicked(!buttonClick); 
-      };
+    const submite = (row) => {
+        // ButtonClicked(row.employeeId)
+        router.push(`EmployeeList?EmployeeId=${row.employeeId}`) //Changewith original url
+    };
     return (
         <div className="overflow-x-auto">
             <table className="w-full text-sm border-separate border-spacing-y-4 font-semibold">
@@ -33,19 +35,19 @@ export default function EmployeeTable({ columns, data, buttonClick, ButtonClicke
                                             alt="Profile"
                                             className="w-10 h-10 rounded-full object-cover"
                                         />
-                                    ) : col.key==="manager"?(
-                                        row[col.key]!=null?row[col.key]:"Admin"
-                                    ):
-                                    (
-                                        row[col.key]
-                                    )}
+                                    ) : col.key === "manager" ? (
+                                        row[col.key] != null ? row[col.key] : "Admin"
+                                    ) :
+                                        (
+                                            row[col.key]
+                                        )}
                                 </td>
                             ))}
                             <td className="p-4">
                                 <Button
                                     className="text-gray-500 hover:text-blue-600 hover:bg-gray-100 p-2 rounded-full transition"
                                     variant="success"
-                                    onClick={toggleButtonClick}
+                                    onClick={() => submite(row, i)}
                                 >
                                     <Pencil size={16} />
                                 </Button>
