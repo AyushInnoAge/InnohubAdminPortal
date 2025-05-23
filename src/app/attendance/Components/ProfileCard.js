@@ -12,7 +12,7 @@ export default function ProfileCard({ data }) {
   }
 
   const profileData = {
-    name: data.userDetailed[0].name,
+    name: data.userDetailed[0].name ,
     avatar:
       data.image ||
       "https://ui-avatars.com/api/?name=" +
