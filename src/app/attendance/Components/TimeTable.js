@@ -188,14 +188,15 @@ export default function TimeTable({ data }) {
 
               for (let i = 0; i < punches.length; i += 1) {
                 const inPunch = punches[i]?.match(/(\d{2}:\d{2}:\d{2})\(in\)/i);
-                const outPunch = punches[i + 1]?.match(
-                  /(\d{2}:\d{2}:\d{2})\(out\)/i
-                );
-
-                rows.push({
-                  inTime: inPunch ? inPunch[1] : "-",
-                  outTime: outPunch ? outPunch[1] : "-",
-                });
+                const outPunch = punches[i + 1]?.match(/(\d{2}:\d{2}:\d{2})\(out\)/i);
+              
+                if (inPunch || outPunch) {
+                  rows.push({
+                    inTime: inPunch ? inPunch[1] : "-",
+                    outTime: outPunch ? outPunch[1] : "-",
+                  });
+                   // Skip next only if it's used
+                }
               }
 
               return (
