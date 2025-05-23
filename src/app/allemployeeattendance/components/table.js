@@ -1,11 +1,10 @@
-import { Pencil } from 'lucide-react';
-import { Button } from './button';
+import { Eye } from 'lucide-react';
+import { Button } from '../../../components/ui/button';
 import { useRouter } from "next/navigation";
-export default function EmployeeTable({ columns, data, buttonClick, ButtonClicked }) {
+export default function EmployeeTable({ columns, data}) {
     const router = useRouter();
 
     const submite = (row) => {
-        // ButtonClicked(row.employeeId)
         router.push(`attendance?employeeid=${row.employeeId}`) //Changewith original url
     };
     return (
@@ -18,7 +17,7 @@ export default function EmployeeTable({ columns, data, buttonClick, ButtonClicke
                                 {col.label}
                             </th>
                         ))}
-                        <th className="p-3 text-gray-600 text-sm font-extrabold">Edit</th>
+                        <th className="p-3 text-gray-600 text-sm font-extrabold">View</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,7 +48,7 @@ export default function EmployeeTable({ columns, data, buttonClick, ButtonClicke
                                     variant="success"
                                     onClick={() => submite(row, i)}
                                 >
-                                    <Pencil size={16} />
+                                    <Eye size={16} />
                                 </Button>
                             </td>
                         </tr>
