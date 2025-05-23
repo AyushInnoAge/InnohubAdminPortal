@@ -167,16 +167,25 @@ export default function TimeTable({ data }) {
             </h2>
 
             {(() => {
-              // Ensure modalContent is a string
               const contentStr =
                 typeof modalContent === "string"
                   ? modalContent
                   : JSON.stringify(modalContent);
+              const rows = [];
 
               const punches =
                 contentStr.match(/\d{2}:\d{2}:\d{2}\((in|out)\)/gi) || [];
+              if (punches.length === 1) {
+                const inPunch = punches[0]?.match(/(\d{2}:\d{2}:\d{2})\(in\)/i);
+                const outPunch = punches[0]?.match(
+                  /(\d{2}:\d{2}:\d{2})\(out\)/i
+                );
+                rows.push({
+                  inTime: inPunch ? inPunch[1] : "-",
+                  outTime: outPunch ? outPunch[1] : "-",
+                });
+              }
 
-              const rows = [];
               for (let i = 0; i < punches.length; i += 2) {
                 const inPunch = punches[i]?.match(/(\d{2}:\d{2}:\d{2})\(in\)/i);
                 const outPunch = punches[i + 1]?.match(
