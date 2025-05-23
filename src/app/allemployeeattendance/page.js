@@ -44,17 +44,11 @@ export default function EmployeesPage() {
   const [selectedManager, setSelectedManager] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
-  const allVoilations = [
-    "ComeLate",
-    "Not Follow Shift",
-    "Absent More Than 2 Days",
-  ];
-  const [voilationsType, setVoilationsType] = useState("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
 
 
-  const debouncedSearch = useDebouncedValue(selectedUser, 2000);
+  const debouncedSearch = useDebouncedValue(selectedUser, 1500);
 
   const employee = useQuery({
     queryKey: ["employee", page, limit, user?.Role, user?.userId, selectedManager, selectedDepartment, debouncedSearch],
@@ -130,13 +124,6 @@ export default function EmployeesPage() {
             ClassName="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-blue-400 focus:outline-none"
           />
 
-          <Dropdown
-            label="Violation"
-            value={voilationsType}
-            onChange={(e) => setVoilationsType(e.target.value)}
-            options={allVoilations}
-            ClassName="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-blue-400 focus:outline-none"
-          />
 
           <div className="relative w-full">
             <Search

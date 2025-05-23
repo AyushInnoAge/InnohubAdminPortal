@@ -1,4 +1,4 @@
-import { Pencil } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { useRouter } from "next/navigation";
 export default function EmployeeTable({ columns, data}) {
@@ -17,7 +17,7 @@ export default function EmployeeTable({ columns, data}) {
                                 {col.label}
                             </th>
                         ))}
-                        <th className="p-3 text-gray-600 text-sm font-extrabold">Edit</th>
+                        <th className="p-3 text-gray-600 text-sm font-extrabold">View</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -48,7 +48,7 @@ export default function EmployeeTable({ columns, data}) {
                                     variant="success"
                                     onClick={() => submite(row, i)}
                                 >
-                                    <Pencil size={16} />
+                                    <Eye size={16} />
                                 </Button>
                             </td>
                         </tr>
