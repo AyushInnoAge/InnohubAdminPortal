@@ -1,7 +1,7 @@
 "use client";
 import { useContext, useState, useEffect } from "react";
 import { Search } from "lucide-react";
-import EmployeeTable from "@/components/ui/table";
+import EmployeeTable from "./components/table";
 import Dropdown from "@/components/ui/dropdown";
 import { MoveLeft, MoveRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,10 +41,9 @@ export default function EmployeesPage() {
     }
   }, [user]);
 
-  const [filterDept, setFilterDept] = useState("");
-  const [searchId, setSearchId] = useState("");
   const [selectedManager, setSelectedManager] = useState("");
-  const [buttonClicked, setButtonClicked] = useState(null);
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedUser, setSelectedUser] = useState("");
   const allVoilations = [
     "ComeLate",
     "Not Follow Shift",
@@ -53,15 +52,13 @@ export default function EmployeesPage() {
   const [voilationsType, setVoilationsType] = useState("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
-  const [selectedTeamleader, setSelectTeamleader] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedUser, setSelectedUser] = useState("");
 
-  const debouncedSearch = useDebouncedValue(selectedUser, 3000);
+
+  const debouncedSearch = useDebouncedValue(selectedUser, 2000);
 
   const employee = useQuery({
-    queryKey: ["employee", page, limit, user?.Role, user?.userId, selectedTeamleader, selectedDepartment, debouncedSearch],
-    queryFn: () => GetAllEmployeesList(page, limit, user?.userRole, user?.id, selectedTeamleader, selectedDepartment, selectedUser),
+    queryKey: ["employee", page, limit, user?.Role, user?.userId, selectedManager, selectedDepartment, debouncedSearch],
+    queryFn: () => GetAllEmployeesList(page, limit, user?.userRole, user?.id, selectedManager, selectedDepartment, selectedUser),
     enabled: !!user?.userRole && !!user?.id,
   }
   );
@@ -91,9 +88,6 @@ export default function EmployeesPage() {
     );
   }
 
-//   useEffect(()=>{
-// console.log("buttonClick", buttonClicked)
-//   },[buttonClicked])
 
   return (
     <div className="min-h-screen bg-white text-gray-800 p-6">
@@ -107,7 +101,6 @@ export default function EmployeesPage() {
             value={selectedManager}
             onChange={(e) => {
               setSelectedManager(e.target.value)
-              setSelectTeamleader(e.target.value)
             }
             }
             options={uniqueEmployees.map((emp) => ({
@@ -126,10 +119,8 @@ export default function EmployeesPage() {
 
           <Dropdown
             label="Select Department"
-            value={filterDept}
+            value={selectedDepartment}
             onChange={(e) => {
-              setFilterDept(e.target.value)
-              console.log("Selected Department", e.target.value)
               setSelectedDepartment(e.target.value)
             }}
             options={uniqueDepartments.map((emp) => ({
@@ -155,9 +146,8 @@ export default function EmployeesPage() {
             <input
               type="text"
               placeholder="Search by Employee Name"
-              value={searchId}
+              value={selectedUser}
               onChange={(e) => {
-                setSearchId(e.target.value)
                 setSelectedUser(e.target.value)
               }}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
@@ -167,7 +157,7 @@ export default function EmployeesPage() {
       </div>
 
       {employee.data?.userDetailed?.userDetailed?.length > 0 ? (
-        <EmployeeTable columns={columns} data={employee.data?.userDetailed?.userDetailed} buttonClick={buttonClicked} ButtonClicked={setButtonClicked} />
+        <EmployeeTable columns={columns} data={employee.data?.userDetailed?.userDetailed}/>
       ) : (
         <div className="text-center text-gray-500 mt-10">
           <p className="text-lg">
@@ -176,7 +166,14 @@ export default function EmployeesPage() {
         </div>
       )}
 
-      <div className="flex justify-end items-center mt-6 sticky bottom-0 right-0">
+      <div className="fixed bottom-0 right-2 flex justify-end items-center">
+        <div className="flex items-center gap-2 bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700">
+          Showing&nbsp;
+          <span className="font-semibold text-gray-900">{(limit * page) < employee.data?.userDetailed?.totalData ? limit * page : employee.data?.userDetailed?.totalData}</span>
+          &nbsp;of&nbsp;
+          <span className="font-semibold text-gray-900">{employee.data?.userDetailed?.totalData}</span>
+          &nbsp;employees
+        </div>
         <Dropdown
           label="Limit"
           value={limit}

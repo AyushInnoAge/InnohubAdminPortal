@@ -1,12 +1,11 @@
 import { Pencil } from 'lucide-react';
-import { Button } from './button';
+import { Button } from '../../../components/ui/button';
 import { useRouter } from "next/navigation";
-export default function EmployeeTable({ columns, data, buttonClick, ButtonClicked }) {
+export default function EmployeeTable({ columns, data}) {
     const router = useRouter();
 
     const submite = (row) => {
-        // ButtonClicked(row.employeeId)
-        router.push(`EmployeeList?EmployeeId=${row.employeeId}`) //Changewith original url
+        router.push(`EmployeeList?EmployeeId=${row.employeeId}`)
     };
     return (
         <div className="overflow-x-auto">
