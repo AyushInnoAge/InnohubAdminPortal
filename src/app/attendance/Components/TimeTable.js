@@ -195,7 +195,7 @@ export default function TimeTable({ data }) {
                     inTime: inPunch ? inPunch[1] : "-",
                     outTime: outPunch ? outPunch[1] : "-",
                   });
-                   // Skip next only if it's used
+                  
                 }
               }
 

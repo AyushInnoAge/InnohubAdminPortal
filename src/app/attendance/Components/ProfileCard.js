@@ -20,9 +20,7 @@ export default function ProfileCard({ data }) {
     role: data.userDetailed[0].designation || "Employee",
     email: data.userDetailed[0].email,
     totalHours: data.totalDuration,
-    shiftTiming: "9:00-18:00",
-    manager: "Shubham Kumar",
-    violations: 6,
+    
   };
 
   return (
@@ -56,12 +54,12 @@ export default function ProfileCard({ data }) {
         <p className="text-sm font-semibold text-gray-500">Shift Timing</p>
       </div>
       <div className="text-center">
-        <p className="text-xl font-bold text-blue-500">{profileData.manager}</p>
+        <p className="text-xl font-bold text-blue-500"></p>
         <p className="text-sm font-semibold text-gray-500">Reporting Manager</p>
       </div>
       <div className="text-center">
         <p className="text-xl font-bold text-red-500">
-          {profileData.violations}
+        
         </p>
         <p className="text-sm font-semibold text-gray-500">
           Violations Committed
