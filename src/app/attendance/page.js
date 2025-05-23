@@ -1,20 +1,36 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ProfileCard from "./Components/ProfileCard";
 import HoursBreakdown from "./Components/HoursBreakdown";
 import TimeTable from "./Components/TimeTable";
 import { attendanceApi } from "@/_api_/userattendance";
+import { AuthContext } from "@/context/AuthContext";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function TimeAttendance() {
+  const { user } = useContext(AuthContext);
   const [attendanceData, setAttendanceData] = useState([]);
   const [profileData, setProfileData] = useState({});
   const [selectedMonth, setSelectedMonth] = useState(12);
   const [selectedYear, setSelectedYear] = useState(2024);
+  const router=useRouter();
+  const route = useSearchParams();
+  var Employeeid; 
+  useEffect(() => {
+    if (user && user.userRole != 1 && user.userRole != 2 && user.userRole != 3) {
+      router.push("/dashboard");
+      return;
+    }
+  }, [user]);
+  
+ useEffect(() => {
+   Employeeid = route.get("employeeid");
+  }, [])
+
 
   const fetchAttendance = async (month, year) => {
     try {
-      const response = await attendanceApi(111, month, year);
+      const response = await attendanceApi(Employeeid, month, year);
       const attendanceArray =
         response?.data?.data?.userAttendanceList?.attendance || [];
       const profile = response?.data?.data || {};

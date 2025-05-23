@@ -6,7 +6,7 @@ export default function EmployeeTable({ columns, data, buttonClick, ButtonClicke
 
     const submite = (row) => {
         // ButtonClicked(row.employeeId)
-        router.push(`EmployeeList?EmployeeId=${row.employeeId}`) //Changewith original url
+        router.push(`attendance?employeeid=${row.employeeId}`) //Changewith original url
     };
     return (
         <div className="overflow-x-auto">
