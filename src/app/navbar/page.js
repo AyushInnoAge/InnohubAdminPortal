@@ -179,10 +179,10 @@ export default function Navbar() {
                   <div className="dropdown1">
                 <button
                   className={`nav-link ${
-                    activeRoute === "/attendance" ? "active" : ""
+                    activeRoute === "/allemployeeattendance" ? "active" : ""
                   }`}
                   onClick={() => {
-                    handleNavClick("/attendance");
+                    handleNavClick("/allemployeeattendance");
                   }}
                 >
                   Attendance
@@ -299,7 +299,7 @@ export default function Navbar() {
 
             {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
               <Link
-                href="/attendance"
+                href="/allemployeeattendance"
                 className="sidebar-link"
                 onClick={toggleSidebar}
               >

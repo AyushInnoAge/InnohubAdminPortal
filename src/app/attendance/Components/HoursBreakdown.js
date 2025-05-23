@@ -1,16 +1,39 @@
-import React from 'react';
-import { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
-export default function HoursBreakdown() {
-  const [selectedMonth, setSelectedMonth] = useState('June');
-  const numericData = {
-    totalHours: 264.0,
-    distribution: [
-      { percentage: 50, color: 'green' },   
-      { percentage: 15, color: 'red' },    
-      { percentage: 5, color: 'gray' }      
-    ]
-  };
+export default function HoursBreakdown({ data }) {
+  const [selectedMonth, setSelectedMonth] = useState("June");
+  const [totalHours, setTotalHours] = useState(0);
+  const [distribution, setDistribution] = useState([
+    { percentage: 0, color: "green" },
+    { percentage: 0, color: "red" },
+    { percentage: 0, color: "gray" },
+  ]);
+
+  useEffect(() => {
+    if (!data || data.length === 0) {
+      setTotalHours(0);
+      setDistribution([
+        { percentage: 0, color: "green" },
+        { percentage: 0, color: "red" },
+        { percentage: 0, color: "gray" },
+      ]);
+      return;
+    }
+
+    const total = data.reduce((acc, item) => {
+      const wh = parseFloat(item.workHours);
+      return acc + (isNaN(wh) ? 0 : wh);
+    }, 0);
+    setTotalHours(total);
+
+    const dist = [
+      { percentage: 80, color: "green" },
+      { percentage: 10, color: "red" },
+      { percentage: 10, color: "gray" },
+    ];
+    setDistribution(dist);
+  }, [data]);
+
   const handleMonthChange = (event) => {
     setSelectedMonth(event.target.value);
   };
@@ -18,40 +41,23 @@ export default function HoursBreakdown() {
   return (
     <div className="bg-white rounded-md shadow-md p-6 w-full">
       <div className="flex justify-between text-sm text-black mb-2">
-      <div className="flex items-center">
-          <span className="mr-2">Select Month:</span>
-          <select
-            value={selectedMonth}
-            onChange={handleMonthChange}
-            className="p-1 border border-gray-300 rounded-md text-sm"
-          >
-            <option value="June">January</option>
-            <option value="June">February</option>
-            <option value="June">March</option>
-            <option value="June">April</option>
-            <option value="June">May</option>
-            <option value="June">June</option>
-            <option value="July">July</option>
-            <option value="August">August</option>
-            <option value="September">September</option>
-            <option value="October">October</option>
-            <option value="November">November</option>
-            <option value="December">December</option>
-          </select>
-        </div>
+       
         <span>
-          <strong>Hour breakdown:</strong>{' '}
-          <span className="text-blue-500">{numericData.totalHours.toFixed(2)} hrs</span>
+          <strong>Hour breakdown:</strong>{" "}
+          <span className="text-blue-500">
+            {typeof totalHours === "number" ? totalHours.toFixed(2) : "0.00"}{" "}
+            hrs
+          </span>
         </span>
       </div>
 
       <div className="flex h-[10px] overflow-hidden rounded-lg bg-gray-200 mb-4">
-        {numericData.distribution.map((item, index) => (
+        {distribution.map((item, index) => (
           <div
             key={index}
             className={`bg-${item.color}-500`}
             style={{ width: `${item.percentage}%` }}
-          ></div>
+          />
         ))}
       </div>
 
@@ -69,4 +75,3 @@ export default function HoursBreakdown() {
     </div>
   );
 }
-
