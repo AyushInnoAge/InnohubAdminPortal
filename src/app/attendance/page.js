@@ -44,6 +44,7 @@ export default function TimeAttendance() {
             day: "numeric",
             month: "short",
             year: "numeric",
+            timeZone: "UTC",
           }),
           checkin:
             item.checkIn && item.checkIn !== "00:00:00"

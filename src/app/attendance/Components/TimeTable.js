@@ -186,7 +186,7 @@ export default function TimeTable({ data }) {
                 });
               }
 
-              for (let i = 0; i < punches.length; i += 2) {
+              for (let i = 0; i < punches.length; i += 1) {
                 const inPunch = punches[i]?.match(/(\d{2}:\d{2}:\d{2})\(in\)/i);
                 const outPunch = punches[i + 1]?.match(
                   /(\d{2}:\d{2}:\d{2})\(out\)/i
