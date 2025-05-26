@@ -13,27 +13,33 @@ export default function TimeAttendance() {
   const [profileData, setProfileData] = useState({});
   const [selectedMonth, setSelectedMonth] = useState(12);
   const [selectedYear, setSelectedYear] = useState(2024);
-  const router=useRouter();
+  const [employeeId, setEmployeeId] = useState(null);
+
+  const router = useRouter();
   const route = useSearchParams();
-  var Employeeid; 
+
   useEffect(() => {
-    if (user && user.userRole != 1 && user.userRole != 2 && user.userRole != 3) {
+    if (user && user.userRole !== 1 && user.userRole !== 2 && user.userRole !== 3) {
       router.push("/dashboard");
       return;
     }
   }, [user]);
-  
- useEffect(() => {
-   Employeeid = route.get("employeeid");
-  }, [])
 
+  useEffect(() => {
+    const empIdFromQuery = route.get("employeeid");
+    if (empIdFromQuery) {
+      setEmployeeId(empIdFromQuery);
+    }
+  }, [route]);
 
-  const fetchAttendance = async (month, year) => {
+  const fetchAttendance = async (employeeId, month, year) => {
     try {
-      const response = await attendanceApi(Employeeid, month, year);
+      const response = await attendanceApi(employeeId, month, year);
       const attendanceArray =
         response?.data?.data?.userAttendanceList?.attendance || [];
       const profile = response?.data?.data || {};
+
+      console.log("Fetched Profile Data:", profile);
 
       const formattedData = attendanceArray.map((item) => {
         const dateObj = new Date(item.date);
@@ -72,15 +78,17 @@ export default function TimeAttendance() {
 
       formattedData.sort((a, b) => a.rawDate - b.rawDate);
       setAttendanceData(formattedData);
-      setProfileData(profile);
+      setProfileData({ ...profile }); // Ensure profileData reference changes
     } catch (err) {
       console.error("Failed to fetch attendance. Please try again.", err);
     }
   };
 
   useEffect(() => {
-    fetchAttendance(selectedMonth, selectedYear);
-  }, [selectedMonth, selectedYear]);
+    if (employeeId) {
+      fetchAttendance(employeeId, selectedMonth, selectedYear);
+    }
+  }, [employeeId, selectedMonth, selectedYear]);
 
   const handleMonthChange = (e) => {
     const [year, month] = e.target.value.split("-");
@@ -107,7 +115,7 @@ export default function TimeAttendance() {
       </div>
 
       <div className="flex flex-col gap-6">
-        <HoursBreakdown data={attendanceData} />
+        {/* <HoursBreakdown data={attendanceData} /> */}
         <TimeTable data={attendanceData} />
       </div>
     </div>

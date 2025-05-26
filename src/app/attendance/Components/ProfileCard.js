@@ -12,14 +12,14 @@ export default function ProfileCard({ data }) {
   }
 
   const profileData = {
-    name: data.userDetailed[0].name ,
+    name: data.userDetailed.name ,
     avatar:
-      data.image ||
-      "https://ui-avatars.com/api/?name=" +
-        encodeURIComponent(data.userDetailed[0].name),
-    role: data.userDetailed[0].designation || "Employee",
-    email: data.userDetailed[0].email,
-    totalHours: data.totalDuration,
+      data.userDetailed.image ||
+      `https://api.dicebear.com/7.x/initials/svg?seed=${data.userDetailed.name}`,
+    role: data.userDetailed.designation || "Employee",
+    email: data.userDetailed.email,
+    totalHours: data.totalDuration|| "0:00",
+    reportingManager: data.userDetailed.manager || "N/A",   
     
   };
 
@@ -48,22 +48,22 @@ export default function ProfileCard({ data }) {
         <p className="text-sm font-semibold text-gray-500">Total hours</p>
       </div>
       <div className="text-center">
-        <p className="text-xl font-bold text-blue-500">
+        {/* <p className="text-xl font-bold text-blue-500">
           {profileData.shiftTiming}
         </p>
-        <p className="text-sm font-semibold text-gray-500">Shift Timing</p>
+        <p className="text-sm font-semibold text-gray-500">Shift Timing</p> */}
       </div>
       <div className="text-center">
-        <p className="text-xl font-bold text-blue-500"></p>
+        <p className="text-xl font-bold text-blue-500">{profileData.reportingManager}</p>
         <p className="text-sm font-semibold text-gray-500">Reporting Manager</p>
       </div>
       <div className="text-center">
-        <p className="text-xl font-bold text-red-500">
+        {/* <p className="text-xl font-bold text-red-500">
         
         </p>
         <p className="text-sm font-semibold text-gray-500">
           Violations Committed
-        </p>
+        </p> */}
       </div>
     </div>
   );
