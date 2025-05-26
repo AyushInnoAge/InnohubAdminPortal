@@ -3,6 +3,7 @@ import { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { ApprovalData } from "../page";
 import { RejectApproval, SubmitedApproval } from "@/_api_/approval";
+import { AuthContext } from "@/context/AuthContext";
 
 const EventCard = ({
   NominationType,
@@ -12,7 +13,10 @@ const EventCard = ({
   NominatedBy,
   NominationId,
   Role,
+  Approved,
+  PostId
 }) => {
+  const { user } = useContext(AuthContext);
   const [expanded, setExpanded] = useState(false);
   const {
     setNominatedEmployee,
@@ -35,16 +39,17 @@ const EventCard = ({
       throw error;
     }
   };
-
-  const submiteReject = async () => {
+  const submiteReject = async (PostId) => {
     try {
+      await RejectApproval(PostId);
       setNominatedEmployee((prev) =>
-        prev.filter((item) => item.employeeName?.id !== userId)
+        prev.filter((item) => item?.id !== PostId)
       );
     } catch (error) {
       throw error;
     }
   };
+  var disableApproved = (user?.userRole == 1 && Date.now() > 25) || user?.userRole == 2 && Date.now() > 20;
 
   return (
     <motion.div
@@ -86,18 +91,25 @@ const EventCard = ({
       <div className="p-4 flex justify-between">
         <motion.button
           whileTap={{ scale: 0.9 }}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg"
+          className={`${Approved || disableApproved
+              ? "bg-gray-400 text-white px-4 py-2 rounded-lg w-full cursor-not-allowed opacity-50"
+              : "bg-green-500 text-white px-4 py-2 rounded-lg"
+            }`}
           onClick={submitedApproval}
+          disabled={Approved || disableApproved}
         >
-          {Role == 1 ? "Approve" : "Review"}
+          {(Role == 1 && Approved) ? "Approved" : (Role == 1 && !Approved) ? "Approve" : (Role == 2 && Approved) ? "Reviewed" : "Review"}
         </motion.button>
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg"
-          onClick={submiteReject}
-        >
-          Reject
-        </motion.button>
+
+        {!(Approved || disableApproved) &&
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg"
+            onClick={() => submiteReject(PostId)}
+          >
+            Reject
+          </motion.button>}
+
       </div>
     </motion.div>
   );

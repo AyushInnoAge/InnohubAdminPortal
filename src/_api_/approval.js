@@ -1,5 +1,4 @@
 import axios from "axios";
-
 const getToken = () => {
   return typeof window !== "undefined" ? localStorage.getItem("token") : null;
 };
@@ -19,7 +18,7 @@ const SubmitedApproval = async (subData, userRole) => {
       }
     );
     return response;
-  } catch (error) {}
+  } catch (error) { }
 };
 
 const fetchAllApproval = async (userRole) => {
@@ -34,17 +33,15 @@ const fetchAllApproval = async (userRole) => {
         },
       }
     );
-
     return response;
-  } catch (error) {}
+  } catch (error) { }
 };
 
 const RejectApproval = async (NominationId) => {
   try {
     const token = getToken();
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}api/postreject`,
-      { NominationId },
+    const response = await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}reject/nomination?id=${NominationId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -57,10 +54,10 @@ const RejectApproval = async (NominationId) => {
   }
 };
 
-const PublishApproval = async ()=>{
+const PublishApproval = async () => {
   try {
-     const token = getToken();
-     const response = await axios.get(
+    const token = getToken();
+    const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}publishApproval`,
       {
         headers: {
@@ -74,4 +71,4 @@ const PublishApproval = async ()=>{
   }
 }
 
-export { SubmitedApproval, fetchAllApproval, RejectApproval,PublishApproval };
+export { SubmitedApproval, fetchAllApproval, RejectApproval, PublishApproval };
