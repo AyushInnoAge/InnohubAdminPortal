@@ -24,7 +24,7 @@ const EventCard = ({
     setApprovalModeData,
     setApprovalModeActivated,
   } = useContext(ApprovalData);
-
+  const time = new Date().getDate();
   const words = NominationReason?.split(" ");
   const shouldTruncate = words?.length > 20;
   const displayedText = expanded
@@ -49,7 +49,7 @@ const EventCard = ({
       throw error;
     }
   };
-  var disableApproved = (user?.userRole == 1 && Date.now() > 25) || user?.userRole == 2 && Date.now() > 20;
+  var disableApproved = (user?.userRole == 1 && time > 25) || user?.userRole == 2 && time > 20;
 
   return (
     <motion.div
