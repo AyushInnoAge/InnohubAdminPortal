@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useContext, createContext } from "react";
+import { useState, useEffect, useContext, createContext, use } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,15 +23,13 @@ export default function ApprovalBox({
   NominatedName,
   NominatedBy,
   NominatedEmployeeId,
+  ApprovedByHR
 }) {
   const { user } = useContext(AuthContext);
   const { setApprovalModeActivated, setSubnmiteData, approvalModeActivated } =
     useContext(ApprovalData);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [reason, setReason] = useState("");
-  const [selectedId, setSelectedId] = useState("");
   const [disablebutton, setDisableButton] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("Star of the month");
   const [ratings, setRatings] = useState({});
   const [hrRating, setHrRating] = useState(HrRating);
   const [managerRating, setManagerRating] = useState(ManagerRating);
@@ -142,6 +140,8 @@ export default function ApprovalBox({
               setHrRating,
               managerRating,
               setManagerRating,
+              ApprovedByHR,
+              userRole: user?.userRole,
             }}
           >
             <ApprovalStarTable />
@@ -214,7 +214,7 @@ export default function ApprovalBox({
               className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={submitedShoutout}
               disabled={
-                !reason || disablebutton || Object.keys(ratings)?.length !== 9
+                (!reason || disablebutton || Object.keys(ratings)?.length !== 9)
               }
             >
               Submit

@@ -12,6 +12,7 @@ import CompanyEvent from "./(dashboardComponents)/Festivale";
 import ShoutoutLeaderboard from "@/components/InputDisplay";
 
 export const DashboardStatus = createContext();
+
 export default function Home() {
   const { user } = useContext(AuthContext);
   const [dashboardData, setDashboardData] = useState([]);
@@ -22,9 +23,8 @@ export default function Home() {
   const [hasMoredata, setHasMoreData] = useState(true);
   const [achievements, setAchievements] = useState([]);
   const [topshoutOutWinner, setTopShoutOutWinner] = useState([]);
+  const feedRef = useRef(null);
 
-
-const feedRef = useRef(null);
   const fetchPosts = async () => {
     if (loading || !hasMoredata) return;
     setLoading(true);
@@ -41,7 +41,7 @@ const feedRef = useRef(null);
 
       if (response.length > 0) {
         setDashboardData((prev) => {
-           const existingIds = new Set(
+          const existingIds = new Set(
             prev.map((p) => p.postData?.id || p.nominationData?.id)
           );
 
@@ -49,6 +49,7 @@ const feedRef = useRef(null);
             const id = post.postData?.id || post.nominationData?.id;
             return !existingIds.has(id);
           });
+
           return [...prev, ...newPosts];
         });
 
@@ -70,9 +71,10 @@ const feedRef = useRef(null);
     fetchPosts();
   }, [page, user]);
 
- const handleFeedScroll = () => {
+  const handleFeedScroll = () => {
     const feed = feedRef.current;
     if (!feed || loading || !hasMoredata) return;
+
     const threshold = 300;
     const scrolledToBottom =
       feed.scrollTop + feed.clientHeight >= feed.scrollHeight - threshold;
@@ -105,12 +107,11 @@ const feedRef = useRef(null);
       ) : null}
 
       {user != null ? (
-         <div
+        <div
           className="w-full [@media(min-width:1300px)]:w-4/5 flex flex-col p-4 overflow-y-auto space-y-6 scrollbar-hide"
           ref={feedRef}
           onScroll={handleFeedScroll}
         >
-
           <div className="w-full max-w-4xl mx-auto">
             <DashboardStatus.Provider
               value={{
@@ -136,15 +137,13 @@ const feedRef = useRef(null);
             </h1>
           ) : (
             <div className="w-full max-w-4xl mx-auto space-y-6">
-              {dashboardData.length === 0 &&  !loading? (
+              {dashboardData.length === 0 && !loading ? (
                 <h1 className="text-black text-center text-3xl">No data available</h1>
               ) : (
                 dashboardData.map((post, index) => (
                   <div
                     key={index}
-                    ref={
-                      index === dashboardData.length - 1 ? lastPostRef : null
-                    }
+                    ref={index === dashboardData.length - 1 ? lastPostRef : null}
                   >
                     {post.postData?.type === "Post" ? (
                       <AnimatedPostCard
