@@ -11,8 +11,10 @@ export default function TimeAttendance() {
   const { user } = useContext(AuthContext);
   const [attendanceData, setAttendanceData] = useState([]);
   const [profileData, setProfileData] = useState({});
-  const [selectedMonth, setSelectedMonth] = useState(12);
-  const [selectedYear, setSelectedYear] = useState(2024);
+const currentDate = new Date();
+const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1); 
+const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
+
   const [employeeId, setEmployeeId] = useState(null);
 
   const router = useRouter();
