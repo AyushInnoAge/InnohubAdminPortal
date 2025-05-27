@@ -65,7 +65,12 @@ export default function ApprovalPage() {
         try {
           toast.success("Submit successfull");
           setNominatedEmployee((prev) =>
-            prev.filter((item) => item.employeeName?.id !== submiteData.UserId)
+            prev.map((item) => {
+              if(item.employeeName?.id === submiteData.UserId){
+                user.userRole == 1 ? item.isApprovedAdmin = true : item.isApprovedHR = true;
+              }
+              return item;
+            })
           );
           setSubnmiteData(null);
           setApprovalModeActivated(false);
@@ -81,6 +86,9 @@ export default function ApprovalPage() {
     setLoading(true)
     try {
       var response = await PublishApproval();
+      if (response.status === 200) {
+        setNominatedEmployee([]);
+      }
       toast.success(response.data);
     } catch (error) {
       console.error(error);
@@ -195,6 +203,10 @@ export default function ApprovalPage() {
                 }
                 NominatedEmployeeId={
                   nominatedEmployee[approvlemodeData].employeeName?.id
+                }
+
+                ApprovedByHR={
+                  nominatedEmployee[approvlemodeData].isApprovedHR
                 }
               />
             </ApprovalData.Provider>

@@ -50,13 +50,11 @@ const EventCard = ({
     }
   };
 
-  // var disableApproved = 
-  // (user?.userRole == 1 && (time > 25 || time < 21)) || 
-  // (user?.userRole == 2 && (time > 20 || time < 16));
-
   var disableApproved = 
-  (user?.userRole == 1 && (time > 28 || time < 21)) || 
-  (user?.userRole == 2 && (time > 28 || time < 16));
+  (user?.userRole == 1 && (time > 25 || time < 21)) || 
+  (user?.userRole == 2 && (time > 20 || time < 16));
+
+  
 
   return (
     <motion.div

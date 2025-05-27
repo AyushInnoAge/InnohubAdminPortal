@@ -23,6 +23,7 @@ export default function ApprovalBox({
   NominatedName,
   NominatedBy,
   NominatedEmployeeId,
+  ApprovedByHR
 }) {
   const { user } = useContext(AuthContext);
   const { setApprovalModeActivated, setSubnmiteData, approvalModeActivated } =
@@ -211,7 +212,7 @@ export default function ApprovalBox({
               className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={submitedShoutout}
               disabled={
-                !reason || disablebutton || Object.keys(ratings)?.length !== 9
+                (!reason || disablebutton || Object.keys(ratings)?.length !== 9) || user.userRole === 1 && !ApprovedByHR 
               }
             >
               Submit
