@@ -5,10 +5,13 @@ import EmployeeTable from "./components/table";
 import Dropdown from "@/components/ui/dropdown";
 import { MoveLeft, MoveRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { GetAllEmployeesList } from "@/_api_/allemployeelist";
+import { saveRazorpayAttendance } from "@/_api_/userattendance";
+import * as XLSX from "xlsx";
+import axios from "axios";
 
 const columns = [
   { key: "image", label: "Image" },
@@ -17,7 +20,6 @@ const columns = [
   { key: "departmentName", label: "Department" },
   { key: "manager", label: "Manager" },
 ];
-
 
 function useDebouncedValue(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -30,12 +32,17 @@ function useDebouncedValue(value, delay) {
   return debouncedValue;
 }
 
-
 export default function EmployeesPage() {
   const { user } = useContext(AuthContext);
   const router = useRouter();
+
   useEffect(() => {
-    if (user && user.userRole != 1 && user.userRole != 2 && user.userRole != 3) {
+    if (
+      user &&
+      user.userRole != 1 &&
+      user.userRole != 2 &&
+      user.userRole != 3
+    ) {
       router.push("/dashboard");
       return;
     }
@@ -46,17 +53,70 @@ export default function EmployeesPage() {
   const [selectedUser, setSelectedUser] = useState("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
-
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
+  const [uploadedAttendanceData, setUploadedAttendanceData] = useState([]);
 
   const debouncedSearch = useDebouncedValue(selectedUser, 1500);
 
   const employee = useQuery({
-    queryKey: ["employee", page, limit, user?.Role, user?.userId, selectedManager, selectedDepartment, debouncedSearch],
-    queryFn: () => GetAllEmployeesList(page, limit, user?.userRole, user?.id, selectedManager, selectedDepartment, selectedUser),
+    queryKey: [
+      "employee",
+      page,
+      limit,
+      user?.userRole,
+      user?.id,
+      selectedManager,
+      selectedDepartment,
+      debouncedSearch,
+    ],
+    queryFn: () =>
+      GetAllEmployeesList(
+        page,
+        limit,
+        user?.userRole,
+        user?.id,
+        selectedManager,
+        selectedDepartment,
+        selectedUser
+      ),
     enabled: !!user?.userRole && !!user?.id,
-  }
-  );
+  });
+  const mutation = useMutation({
+    mutationFn: (uploadedAttendanceData) =>
+      saveRazorpayAttendance(uploadedAttendanceData),
+    onSuccess: () => {
+      alert("Attendance data uploaded successfully");
+      setIsFileUploaded(false);
+      setUploadedAttendanceData([]);
+    },
+    onError: (error) => {
+      alert("Failed to upload attendance data");
+      console.error(error);
+    },
+  });
 
+  const handleExcelUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      
+
+      try {
+        setUploadedAttendanceData(jsonData);
+        setIsFileUploaded(true);
+      } catch (error) {
+        console.error("Upload error:", error);
+        alert("An error occurred while uploading.");
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
 
   const uniqueEmployees = Array.from(
     new Map(employee.data?.allManager?.map((emp) => [emp.id, emp])).values()
@@ -64,8 +124,7 @@ export default function EmployeesPage() {
 
   const uniqueDepartments = Array.from(
     new Map(employee.data?.allDepartment?.map((emp) => [emp.id, emp])).values()
-  )
-
+  );
 
   if (employee.isLoading) {
     return (
@@ -82,40 +141,39 @@ export default function EmployeesPage() {
     );
   }
 
-
   return (
     <div className="min-h-screen bg-white text-gray-800 p-6">
       <h1 className="text-2xl font-semibold mb-6 text-">Employee Dashboard</h1>
 
       <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-
-          {(user?.userRole == 1 || user?.userRole == 2) ? (<Dropdown
-            label="Select Manager"
-            value={selectedManager}
-            onChange={(e) => {
-              setSelectedManager(e.target.value)
-            }
-            }
-            options={uniqueEmployees.map((emp) => ({
-              label: `${emp.name}`,
-              value: emp.id,
-            }))}
-            ClassName="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-blue-400 focus:outline-none"
-          />) :
+          {user?.userRole == 1 || user?.userRole == 2 ? (
+            <Dropdown
+              label="Select Manager"
+              value={selectedManager}
+              onChange={(e) => {
+                setSelectedManager(e.target.value);
+              }}
+              options={uniqueEmployees.map((emp) => ({
+                label: `${emp.name}`,
+                value: emp.id,
+              }))}
+              ClassName="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-blue-400 focus:outline-none"
+            />
+          ) : (
             <input
               type="text"
               value={user?.name}
               disabled={true}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none font-bold"
-            />}
-
+            />
+          )}
 
           <Dropdown
             label="Select Department"
             value={selectedDepartment}
             onChange={(e) => {
-              setSelectedDepartment(e.target.value)
+              setSelectedDepartment(e.target.value);
             }}
             options={uniqueDepartments.map((emp) => ({
               label: `${emp.departmentName}`,
@@ -123,7 +181,6 @@ export default function EmployeesPage() {
             }))}
             ClassName="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-blue-400 focus:outline-none"
           />
-
 
           <div className="relative w-full">
             <Search
@@ -135,16 +192,44 @@ export default function EmployeesPage() {
               placeholder="Search by Employee Name"
               value={selectedUser}
               onChange={(e) => {
-                setSelectedUser(e.target.value)
+                setSelectedUser(e.target.value);
               }}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
             />
+          </div>
+          <div className="relative w-full col-span-1 lg:col-span-2">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Upload Employee Attendance
+            </label>
+            <input
+              type="file"
+              accept=".xlsx, .xls"
+              onChange={handleExcelUpload}
+              className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-100 file:text-violet-700 hover:file:bg-violet-200"
+            />
+            <button
+              onClick={() => {
+                console.log("Sending data to API:", uploadedAttendanceData);
+                mutation.mutate(uploadedAttendanceData);
+              }}
+              disabled={!isFileUploaded || mutation.isLoading}
+              className={`mt-2 px-4 py-2 rounded-lg font-semibold text-white ${
+                isFileUploaded
+                  ? "bg-violet-600 hover:bg-violet-700"
+                  : "bg-gray-300 cursor-not-allowed"
+              }`}
+            >
+              {mutation.isLoading ? "Uploading..." : "Submit"}
+            </button>
           </div>
         </div>
       </div>
 
       {employee.data?.userDetailed?.userDetailed?.length > 0 ? (
-        <EmployeeTable columns={columns} data={employee.data?.userDetailed?.userDetailed}/>
+        <EmployeeTable
+          columns={columns}
+          data={employee.data?.userDetailed?.userDetailed}
+        />
       ) : (
         <div className="text-center text-gray-500 mt-10">
           <p className="text-lg">
@@ -156,9 +241,15 @@ export default function EmployeesPage() {
       <div className="fixed bottom-0 right-2 flex justify-end items-center">
         <div className="flex items-center gap-2 bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700">
           Showing&nbsp;
-          <span className="font-semibold text-gray-900">{(limit * page) < employee.data?.userDetailed?.totalData ? limit * page : employee.data?.userDetailed?.totalData}</span>
+          <span className="font-semibold text-gray-900">
+            {limit * page < employee.data?.userDetailed?.totalData
+              ? limit * page
+              : employee.data?.userDetailed?.totalData}
+          </span>
           &nbsp;of&nbsp;
-          <span className="font-semibold text-gray-900">{employee.data?.userDetailed?.totalData}</span>
+          <span className="font-semibold text-gray-900">
+            {employee.data?.userDetailed?.totalData}
+          </span>
           &nbsp;employees
         </div>
         <Dropdown
@@ -174,16 +265,21 @@ export default function EmployeesPage() {
         <Button
           variant={page === 1 ? "disabled" : "outline"}
           className="flex items-center gap-2"
-          onClick={() => setPage(p => p - 1)}
+          onClick={() => setPage((p) => p - 1)}
           disabled={page === 1}
         >
           <MoveLeft size={16} />
         </Button>
         <Button
-          variant={(page * limit) >= employee.data?.userDetailed?.totalData ? "disabled" : "outline"}
+          variant={
+            page * limit >= employee.data?.userDetailed?.totalData
+              ? "disabled"
+              : "outline"
+          }
           className="flex items-center gap-2"
-          onClick={() => setPage(p => p + 1)}
-          disabled={(page * limit) >= employee.data?.userDetailed?.totalData}>
+          onClick={() => setPage((p) => p + 1)}
+          disabled={page * limit >= employee.data?.userDetailed?.totalData}
+        >
           <MoveRight size={16} />
         </Button>
       </div>
