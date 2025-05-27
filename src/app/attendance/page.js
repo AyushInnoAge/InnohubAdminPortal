@@ -67,11 +67,7 @@ const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
           overtime: "-",
           double: "-",
           note:
-            item.status === "On WeeklyOff"
-              ? "Weekly Off"
-              : item.status === "Absent"
-              ? "Absent"
-              : "-",
+            item.razorpayRemarks ,
           approval: "pending",
           punchrecords: item.punchRecord,
           Status: item.status,

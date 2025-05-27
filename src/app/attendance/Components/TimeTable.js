@@ -85,8 +85,10 @@ export default function TimeTable({ data }) {
               <th className="p-3 text-left border-b border-gray-200">
                 Violations
               </th> */}
-              <th className="p-3 text-left border-b border-gray-200">Note</th>
               <th className="p-3 text-left border-b border-gray-200">Status</th>
+              <th className="p-3 text-left border-b border-gray-200">
+                Remarks
+              </th>
               <th className="p-3 text-left border-b border-gray-200">
                 Punch Records
               </th>
@@ -109,16 +111,6 @@ export default function TimeTable({ data }) {
                   {row.double}
                 </td> */}
                 <td className="p-3 border-b border-gray-200">
-                  <div className="relative group">
-                    <button>
-                      <Info className="w-4 h-4" />
-                    </button>
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max px-2 py-1 text-sm text-white bg-gray-700 rounded shadow-lg opacity-0 group-hover:opacity-100">
-                      {row.note}
-                    </div>
-                  </div>
-                </td>
-                <td className="p-3 border-b border-gray-200">
                   {row.Status === "Present" ? (
                     <span className="text-green-500 font-semibold">
                       {row.Status}
@@ -133,6 +125,22 @@ export default function TimeTable({ data }) {
                     </span>
                   )}
                 </td>
+                <td className="p-3 border-b border-gray-200">
+                 {row.note ? (
+  <div className="relative group">
+    <button>
+      <Info className="w-4 h-4" />
+    </button>
+    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max px-2 py-1 text-sm text-white bg-gray-700 rounded shadow-lg opacity-0 group-hover:opacity-100">
+      {row.note}
+    </div>
+  </div>
+) : (
+  <span>-</span>
+)}
+
+                </td>
+
                 <td className="p-3 border-b border-gray-200">
                   {row.punchrecords != "" ? (
                     <button onClick={() => openModal(row.punchrecords)}>
@@ -188,14 +196,15 @@ export default function TimeTable({ data }) {
 
               for (let i = 0; i < punches.length; i += 1) {
                 const inPunch = punches[i]?.match(/(\d{2}:\d{2}:\d{2})\(in\)/i);
-                const outPunch = punches[i + 1]?.match(/(\d{2}:\d{2}:\d{2})\(out\)/i);
-              
+                const outPunch = punches[i + 1]?.match(
+                  /(\d{2}:\d{2}:\d{2})\(out\)/i
+                );
+
                 if (inPunch || outPunch) {
                   rows.push({
                     inTime: inPunch ? inPunch[1] : "-",
                     outTime: outPunch ? outPunch[1] : "-",
                   });
-                  
                 }
               }
 

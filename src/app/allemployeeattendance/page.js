@@ -196,7 +196,7 @@ export default function EmployeesPage() {
             <input
               type="text"
               placeholder="Search by Employee Name"
-              value={selectedUser}
+              value={selectedUser}  
               onChange={(e) => {
                 setSelectedUser(e.target.value);
               }}
