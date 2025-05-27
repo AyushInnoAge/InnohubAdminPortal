@@ -90,8 +90,10 @@ export default function ApprovalPage() {
   }
 
   return (
+   
     <div className="p-4 sm:p-6 md:p-8 min-h-screen bg-gray-100">
-      {/* Toast Notification */}
+       {user && <>
+        {/* Toast Notification */}
       <ToastContainer position="top-right" autoClose={3000} />
 
       {/* Category Buttons */}
@@ -149,24 +151,20 @@ export default function ApprovalPage() {
                       NominatedBy={event.nominated_ByUser?.name}
                       NominationId={index}
                       Role={user.userRole}
-                      Approved={user.userRole == 1 ? event?.isApprovedAdmin : event?.isApprovedHr}
+                      Approved={user.userRole == 1 ? event?.isApprovedAdmin : event?.isApprovedHR}
                       PostId={event.id}
                     />
                   )}
               </ApprovalData.Provider>
             </div>
           )))
-          : time.getDate() > 20 && user?.userRole == 2 && nominatedEmployee.length == 0 ? (
+          : time.getDate() > 25 && nominatedEmployee.length == 0 ? (
             <p className="text-center text-black text-xl sm:text-2xl md:text-3xl px-4">
-              The review portal will close for {monthNames[time.getMonth()]}
-            </p>
-          ) : time.getDate() > 25 && user?.userRole == 1 && nominatedEmployee.length == 0 ? (
-            <p className="text-center text-black text-xl sm:text-2xl md:text-3xl px-4">
-              The approval portal will close for {monthNames[time.getMonth()]}
+              The approval portal will close for {monthNames[time.getMonth()]}, and all nominations have been published
             </p>
           ) : (
             <p className="text-center text-black text-xl sm:text-2xl md:text-3xl px-4">
-              No further approvals are available
+              No further nominations are available.
             </p>
           )}
       </div>
@@ -202,7 +200,8 @@ export default function ApprovalPage() {
             </ApprovalData.Provider>
           </div>
         </div>
-      )}
+      )}</> }
+     
     </div>
   );
 }

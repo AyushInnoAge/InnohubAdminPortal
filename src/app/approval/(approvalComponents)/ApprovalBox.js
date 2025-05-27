@@ -27,11 +27,8 @@ export default function ApprovalBox({
   const { user } = useContext(AuthContext);
   const { setApprovalModeActivated, setSubnmiteData, approvalModeActivated } =
     useContext(ApprovalData);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [reason, setReason] = useState("");
-  const [selectedId, setSelectedId] = useState("");
   const [disablebutton, setDisableButton] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("Star of the month");
   const [ratings, setRatings] = useState({});
   const [hrRating, setHrRating] = useState(HrRating);
   const [managerRating, setManagerRating] = useState(ManagerRating);
