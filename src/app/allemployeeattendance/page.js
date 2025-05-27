@@ -11,7 +11,10 @@ import { AuthContext } from "@/context/AuthContext";
 import { GetAllEmployeesList } from "@/_api_/allemployeelist";
 import { saveRazorpayAttendance } from "@/_api_/userattendance";
 import * as XLSX from "xlsx";
-import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+
 
 const columns = [
   { key: "image", label: "Image" },
@@ -85,12 +88,12 @@ export default function EmployeesPage() {
     mutationFn: (uploadedAttendanceData) =>
       saveRazorpayAttendance(uploadedAttendanceData),
     onSuccess: () => {
-      alert("Attendance data uploaded successfully");
+      toast.success("Attendance data uploaded successfully!");
       setIsFileUploaded(false);
       setUploadedAttendanceData([]);
     },
     onError: (error) => {
-      alert("Failed to upload attendance data");
+      toast.error("Error uploading attendance data.");
       console.error(error);
     },
   });
@@ -110,9 +113,10 @@ export default function EmployeesPage() {
       try {
         setUploadedAttendanceData(jsonData);
         setIsFileUploaded(true);
+        toast.success("File uploaded successfully!");
       } catch (error) {
         console.error("Upload error:", error);
-        alert("An error occurred while uploading.");
+       toast.error("Error processing the file. Please check the format.");
       }
     };
     reader.readAsArrayBuffer(file);
@@ -142,8 +146,10 @@ export default function EmployeesPage() {
   }
 
   return (
+    <>
+     <ToastContainer position="top-right" autoClose={3000} />
     <div className="min-h-screen bg-white text-gray-800 p-6">
-      <h1 className="text-2xl font-semibold mb-6 text-">Employee Dashboard</h1>
+      <h1 className="text-2xl font-semibold mb-6 text-[#b05af7]">Employee Dashboard</h1>
 
       <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -212,7 +218,7 @@ export default function EmployeesPage() {
                 }}
                 disabled={!isFileUploaded || mutation.isLoading}
                 className={`px-4 py-2 rounded-lg font-semibold text-white ${isFileUploaded
-                    ? "bg-violet-600 hover:bg-violet-700"
+                    ? "bg-[#b05af7] hover:bg-violet-700"
                     : "bg-gray-300 cursor-not-allowed"
                   }`}
               >
@@ -282,5 +288,6 @@ export default function EmployeesPage() {
         </Button>
       </div>
     </div>
+    </>
   );
 }
