@@ -105,7 +105,7 @@ export default function EmployeesPage() {
       const workbook = XLSX.read(data, { type: "array" });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
-      
+
 
       try {
         setUploadedAttendanceData(jsonData);
@@ -197,30 +197,28 @@ export default function EmployeesPage() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
             />
           </div>
-          <div className="relative w-full col-span-1 lg:col-span-2">
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Upload Employee Attendance
-            </label>
-            <input
-              type="file"
-              accept=".xlsx, .xls"
-              onChange={handleExcelUpload}
-              className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-100 file:text-violet-700 hover:file:bg-violet-200"
-            />
-            <button
-              onClick={() => {
-                console.log("Sending data to API:", uploadedAttendanceData);
-                mutation.mutate(uploadedAttendanceData);
-              }}
-              disabled={!isFileUploaded || mutation.isLoading}
-              className={`mt-2 px-4 py-2 rounded-lg font-semibold text-white ${
-                isFileUploaded
-                  ? "bg-violet-600 hover:bg-violet-700"
-                  : "bg-gray-300 cursor-not-allowed"
-              }`}
-            >
-              {mutation.isLoading ? "Uploading..." : "Submit"}
-            </button>
+          <div className="w-full col-span-1 lg:col-span-2">
+            <div className="flex items-center gap-4">
+              <input
+                type="file"
+                accept=".xlsx, .xls"
+                onChange={handleExcelUpload}
+                className="flex-1 pl-3 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
+              />
+              <button
+                onClick={() => {
+                  console.log("Sending data to API:", uploadedAttendanceData);
+                  mutation.mutate(uploadedAttendanceData);
+                }}
+                disabled={!isFileUploaded || mutation.isLoading}
+                className={`px-4 py-2 rounded-lg font-semibold text-white ${isFileUploaded
+                    ? "bg-violet-600 hover:bg-violet-700"
+                    : "bg-gray-300 cursor-not-allowed"
+                  }`}
+              >
+                {mutation.isLoading ? "Uploading..." : "Submit"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
