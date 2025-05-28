@@ -46,7 +46,7 @@ const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
       const formattedData = attendanceArray.map((item) => {
         const dateObj = new Date(item.date);
         return {
-          rawDate: dateObj,
+          
           date: dateObj.toLocaleDateString("en-IN", {
             weekday: "short",
             day: "numeric",
@@ -62,21 +62,19 @@ const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
             item.checkOut && item.checkOut !== "00:00:00"
               ? item.checkOut.split(" ")[1]
               : "",
-          mealBreak: "",
+         
           workHours: item.duration ? (item.duration / 60).toFixed(2) : "",
-          overtime: "-",
-          double: "-",
-          note:
-            item.razorpayRemarks ,
-          approval: "pending",
-          punchrecords: item.punchRecord,
-          Status: item.status,
+          
+          
+         
+          punchrecords: item.punchRecord.length > 0 ? item.punchRecord : item.razorpayRemarks,
+         
         };
       });
 
       formattedData.sort((a, b) => a.rawDate - b.rawDate);
       setAttendanceData(formattedData);
-      setProfileData({ ...profile }); // Ensure profileData reference changes
+      setProfileData({ ...profile }); 
     } catch (err) {
       console.error("Failed to fetch attendance. Please try again.", err);
     }
