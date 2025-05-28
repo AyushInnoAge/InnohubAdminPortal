@@ -175,7 +175,7 @@ export default function Navbar() {
             </div>
             <div className="nav-item">
               {user?.userRole &&
-                (user.userRole === 1 || user.userRole === 2) && (
+                (user.userRole === 1 || user.userRole === 2 || user.userRole==3) && (
                   <div className="dropdown1">
                 <button
                   className={`nav-link ${

@@ -28,4 +28,23 @@ const GetAllEmployeesList = async (page, limit, Role, userId, selectedTeamleader
     }
 }
 
-export { GetAllEmployeesList };
+const DurationVoilationMailTrigger= async()=>{
+    try{
+        const token = getToken();
+        const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}apiUserAttandence/WeeklyViolationtrigger`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        console.log("Mail Triggered:", response.data);
+        return response.data;
+    }catch (error) {
+        console.error("Error triggering duration violation mail:", error.message);
+
+    }
+}
+
+export { GetAllEmployeesList, DurationVoilationMailTrigger };

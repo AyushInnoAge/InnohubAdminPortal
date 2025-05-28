@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
-import { GetAllEmployeesList } from "@/_api_/allemployeelist";
+import { DurationVoilationMailTrigger, GetAllEmployeesList } from "@/_api_/allemployeelist";
 import { saveRazorpayAttendance } from "@/_api_/userattendance";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
@@ -116,7 +116,7 @@ export default function EmployeesPage() {
         toast.success("File uploaded successfully!");
       } catch (error) {
         console.error("Upload error:", error);
-       toast.error("Error processing the file. Please check the format.");
+        toast.error("Error processing the file. Please check the format.");
       }
     };
     reader.readAsArrayBuffer(file);
@@ -145,149 +145,168 @@ export default function EmployeesPage() {
     );
   }
 
+  const DurationViolationTrigger = async () => {
+    try {
+      const response = await DurationVoilationMailTrigger();
+      toast.success(response.data);
+      console.log("Duration violation mail triggered:", response.data);
+    } catch (error) {
+      console.error("Error in DurationViolationTrigger:", error);
+      toast.error("Error processing duration violation.");
+    }
+  }
+
   return (
     <>
-     <ToastContainer position="top-right" autoClose={3000} />
-    <div className="min-h-screen bg-white text-gray-800 p-6">
-      <h1 className="text-2xl font-semibold mb-6 text-[#b05af7]">Employee Dashboard</h1>
+      <ToastContainer position="top-right" autoClose={3000} />
+      <div className="min-h-screen bg-white text-gray-800 p-6">
+        <h1 className="text-2xl font-semibold mb-6 text-[#b05af7]">Employee Dashboard</h1>
 
-      <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {user?.userRole == 1 || user?.userRole == 2 ? (
+        <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {user?.userRole == 1 || user?.userRole == 2 ? (
+              <Dropdown
+                label="Select Manager"
+                value={selectedManager}
+                onChange={(e) => {
+                  setSelectedManager(e.target.value);
+                }}
+                options={uniqueEmployees.map((emp) => ({
+                  label: `${emp.name}`,
+                  value: emp.id,
+                }))}
+                ClassName="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-blue-400 focus:outline-none"
+              />
+            ) : (
+              <input
+                type="text"
+                value={user?.name}
+                disabled={true}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none font-bold"
+              />
+            )}
+
             <Dropdown
-              label="Select Manager"
-              value={selectedManager}
+              label="Select Department"
+              value={selectedDepartment}
               onChange={(e) => {
-                setSelectedManager(e.target.value);
+                setSelectedDepartment(e.target.value);
               }}
-              options={uniqueEmployees.map((emp) => ({
-                label: `${emp.name}`,
+              options={uniqueDepartments.map((emp) => ({
+                label: `${emp.departmentName}`,
                 value: emp.id,
               }))}
               ClassName="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-blue-400 focus:outline-none"
             />
-          ) : (
-            <input
-              type="text"
-              value={user?.name}
-              disabled={true}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none font-bold"
-            />
-          )}
 
-          <Dropdown
-            label="Select Department"
-            value={selectedDepartment}
-            onChange={(e) => {
-              setSelectedDepartment(e.target.value);
-            }}
-            options={uniqueDepartments.map((emp) => ({
-              label: `${emp.departmentName}`,
-              value: emp.id,
-            }))}
-            ClassName="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-blue-400 focus:outline-none"
-          />
-
-          <div className="relative w-full">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder="Search by Employee Name"
-              value={selectedUser}  
-              onChange={(e) => {
-                setSelectedUser(e.target.value);
-              }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
-            />
-          </div>
-          <div className="w-full col-span-1 lg:col-span-2">
-            <div className="flex items-center gap-4">
-              <input
-                type="file"
-                accept=".xlsx, .xls"
-                onChange={handleExcelUpload}
-                className="flex-1 pl-3 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
+            <div className="relative w-full">
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                size={18}
               />
-              <button
-                onClick={() => {
-                  console.log("Sending data to API:", uploadedAttendanceData);
-                  mutation.mutate(uploadedAttendanceData);
+              <input
+                type="text"
+                placeholder="Search by Employee Name"
+                value={selectedUser}
+                onChange={(e) => {
+                  setSelectedUser(e.target.value);
                 }}
-                disabled={!isFileUploaded || mutation.isLoading}
-                className={`px-4 py-2 rounded-lg font-semibold text-white ${isFileUploaded
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
+              />
+            </div>
+            {(user?.userRole == 1 || user?.userRole == 2) && <div className="w-full col-span-1 lg:col-span-2">
+              <div className="flex items-center gap-4">
+                <input
+                  type="file"
+                  accept=".xlsx, .xls"
+                  onChange={handleExcelUpload}
+                  className="flex-1 pl-3 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
+                />
+                <button
+                  onClick={() => {
+                    console.log("Sending data to API:", uploadedAttendanceData);
+                    mutation.mutate(uploadedAttendanceData);
+                  }}
+                  disabled={!isFileUploaded || mutation.isLoading}
+                  className={`px-4 py-2 rounded-lg font-semibold text-white ${isFileUploaded
                     ? "bg-[#b05af7] hover:bg-violet-700"
                     : "bg-gray-300 cursor-not-allowed"
-                  }`}
-              >
-                {mutation.isLoading ? "Uploading..." : "Submit"}
-              </button>
-            </div>
+                    }`}
+                >
+                  {mutation.isLoading ? "Uploading..." : "Submit"}
+                </button>
+                <button
+                  onClick={DurationViolationTrigger}
+                  // disabled={!isFileUploaded || mutation.isLoading}
+                  className="px-4 py-2 rounded-lg font-semibold text-white bg-[#b05af7] hover:bg-violet-700"
+                >
+                  {mutation.isLoading ? "Uploading..." : "Publish Violation"}
+                </button>
+              </div>
+            </div>}
+
           </div>
         </div>
-      </div>
 
-      {employee.data?.userDetailed?.userDetailed?.length > 0 ? (
-        <EmployeeTable
-          columns={columns}
-          data={employee.data?.userDetailed?.userDetailed}
-        />
-      ) : (
-        <div className="text-center text-gray-500 mt-10">
-          <p className="text-lg">
-            No employees found for the selected criteria.
-          </p>
-        </div>
-      )}
+        {employee.data?.userDetailed?.userDetailed?.length > 0 ? (
+          <EmployeeTable
+            columns={columns}
+            data={employee.data?.userDetailed?.userDetailed}
+          />
+        ) : (
+          <div className="text-center text-gray-500 mt-10">
+            <p className="text-lg">
+              No employees found for the selected criteria.
+            </p>
+          </div>
+        )}
 
-      <div className="fixed bottom-0 right-2 flex justify-end items-center">
-        <div className="flex items-center gap-2 bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700">
-          Showing&nbsp;
-          <span className="font-semibold text-gray-900">
-            {limit * page < employee.data?.userDetailed?.totalData
-              ? limit * page
-              : employee.data?.userDetailed?.totalData}
-          </span>
-          &nbsp;of&nbsp;
-          <span className="font-semibold text-gray-900">
-            {employee.data?.userDetailed?.totalData}
-          </span>
-          &nbsp;employees
+        <div className="fixed bottom-0 right-2 flex justify-end items-center">
+          <div className="flex items-center gap-2 bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700">
+            Showing&nbsp;
+            <span className="font-semibold text-gray-900">
+              {limit * page < employee.data?.userDetailed?.totalData
+                ? limit * page
+                : employee.data?.userDetailed?.totalData}
+            </span>
+            &nbsp;of&nbsp;
+            <span className="font-semibold text-gray-900">
+              {employee.data?.userDetailed?.totalData}
+            </span>
+            &nbsp;employees
+          </div>
+          <Dropdown
+            label="Limit"
+            value={limit}
+            onChange={(e) => {
+              setLimit(Number(e.target.value));
+              setPage(1);
+            }}
+            options={[25, 50, 100]}
+            ClassName="border-gray-950 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
+          />
+          <Button
+            variant={page === 1 ? "disabled" : "outline"}
+            className="flex items-center gap-2"
+            onClick={() => setPage((p) => p - 1)}
+            disabled={page === 1}
+          >
+            <MoveLeft size={16} />
+          </Button>
+          <Button
+            variant={
+              page * limit >= employee.data?.userDetailed?.totalData
+                ? "disabled"
+                : "outline"
+            }
+            className="flex items-center gap-2"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page * limit >= employee.data?.userDetailed?.totalData}
+          >
+            <MoveRight size={16} />
+          </Button>
         </div>
-        <Dropdown
-          label="Limit"
-          value={limit}
-          onChange={(e) => {
-            setLimit(Number(e.target.value));
-            setPage(1);
-          }}
-          options={[25, 50, 100]}
-          ClassName="border-gray-950 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
-        />
-        <Button
-          variant={page === 1 ? "disabled" : "outline"}
-          className="flex items-center gap-2"
-          onClick={() => setPage((p) => p - 1)}
-          disabled={page === 1}
-        >
-          <MoveLeft size={16} />
-        </Button>
-        <Button
-          variant={
-            page * limit >= employee.data?.userDetailed?.totalData
-              ? "disabled"
-              : "outline"
-          }
-          className="flex items-center gap-2"
-          onClick={() => setPage((p) => p + 1)}
-          disabled={page * limit >= employee.data?.userDetailed?.totalData}
-        >
-          <MoveRight size={16} />
-        </Button>
       </div>
-    </div>
     </>
   );
 }
