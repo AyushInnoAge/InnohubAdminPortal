@@ -98,6 +98,19 @@ export default function EmployeesPage() {
     },
   });
 
+function convertExcelTimeToUTC(excelTime, utcDate) {
+    if (typeof excelTime !== "number" || !(utcDate instanceof Date))
+      return null;
+
+    const timeInMilliseconds = excelTime * 24 * 60 * 60 * 1000;
+
+    const resultUTC = new Date(utcDate.getTime() + timeInMilliseconds);
+
+    resultUTC.setUTCDate(resultUTC.getUTCDate() - 1);
+
+    return resultUTC.toISOString();
+  }
+
   const handleExcelUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -107,18 +120,81 @@ export default function EmployeesPage() {
       const data = new Uint8Array(event.target.result);
       const workbook = XLSX.read(data, { type: "array" });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
+      const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      const finalData = [];
 
       try {
-        setUploadedAttendanceData(jsonData);
+        for (let i = 1; i < rawData.length; i += 5) {
+          const statusRow = rawData[i];
+          const inRow = rawData[i + 1];
+          const outRow = rawData[i + 2];
+          const remarksRow = rawData[i + 4];
+
+          const empId = statusRow[0];
+          const name = statusRow[1];
+
+          for (let col = 3; col < statusRow.length; col++) {
+            const rawDate = rawData[0][col];
+
+            let jsDate = null;
+            if (typeof rawDate === "number") {
+              const parsed = XLSX.SSF.parse_date_code(rawDate);
+              if (parsed) {
+                jsDate = new Date(
+                  Date.UTC(parsed.y, parsed.m - 1, parsed.d, 18, 30)
+                );
+              }
+            } else if (typeof rawDate === "string") {
+              try {
+                const [day, monthStr, yearSuffix] = rawDate.split("-");
+                const monthMap = {
+                  Jan: 0,
+                  Feb: 1,
+                  Mar: 2,
+                  Apr: 3,
+                  May: 4,
+                  Jun: 5,
+                  Jul: 6,
+                  Aug: 7,
+                  Sep: 8,
+                  Oct: 9,
+                  Nov: 10,
+                  Dec: 11,
+                };
+                const month = monthMap[monthStr];
+                const year = +("20" + yearSuffix);
+                jsDate = new Date(Date.UTC(year, month, +day, 18, 30));
+              } catch (err) {
+                console.warn("Invalid date string:", rawDate);
+              }
+            }
+
+            if (!jsDate || isNaN(jsDate.getTime())) continue;
+
+            finalData.push({
+              EmployeeId: empId,
+              Name: name,
+              Date: jsDate.toISOString(),
+              Checkin: convertExcelTimeToUTC(inRow[col], jsDate) || "",
+              Checkout: convertExcelTimeToUTC(outRow[col], jsDate) || "",
+              Status: statusRow[col] || "",
+              Remarks: remarksRow[col] || "",
+            });
+          }
+        }
+        console.log("Final Data:", finalData);
+
+        setUploadedAttendanceData(finalData);
         setIsFileUploaded(true);
-        toast.success("File uploaded successfully!");
+        toast.success("File uploaded and processed successfully!");
       } catch (error) {
         console.error("Upload error:", error);
         toast.error("Error processing the file. Please check the format.");
       }
     };
+
     reader.readAsArrayBuffer(file);
   };
 
