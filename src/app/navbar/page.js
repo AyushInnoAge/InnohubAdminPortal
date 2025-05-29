@@ -11,6 +11,7 @@ import { MdOutlineEvent } from "react-icons/md";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import { Database } from 'lucide-react';
 
 import { MdOutlinePreview } from "react-icons/md";
 import {
@@ -172,6 +173,28 @@ export default function Navbar() {
                   </div>
                 )}
             </div>
+            <div className="nav-item">
+              {user?.userRole &&
+                (user.userRole === 1 || user.userRole === 2 || user.userRole==3) && (
+                  <div className="dropdown1">
+                <button
+                  className={`nav-link ${
+                    activeRoute === "/allemployeeattendance" ? "active" : ""
+                  }`}
+                  onClick={() => {
+                    handleNavClick("/allemployeeattendance");
+                  }}
+                >
+                  Attendance
+                </button>
+              </div>
+                 
+                )}
+            </div>
+            
+           
+           
+            
           </div>
 
           {/* Profile & Cart */}
@@ -268,6 +291,20 @@ export default function Navbar() {
               >
                 <FaListUl />
                 All Employees
+              </Link>
+            )}
+             {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
+              <div className="sidebar-section"> Attendance Records</div>
+            )}
+
+            {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
+              <Link
+                href="/allemployeeattendance"
+                className="sidebar-link"
+                onClick={toggleSidebar}
+              >
+                <Database />
+               Attendance Records
               </Link>
             )}
           </div>
