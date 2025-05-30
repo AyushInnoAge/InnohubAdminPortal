@@ -242,7 +242,7 @@ function convertExcelTimeToUTC(excelTime, utcDate) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {user?.userRole == 1 || user?.userRole == 2 ? (
               <Dropdown
-                label="Select Manager"
+                label="Manager"
                 value={selectedManager}
                 onChange={(e) => {
                   setSelectedManager(e.target.value);
@@ -263,7 +263,7 @@ function convertExcelTimeToUTC(excelTime, utcDate) {
             )}
 
             <Dropdown
-              label="Select Department"
+              label="Department"
               value={selectedDepartment}
               onChange={(e) => {
                 setSelectedDepartment(e.target.value);
@@ -282,7 +282,7 @@ function convertExcelTimeToUTC(excelTime, utcDate) {
               />
               <input
                 type="text"
-                placeholder="Search by Employee Name"
+                placeholder="Employee Name"
                 value={selectedUser}
                 onChange={(e) => {
                   setSelectedUser(e.target.value);
@@ -296,7 +296,7 @@ function convertExcelTimeToUTC(excelTime, utcDate) {
                   type="file"
                   accept=".xlsx, .xls"
                   onChange={handleExcelUpload}
-                  className="flex-1 pl-3 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-blue-300 outline-none"
                 />
                 <button
                   onClick={() => {
@@ -316,7 +316,7 @@ function convertExcelTimeToUTC(excelTime, utcDate) {
                   // disabled={!isFileUploaded || mutation.isLoading}
                   className="px-4 py-2 rounded-lg font-semibold text-white bg-[#b05af7] hover:bg-violet-700"
                 >
-                  {mutation.isLoading ? "Uploading..." : "Publish Violation"}
+                 Publish
                 </button>
               </div>
             </div>}

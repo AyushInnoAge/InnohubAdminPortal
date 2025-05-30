@@ -30,7 +30,7 @@ export default function EmployeeTable({ columns, data}) {
                                 <td key={j} className="p-4">
                                     {col.key === 'image' ? (
                                         <img
-                                            src={(row[col.key]).length > 0 ? row[col.key] : '/default-profile.png'}
+                                            src={(row[col.key]).length > 0 ? row[col.key] : `https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`}
                                             alt="Profile"
                                             className="w-10 h-10 rounded-full object-cover"
                                         />
