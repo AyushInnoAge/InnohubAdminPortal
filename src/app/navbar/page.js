@@ -1,17 +1,19 @@
 "use client";
-import {useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import "./navbar.css";
-import { FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
-import { IoNotificationsSharp } from "react-icons/io5";
+import { FaBars, FaTimes } from "react-icons/fa";
 import { FaTrophy } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa";
-import { GrDocumentPerformance } from "react-icons/gr";
+import { FaListUl } from "react-icons/fa6";
 import { MdOutlineEvent } from "react-icons/md";
-import { IoBicycleOutline } from "react-icons/io5";
-import { RiGalleryFill } from "react-icons/ri";
 import { AuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { Database } from 'lucide-react';
+
+import { MdOutlinePreview } from "react-icons/md";
 import {
   FaThLarge,
   FaBox,
@@ -22,11 +24,18 @@ import {
 } from "react-icons/fa";
 
 export default function Navbar() {
-   const { user,login } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const [isDropdownOpen, setDropdownOpen] = useState(null);
   const [isProfileOpen, setProfileOpen] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const notificationCount = 5;
+
+  const pathname = usePathname(); // Get the current path
+  const [activeRoute, setActiveRoute] = useState(pathname);
+  const router = useRouter();
+  const handleNavClick = (route) => {
+    setActiveRoute(route);
+    router.push(route); // Navigate to the route
+  };
 
   // Toggle dropdown menus
   const toggleDropdown = (menu) => {
@@ -90,85 +99,102 @@ export default function Navbar() {
           {/* Logo */}
           <div className="logo-container">
             <Image src="/logo.svg" alt="Logo" width={40} height={40} />
-            <span className="brand-name">Inno Age</span>
+            <span className="brand-name">InnoHub</span>
           </div>
 
           {/* Hamburger Menu for Small Screens */}
 
           {/* Navigation Links (Visible on Large Screens) */}
-          <div className={`nav-links ${isSidebarOpen ? "hide" : ""}`}>
-            <Link href="/dashboard" className="nav-link">
+          <div className={`nav-links ${isSidebarOpen ? "hide" : ""}    `}>
+            <Link
+              href="/dashboard"
+              className={`nav-link ${
+                activeRoute === "/dashboard" ? "active" : ""
+              }`}
+              onClick={() => handleNavClick("/dashboard")}
+            >
               Dashboard
             </Link>
             <div className="nav-item">
               <div className="dropdown1">
                 <button
-                  className="nav-link dropdown-btn"
-                  onClick={() => toggleDropdown("awards")}
+                  className={`nav-link ${
+                    activeRoute === "/nominations" ? "active" : ""
+                  }`}
+                  onClick={() => {
+                    toggleDropdown("awards");
+                    handleNavClick("/nominations");
+                  }}
                 >
                   Awards
                 </button>
-                <FaChevronDown
-                  size={12}
-                  onClick={() => toggleDropdown("awards")}
-                />
               </div>
-              {isDropdownOpen === "awards" && (
-                <div className="dropdown-content lower-dropdown">
-                  <Link href="/Nomination" className="dropdown-item">
-                    Nominations
-                  </Link>
-                  <Link href="/awards/top-performers" className="dropdown-item">
-                    Top Performers
-                  </Link>
-                </div>
-              )}
             </div>
             <div className="nav-item">
               <div className="dropdown1">
                 <button
-                  className="nav-link dropdown-btn"
-                  onClick={() => toggleDropdown("fun")}
+                  className={`nav-link ${
+                    activeRoute === "/funactivity" ? "active" : ""
+                  }`}
+                  onClick={() => {
+                    handleNavClick("/funactivity");
+                  }}
                 >
                   Fun & Social Activities
                 </button>
-                <FaChevronDown
-                  size={12}
-                  onClick={() => toggleDropdown("fun")}
-                />
               </div>
-              {isDropdownOpen === "fun" && (
-                <div className="dropdown-content lower-dropdown">
-                  <Link
-                    href="/activities/team-building"
-                    className="dropdown-item"
-                  >
-                    Team Building
-                  </Link>
-                  <Link href="/activities/events" className="dropdown-item">
-                    Company Events
-                  </Link>
-                  <Link
-                    href="/activities/recent-outings"
-                    className="dropdown-item"
-                  >
-                    Recent Outings
-                  </Link>
-                  <Link
-                    href="/activities/upcoming-events"
-                    className="dropdown-item"
-                  >
-                    Upcoming Events
-                  </Link>
-                  <Link href="/activities/gallery" className="dropdown-item">
-                    Gallery
-                  </Link>
-                  <Link href="/activities/policies" className="dropdown-item">
-                    Policies
-                  </Link>
-                </div>
-              )}
             </div>
+            <div className="nav-item">
+              {user?.userRole &&
+                (user.userRole === 1 || user.userRole === 2) && (
+                  <div className="nav-item">
+                    <div className="dropdown1">
+                      <button
+                        className="nav-link dropdown-btn"
+                        onClick={() => toggleDropdown("Admin")}
+                      >
+                        Admin
+                      </button>
+                      <FaChevronDown
+                        size={12}
+                        onClick={() => toggleDropdown("Admin")}
+                      />
+                    </div>
+                    {isDropdownOpen === "Admin" && (
+                      <div className="dropdown-content lower-dropdown">
+                        <Link href="/approval" className="dropdown-item">
+                          {user.userRole === 1 ? "Approval" : "Review"}
+                        </Link>
+                        <Link href="/allemployees" className="dropdown-item">
+                          All Employee
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+            </div>
+            <div className="nav-item">
+              {user?.userRole &&
+                (user.userRole === 1 || user.userRole === 2 || user.userRole==3) && (
+                  <div className="dropdown1">
+                <button
+                  className={`nav-link ${
+                    activeRoute === "/allemployeeattendance" ? "active" : ""
+                  }`}
+                  onClick={() => {
+                    handleNavClick("/allemployeeattendance");
+                  }}
+                >
+                  Attendance
+                </button>
+              </div>
+                 
+                )}
+            </div>
+            
+           
+           
+            
           </div>
 
           {/* Profile & Cart */}
@@ -176,7 +202,11 @@ export default function Navbar() {
             <div className="profile-container">
               <button className="profile-btn" onClick={toggleProfileDropdown}>
                 <img
-                  src={user?.image}
+                  src={
+                    user?.image.length > 0
+                      ? user.image
+                      : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
+                  }
                   alt="User"
                   className="profile-pic"
                   width={32}
@@ -189,26 +219,15 @@ export default function Navbar() {
                   <Link href="/profilepage" className="dropdown-item">
                     Profile
                   </Link>
-                  <Link href="/login" className="dropdown-item">
+                  <Link
+                    href="/login"
+                    onClick={logout}
+                    className="dropdown-item"
+                  >
                     Logout
                   </Link>
                 </div>
               )}
-            </div>
-            <div className="cart">
-              <Link href="/cart" className="nav-link1">
-                <FaShoppingCart />
-              </Link>
-            </div>
-            <div className="notification">
-              <Link href="/notifications" className="nav-link2">
-                <IoNotificationsSharp className="notification-icon" />
-                {notificationCount > 0 && (
-                  <span className="notification-badge">
-                    {notificationCount}
-                  </span>
-                )}
-              </Link>
             </div>
           </div>
         </div>
@@ -233,37 +252,62 @@ export default function Navbar() {
               <FaThLarge /> Dashboard
             </Link>
 
-            {/* Admin Section */}
-            <div className="sidebar-section">Awards</div>
             <Link
-              href="/account"
+              href="/nominations"
               className="sidebar-link"
               onClick={toggleSidebar}
             >
-             <FaTrophy />Employee of the Month
+              <FaTrophy />
+              Awards
             </Link>
-            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
-            <GrDocumentPerformance />Top Performers
-            </Link>
-            <div className="sidebar-section">Fun & Social Activities</div>
+
             <Link
-              href="/account"
+              href="/funactivity"
               className="sidebar-link"
               onClick={toggleSidebar}
             >
-              <FaUserCog /> Team Building
+              <MdOutlineEvent />
+              Fun And Social Activities
             </Link>
-            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
-            <MdOutlineEvent />Company Events
-            </Link>
-            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
-            <IoBicycleOutline />Recent Outings
-            </Link>
-            <Link href="/help" className="sidebar-link" onClick={toggleSidebar}>
-            <RiGalleryFill />Gallery
-            </Link>
+            {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
+              <div className="sidebar-section"> Admin</div>
+            )}
+
+            {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
+              <Link
+                href="/approval"
+                className="sidebar-link"
+                onClick={toggleSidebar}
+              >
+                <MdOutlinePreview />
+                {user.userRole === 1 ? "Approval" : "Review"}
+              </Link>
+            )}
+            {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
+              <Link
+                href="/allemployees"
+                className="sidebar-link"
+                onClick={toggleSidebar}
+              >
+                <FaListUl />
+                All Employees
+              </Link>
+            )}
+             {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
+              <div className="sidebar-section"> Attendance Records</div>
+            )}
+
+            {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
+              <Link
+                href="/allemployeeattendance"
+                className="sidebar-link"
+                onClick={toggleSidebar}
+              >
+                <Database />
+               Attendance Records
+              </Link>
+            )}
           </div>
-          
         </div>
       )}
     </header>

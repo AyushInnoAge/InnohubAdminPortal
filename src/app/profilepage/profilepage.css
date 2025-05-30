@@ -55,20 +55,17 @@
   }
   
   .profile-img-wrapper {
-    position: sticky;
     top: 20px; /* Keeps profile image at top while scrolling */
     z-index: 10
   }
   
   .profile-img {
     border-radius: 50%;
-    border: 3px solid #707BFF;
+    border: 3px solid hsl(290, 89%, 39%);
     width: 140px; /* Increased size */
     height: 140px; /* Increased size */
     object-fit: cover;
   }
-  
-  
   
   .profile-name {
     font-size: 22px; /* Increased font size */
@@ -82,11 +79,6 @@
       margin-top: 7px;
   
   }
-  
-  
-  
-  
-  
   .badges {
     margin-top: 35px;
   }
@@ -259,43 +251,7 @@
     background: #707BFF;
     border-radius: 10px;
   }
-  @media (max-width: 768px) {
-    .profile-card {
-      padding: 20px;
-      flex-direction: column;
-      align-items: center;
-    }
-  
-    .profile-img {
-      width: 120px;
-      height: 120px;
-    }
-  
-    .edit-btn {
-      font-size: 14px;
-      padding: 8px 14px;
-    }
-  }
-  
-  @media (max-width: 600px) {
-    .profile-card {
-      padding: 15px;
-    }
-  
-    .profile-img {
-      width: 100px;
-      height: 100px;
-    }
-  
-    .info-grid {
-      grid-template-columns: 1fr;
-    }
-  
-    .edit-btn {
-      width: 100%;
-      justify-content: center;
-    }
-  }
+ 
   .info-row {
     display: flex;
     justify-content: space-between;
@@ -347,6 +303,107 @@
 
 .image-edit-icon{
   color: black;
+}
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  .profile-card {
+    padding: 15px;
+    margin: 20px auto;
+  }
+
+  .profile-img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .info-row label {
+    margin-bottom: 5px;
+  }
+
+  .info-row p,
+  .info-row input {
+    width: 100%;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .section-title {
+    font-size: 16px;
+  }
+
+  .edit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .profile-card {
+    width: 100%;
+    margin: 10px auto;
+    border-radius: 0;
+  }
+
+  .profile-name {
+    font-size: 18px;
+  }
+
+  .profile-designation,
+  .profile-address {
+    font-size: 12px;
+  }
+
+  .badge-list {
+    gap: 5px;
+  }
+
+  .achievement-item {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .xps-icon {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .icon1 {
+    font-size: 16px;
+  }
+}
+
+/* Scrollbar Styling */
+.profile-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.profile-card::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.profile-card::-webkit-scrollbar-thumb {
+  background: #707BFF;
+  border-radius: 10px;
+}
+
+/* Form Input Focus States */
+.profile-info input:focus {
+  border-color: #707BFF;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(112, 123, 255, 0.2);
 }
   
   

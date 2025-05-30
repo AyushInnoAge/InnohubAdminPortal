@@ -11,7 +11,7 @@ import {
 
 const PostInput = ({ UserProfileImage }) => {
   const { user } = useContext(AuthContext);
-  const { setDashboardData, setLoading, setLastFetchedDate } = useContext(DashboardStatus);
+  const { setDashboardData, setLoading, setLastFetchedDate,  setHasMoreData } = useContext(DashboardStatus);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
   const [postDescription, setPostDescription] = useState("");
@@ -64,13 +64,14 @@ const PostInput = ({ UserProfileImage }) => {
       await UploadPost(formData);
       closeModal();
       setDashboardData([]);
-      const response = await DashboardDataFetch();
+      const res = await DashboardDataFetch();
+      const response = res.message.dashboardData;
       setDashboardData(response);
       let time = response[response.length - 1]?.nominationData
         ? response[response.length - 1]?.nominationData?.verifiedAt
         : response[response.length - 1]?.postData?.created_at;
       setLastFetchedDate(time);
-      
+      response.length > 0? setHasMoreData(true):setHasMoreData(false);
     } catch (error) {
       throw new error.message();
     }finally{
@@ -92,12 +93,14 @@ const PostInput = ({ UserProfileImage }) => {
       await UploadPoll(formDataToSend);
       closePollModal();
       setDashboardData([]);
-      const response = await DashboardDataFetch();
+      const res = await DashboardDataFetch();
+      const response = res.message.dashboardData;
       setDashboardData(response);
       let time = response[response.length - 1]?.nominationData
         ? response[response.length - 1]?.nominationData?.verifiedAt
         : response[response.length - 1]?.postData?.created_at;
       setLastFetchedDate(time);
+      response.length > 0? setHasMoreData(true):setHasMoreData(false);
     } catch (error) {
       throw new error.message();
     }finally{
@@ -106,7 +109,7 @@ const PostInput = ({ UserProfileImage }) => {
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 w-full max-w-lg mx-auto">
+    <div className="bg-white shadow-md rounded-lg p-4 w-full max-w-[40rem] mx-auto">
       <div className="flex items-center space-x-4">
         <button onClick={() => window.open(UserProfileImage, "_blank")}>
           <img
@@ -169,7 +172,7 @@ const PostInput = ({ UserProfileImage }) => {
               <textarea
                 value={postTitle}
                 onChange={(e) => setPostTitle(e.target.value)}
-                placeholder="Title of You Post"
+                placeholder="Title of You Post (option)"
                 className="w-full mt-4 p-2 border rounded-lg resize-none text-black"
               />
 

@@ -12,7 +12,6 @@ const DashboardDataFetch = async (lastFetchedDate) => {
     const url = lastFetchedDate
       ? `apiDashboard/GetAllPostFromServices?lastFetchedDate=${lastFetchedDate}`
       : `apiDashboard/GetAllPostFromServices`;
-    console.log(token);
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}${url}`, {
       headers: {
@@ -20,7 +19,7 @@ const DashboardDataFetch = async (lastFetchedDate) => {
       },
     }
     );
-    return response.data.message;
+    return response.data;
   } catch (error) {
     throw new error.message();
   }

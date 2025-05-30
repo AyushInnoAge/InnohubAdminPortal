@@ -8,16 +8,24 @@ import { AuthContext } from "@/context/AuthContext";
 import { loginUser } from "@/_api_/loginapi";
 
 export default function LoginPage() {
-  const { login } = useContext(AuthContext); // Ensure AuthContext is defined
+  const { login, user } = useContext(AuthContext); // Ensure AuthContext is defined
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState(""); // Added this
   const formRef = useRef(null);
-const [loginButtonDisable, setLoginButtonDisable] = useState(false);
-  
+  const [loginButtonDisable, setLoginButtonDisable] = useState(false);
+  const [displayValue, setDisplayValue] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+      return;
+    }
+    setDisplayValue(true);
+  }, [user])
 
   // Hide message after 2 seconds
   useEffect(() => {
@@ -60,30 +68,31 @@ const [loginButtonDisable, setLoginButtonDisable] = useState(false);
     try {
       const data = await loginUser(email, password); // Call API from separate folder
 
-      if (data.statusCode === 200 && data.message?.token) {
+      if (data.statusCode === 200 && !data.message.isVerified && !data.isError) {
+        router.push(`/ResetPasswordEmail?email=${encodeURIComponent(email)}`);
+        return;
+      } else if (data.statusCode === 200 && data.message.isVerified && data.message?.token && !data.isError) {
         const token = data.message.token;
         const userdata = data.message.user;
-
-        localStorage.setItem("token", token); // Store token in localStorage
         login(userdata);
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1500);
+        localStorage.setItem("token", token);
+        router.push("/dashboard");
+        return;
       } else {
-        setError("Invalid email or password");
+        setError(data.message || "Try again later!");
       }
     } catch (error) {
       setError(error.message || "Something went wrong");
-    }finally{
+    } finally {
       setLoginButtonDisable(false);
     }
   };
 
   return (
     <div className={styles.container}>
-      <div className={styles.card}>
+      {displayValue ? <div className={styles.card}>
         <img src="/logo.svg" alt="Innoage Logo" className={styles.logo} />
-        <h2 className={styles.title}>Welcome To Inno Age</h2>
+        <h2 className={styles.title}>Welcome To InnoAge</h2>
         <p className={styles.subtitle}>Sign in to your account</p>
 
         {error && <p className={styles.error}>{error}</p>}
@@ -123,10 +132,9 @@ const [loginButtonDisable, setLoginButtonDisable] = useState(false);
 
           <button
             type="submit"
-            className={`${styles.button} ${
-              (!(email && password && password.length >= 6)) || loginButtonDisable ? styles.disabledButton : ""
-            }`}
-            disabled={(!(email && password && password.length >= 6))|| loginButtonDisable}
+            className={`${styles.button} ${(!(email && password && password.length >= 6)) || loginButtonDisable ? styles.disabledButton : ""
+              }`}
+            disabled={(!(email && password && password.length >= 6)) || loginButtonDisable}
           >
             Login
           </button>
@@ -138,7 +146,7 @@ const [loginButtonDisable, setLoginButtonDisable] = useState(false);
             Forgot Password
           </Link>
         </p>
-      </div>
+      </div> : null}
     </div>
   );
 }

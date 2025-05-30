@@ -51,14 +51,14 @@ export const fetchEmployees = async (userRole, selectedRole, employeeId) => {
         throw new Error("No valid data available");
       }
   
-      return data; // Return the fetched and filtered data
+      return data; 
     } catch (error) {
       console.error("Error fetching employees:", error);
       throw error;
     }
   };
 
-// Add fetchManagers
+
 export const fetchManagers = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -96,14 +96,14 @@ export const submitNomination = async (selectedEmployee, selectedManagers, selec
       let UserId;
       if (userRole === "HR") {
         if (selectedRole === "Star of the month" || selectedRole === "Best Team Leader (yearly)" || selectedRole === "Best Team Leader (Half yearly)") {
-          UserId = selectedEmployee.userId; // Use `userId` for "Star Of The Month" and "Best Team Leader"
+          UserId = selectedEmployee.userId; 
         } else if (selectedRole === "Best Team (yearly)" || selectedRole === "Best Team (Half yearly)") {
-          UserId = selectedEmployee.id; // Use `teamId` for "Best Team"
+          UserId = selectedEmployee.id;
         } else {
-          UserId = selectedEmployee.id; // Default to `id`
+          UserId = selectedEmployee.id;
         }
       } else {
-        UserId = selectedEmployee.id; // Default for non-HR users
+        UserId = selectedEmployee.id;
       }
   
       const obj = {
@@ -132,7 +132,7 @@ export const submitNomination = async (selectedEmployee, selectedManagers, selec
   
       if (!response.ok) throw new Error("Failed to submit nomination");
   
-      return result.message; // Return the success message
+      return result.message;
     } catch (error) {
       console.error("Error submitting nomination:", error);
       throw error;

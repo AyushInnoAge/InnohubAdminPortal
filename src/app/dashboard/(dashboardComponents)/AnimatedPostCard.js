@@ -23,6 +23,19 @@ const AnimatedPostCard = ({
   const [commentValue, setCommentValue] = useState("");
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [expandedTitle, setExpandedTitle] = useState(false);
+
+
+  const words = PostDescription?.split(" ");
+  const shouldTruncate = words?.length > 20;
+  const displayedText = expanded
+    ? PostDescription
+    : words?.slice(0, 20).join(" ") + (shouldTruncate ? "..." : "");
+
+  const wordTitle = PostTitle?.split(" ");
+  const shouldTruncateTitle= wordTitle?.length > 10;
+  const displayedTextTitle= expandedTitle?PostTitle:wordTitle?.slice(0,10).join(" ")+(shouldTruncateTitle? "...":"");
 
   const timing = new Date(Postcreated_At);
   const time = `${timing.getDate()}-${
@@ -31,7 +44,7 @@ const AnimatedPostCard = ({
 
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); 
+      setLikeButtonDisable(Like.some((like) => like.userId == user.id));
     }
   }, []);
 
@@ -43,19 +56,17 @@ const AnimatedPostCard = ({
     setHoverDirection({ x, y });
   };
 
- 
   const setLikeSubmit = async () => {
     try {
       setLikeButtonDisable(true);
       const likedData = { postId: PostId, userId: user.id };
       await LikeSubmite(likedData);
-      setLike((prev = []) => [...prev, user.id]); 
+      setLike((prev = []) => [...prev, user.id]);
     } catch (error) {
       console.error(error);
     }
   };
 
- 
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
@@ -73,7 +84,7 @@ const AnimatedPostCard = ({
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 w-full max-w-lg mx-auto shadow-md">
+    <div className="bg-white shadow-md rounded-lg p-4 w-full max-w-[40rem] mx-auto">
       <motion.div
         className="relative w-full bg-white rounded-lg overflow-hidden cursor-pointer p-4 sm:p-6"
         onMouseMove={handleMouseMove}
@@ -89,7 +100,7 @@ const AnimatedPostCard = ({
                 "_blank"
               )
             }
-            className="focus:outline-none"
+            className="focus:outline-none h-auto"
             aria-label={`Visit ${""}'s profile`}
           >
             <img
@@ -103,10 +114,10 @@ const AnimatedPostCard = ({
             />
           </button>
           <div className="flex flex-col">
-            <span className="text-gray-800 font-semibold text-base sm:text-lg">
+            <span className="text-gray-800 font-semibold text-xl sm:text-lg">
               {PostUser}
             </span>
-            <span className="text-gray-500 text-sm sm:text-xs">{time}</span>
+            <span className="text-gray-500 text-lg sm:text-xs">{time}</span>
           </div>
         </div>
 
@@ -122,12 +133,35 @@ const AnimatedPostCard = ({
         )}
 
         <div className="p-4 sm:p-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-black">
-            {PostTitle}
-          </h2>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base">
-            {PostDescription}
-          </p>
+          {PostTitle && (
+            <h2 className="text-xl font-semibold text-black mb-2">
+              {displayedTextTitle}
+              {shouldTruncateTitle && (
+                <motion.button
+                whileTap={{ scale: 0.9 }}
+                className="text-blue-400  "
+                onClick={() => setExpandedTitle(!expandedTitle)}
+              >
+                {expandedTitle ? "View Less" : "View More"}
+              </motion.button>
+              )}
+            </h2>
+          )}
+
+          {PostDescription && (
+            <p className="text-black text-base mt-2 font-medium">
+              {displayedText}
+              {shouldTruncate && (
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  className="text-blue-400  "
+                  onClick={() => setExpanded(!expanded)}
+                >
+                  {expanded ? "View Less" : "View More"}
+                </motion.button>
+              )}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-4">
@@ -139,7 +173,7 @@ const AnimatedPostCard = ({
             disabled={likeButtonDisable}
             onClick={setLikeSubmit}
           >
-            <ThumbsUp size={24} />
+            <ThumbsUp size={30} />
             <span>Like {Like.length}</span>
           </button>
           <button
@@ -147,7 +181,7 @@ const AnimatedPostCard = ({
             aria-label="Comment on post"
             onClick={() => setComments(!comments)}
           >
-            <MessageCircle size={24} />
+            <MessageCircle size={30} />
             <span>Comment</span>
           </button>
         </div>

@@ -10,10 +10,13 @@ const AppreciationCard = ({
   PostLike,
   PostComment,
   PostType,
-  PostDescription,
-  Postcreated_At,
-  NominatedUser,
-  NominatedBy
+  PostDescription = null,
+  Postcreated_At = null,
+  NominatedUser = null,
+  NominatedBy = null,
+  PostShoutoutCatagory = null,
+  PostImage = null,
+  PostTitle = null,
 }) => {
   const { user } = useContext(AuthContext);
   const badge = PostType;
@@ -22,6 +25,7 @@ const AppreciationCard = ({
   const [commentValue, setCommentValue] = useState("");
   const [comment, setComment] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const [PostImageUrl, setPostImageUrl] = useState("");
 
@@ -30,33 +34,30 @@ const AppreciationCard = ({
     timing.getMonth() + 1
   }-${timing.getFullYear()}`;
 
+  const words = PostDescription?.split(" ");
+  const shouldTruncate = words?.length > 20;
+  const displayedText = expanded
+    ? PostDescription
+    : words?.slice(0, 20).join(" ") + (shouldTruncate ? "..." : "");
+
   //set image
   useEffect(() => {
-    if (PostType == "Star of the month") {
+    if (PostType == "Shoutout") {
       setPostImageUrl(
-        "https://res.cloudinary.com/de4oinuvo/image/upload/v1742135213/InnoAge/wakumrf9xf3rwqd67lpq.jpg"
-      );
-    } else if (PostType == "Best team") {
-      setPostImageUrl(
-        "https://res.cloudinary.com/de4oinuvo/image/upload/v1742135544/InnoAge/fmclsh5h3ozirgue2pe1.jpg"
-      );
-    } else if (PostType == "Best leader") {
-      setPostImageUrl(
-        "https://res.cloudinary.com/de4oinuvo/image/upload/v1742136549/InnoAge/r6yjgbno5enhhngduq3a.webp"
+        "https://res.cloudinary.com/dnx8ycr6n/image/upload/v1744260852/uploads/ConstntImage/Shoutout.png"
       );
     } else {
       setPostImageUrl(
-        "https://res.cloudinary.com/de4oinuvo/image/upload/v1742137065/InnoAge/elariszsyxugq2ns8ymn.webp"
+        "https://res.cloudinary.com/dnx8ycr6n/image/upload/v1745083519/uploads/ConstntImage/NewJoining.png"
       );
     }
   }, [PostType]);
 
- 
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); 
+      setLikeButtonDisable(Like.some((like) => like.userId == user.id));
     }
-  }, []); 
+  }, []);
 
   // Submit Like Button
   const setLikeSubmit = async () => {
@@ -64,24 +65,21 @@ const AppreciationCard = ({
       setLikeButtonDisable(true);
       const likedData = { postId: PostId, userId: user.id };
 
-      
       await LikeSubmite(likedData);
 
-      setLike((prev=[]) => [...prev, user.id]); 
+      setLike((prev = []) => [...prev, user.id]);
     } catch (error) {
       console.error(error);
     }
   };
 
- 
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
-
       const commentData = {
         postId: PostId,
         commentMessage: commentValue,
-        userName: user.name,   
+        userName: user.name,
       };
 
       await CommentAdd(commentData);
@@ -94,7 +92,7 @@ const AppreciationCard = ({
 
   return (
     <motion.div
-      className="bg-white rounded-lg p-6 w-full max-w-lg mx-auto shadow-lg border border-gray-300"
+      className="bg-white rounded-lg p-6 w-full max-w-[40rem] mx-auto shadow-lg border border-gray-300"
       whileHover={{ scale: 1.05 }}
       transition={{ type: "spring", stiffness: 160, damping: 10 }}
     >
@@ -113,7 +111,7 @@ const AppreciationCard = ({
 
       {PostImageUrl && (
         <motion.img
-          src={PostImageUrl}
+          src={PostImage != null ? PostImage : PostImageUrl}
           alt="img"
           className="w-full h-auto object-cover rounded-md shadow-md"
           initial={{ scale: 1 }}
@@ -122,9 +120,47 @@ const AppreciationCard = ({
         />
       )}
 
+      {PostType === "Shoutout" ? (
+        <p className="text-blue-600 text-center text-Xl font-extrabold mt-2">
+          {PostShoutoutCatagory}
+        </p>
+      ) : null}
+
+      {PostType === "New Joining" ? (
+        <p className="text-black text-xl justify-center text-center font-extrabold mt-2">
+          {PostTitle}
+        </p>
+      ) : null}
       <div className="p-4">
-        <h2 className="text-2xl font-bold text-gray-900">{`${PostType} goes to ${NominatedUser}, present by ${NominatedBy}`}</h2>
-        <p className="text-gray-700 mt-2 text-base">{PostDescription}</p>
+        {PostDescription != null ? (
+          <h2
+            className={
+              PostType != "New Joining"
+                ? "text-base text-black"
+                : "text-xl font-medium text-black"
+            }
+          >
+            {displayedText}{" "}
+            {shouldTruncate && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                className="text-blue-400  "
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? "View Less" : "View More"}
+              </motion.button>
+            )}
+          </h2>
+        ) : null}
+        {PostType != "New Joining" ? (
+          <p
+            className={
+              PostType == "Shoutout"
+                ? "text-black text-base font-extrabold mt-2"
+                : "text-black text-xl font-extrabold mt-2"
+            }
+          >{`${PostType} goes to ${NominatedUser} present by ${NominatedBy}`}</p>
+        ) : null}
       </div>
 
       <div className="flex items-center justify-between mt-4">
@@ -135,14 +171,14 @@ const AppreciationCard = ({
           disabled={likeButtonDisable}
           onClick={setLikeSubmit}
         >
-          <ThumbsUp size={24} />
+          <ThumbsUp size={30} />
           <span>Like {Like.length}</span>
         </button>
         <button
           className="flex items-center space-x-2 text-gray-500"
           onClick={() => setComment(!comment)}
         >
-          <MessageCircle size={24} />
+          <MessageCircle size={30} />
           <span>Comment</span>
         </button>
       </div>

@@ -1,10 +1,8 @@
 "use client";
 import { useContext, useState, useEffect } from "react";
-import Image from "next/image";
 import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
 import { RiCoinsFill } from "react-icons/ri";
-import { jwtDecode } from "jwt-decode";
 import "./profilepage.css";
 import Navbar from "../navbar/page";
 import { toast } from "react-toastify";
@@ -13,33 +11,50 @@ import { ToastContainer } from "react-toastify";
 import { AuthContext } from "@/context/AuthContext";
 import { updateUserProfile } from "@/_api_/profilepage";
 
-
-
 export default function ProfilePage() {
-  const { user,login } = useContext(AuthContext);
-
-
+  const { user, login } = useContext(AuthContext);
   const [badges, setBadges] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [image, setImage] = useState(user?.image)
   const [email, setEmail] = useState(user?.email)
   const [phoneNo, setPhoneNo] = useState(user?.phoneNo)
   const [address, setAddress] = useState(user?.address)
+  const starOfTheMonthCount = user?.achievements
+  .split(",")
+  .filter(a => a.trim().startsWith("Star of the month"))
+  .length;
+
+const shoutoutCount = user?.achievements
+  .split(",")
+  .filter(a => a.trim().startsWith("Shoutout"))
+  .length;
+
+const starOfTheMonthDates = (user?.achievements
+  ?.split(",")
+  .filter(a => a.trim().startsWith("Star of the month"))
+  .map(a => {
+    const datePart = a.split(" - ")[2]; // Take the date part
+    const date = new Date(datePart?.trim());
+    return isNaN(date.getTime()) ? null : date.toLocaleString("default", { month: "long", year: "numeric" });
+  })
+  .filter(month => month !== null)) || []; // Filter out invalid months
+
+const achievementsCount = starOfTheMonthDates?.length || 0;
+const achievementsMonths = [...new Set(starOfTheMonthDates)].join(", ");
+
+// Generate badges based on counts
+useEffect(() => {
+  const badgeData = [];
+  if (starOfTheMonthCount > 0) {
+    badgeData.push({ name: `${starOfTheMonthCount} Star${starOfTheMonthCount > 1 ? "s" : ""} of the Month`, color: "badge-red" });
+  }
+  if (shoutoutCount > 0) {
+    badgeData.push({ name: `${shoutoutCount} Shoutout${shoutoutCount > 1 ? "s" : ""}`, color: "badge-yellow" });
+  }
+  setBadges(badgeData);
+}, [starOfTheMonthCount, shoutoutCount]);
 
 
-
-
-  useEffect(() => {
-    const badgeData = [
-      { name: "Top Performer", color: "badge-yellow" },
-      { name: "5+ Years", color: "badge-gray" },
-      { name: "Team Player", color: "badge-blue" },
-      { name: "Customer Favorite", color: "badge-green" },
-      { name: "Innovator", color: "badge-red" },
-      { name: "Outstanding Contributor", color: "badge-purple" },
-    ];
-    setBadges(badgeData);
-  }, []);
   const handleEditClick = () => {
     if (!editMode) {
       setEmail(user?.email || "");
@@ -52,13 +67,15 @@ export default function ProfilePage() {
     setEditMode(!editMode);
   };
 
-
   const handleSubmit = async () => {
     if (editMode) {
       // Save Mode: Call API to update profile
       try {
         const res = await updateUserProfile(user.employeeId, email, phoneNo, address, image);
-        if (res.status == 200) {
+
+     
+        if (res.statusCode == 200) {
+          const updateImage=  res.result?.imageUrl;
           toast.success("User Profile updated successfully!");
           const newUser = {
             address: address,
@@ -82,8 +99,8 @@ export default function ProfilePage() {
               :
               user.id,
             image
-              :
-              image,
+              :image
+              ,
             name
               :
               user.name,
@@ -102,7 +119,11 @@ export default function ProfilePage() {
             userRole
               :
               user.userRole,
+            achievements: user.achievements
 
+          }
+          if(updateImage){
+            newUser.image=updateImage;
           }
           localStorage.removeItem("user");
           login(newUser);
@@ -134,7 +155,11 @@ export default function ProfilePage() {
 
             <div className="profile-img-wrapper">
               <img
-                src={user?.image}
+                src={
+                  user?.image.length > 0
+                    ? user.image
+                    : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`
+                }
                 alt="Profile"
                 width={160}
                 height={160}
@@ -148,10 +173,10 @@ export default function ProfilePage() {
               )}
             </div>
             <h2 className="profile-name">{user?.name}</h2>
-            <p className="profile-role">{user?.userRole}</p>
+            {/* <p className="profile-role">{user?.userRole}</p> */}
             <p className="profile-designation">{user?.designation}</p>
             <p className="profile-designation">{user?.department}</p>
-            <p className="profile-address">{user?.address}</p>
+            {/* <p className="profile-address">{user?.address}</p> */}
             <div className="badges">
               <h3 className="badge-title">Badges Earned</h3>
               <div className="badge-list">
@@ -161,6 +186,7 @@ export default function ProfilePage() {
                   </span>
                 ))}
               </div>
+
             </div>
           </div>
           <div className="profile-right">
@@ -226,11 +252,18 @@ export default function ProfilePage() {
               </button>
             </div>
             <div className="achievements">
-              <h3 className="section-title">Achievements</h3>
+              <h3 className="section-title">Achievements in Last 6 Months</h3>
               <ul className="achievements-list">
-                <li className="achievement-item">🏆 Employee of the Month - January 2024</li>
-                <li className="achievement-item">✅ Completed 100+ projects successfully</li>
-                <li className="achievement-item">🔥 Top performer in Q3 2023</li>
+                {shoutoutCount > 0 && (
+                  <li className="achievement-item">
+                    🎤 Received {shoutoutCount} {shoutoutCount > 1 ? "Shoutouts" : "Shoutout"}
+                  </li>
+                )}
+                {achievementsCount > 0 && (
+                  <li className="achievement-item">
+                    🌟 Won {achievementsCount} {achievementsCount > 1 ? "Stars of the Month" : "Star of the Month"} in {achievementsMonths}
+                  </li>
+                )}
               </ul>
             </div>
           </div>

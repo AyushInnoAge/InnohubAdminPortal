@@ -1,77 +1,72 @@
 import { motion } from "framer-motion";
-import { useState, useEffect, useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ThumbsUp, MessageCircle } from "lucide-react";
-import CommentBox from "./CommentSection";
+import CommentBox from "@/app/dashboard/(dashboardComponents)/CommentSection";
+import { LikeSubmite, CommentAdd } from "@/_api_/dashboard";
 import { AuthContext } from "@/context/AuthContext";
-import { CommentAdd, LikeSubmite } from "@/_api_/dashboard";
-const balloonVariants = {
-  initial: { y: 300, opacity: 0 },
-  animate: {
-    y: -300,
-    opacity: 1,
-    transition: {
-      duration: 3,
-      ease: "easeOut",
-      repeat: Infinity,
-      repeatType: "mirror",
-    },
-  },
-};
-
-const sparkVariants = {
-  initial: { opacity: 0, scale: 0.5 },
-  animate: {
-    opacity: [0, 1, 0],
-    scale: [0.5, 1.5, 0.5],
-    transition: { duration: 1.5, repeat: Infinity },
-  },
-};
-
-const FestivalCard = ({
+const CompanyEvent = ({
   PostId,
-  PostUser,
   PostImageUrl,
   PostLike,
   PostComment,
-  PostType,
   PostTitle,
   PostDescription,
   Postcreated_At,
 }) => {
   const { user } = useContext(AuthContext);
-  const [Like, setLike] = useState(PostLike?.[0]?.likes || []);
-  const [commentValue, setCommentValue] = useState("");
+  const [hoverDirection, setHoverDirection] = useState({ x: 0, y: 0 });
+  const [Like, setLike] = useState(PostLike);
   const [commentsDisplay, setCommentsDisplay] = useState(PostComment);
+  const [commentValue, setCommentValue] = useState("");
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
-  // Check if the user has already liked the post
+  const words = PostDescription?.split(" ");
+  const shouldTruncate = words?.length > 20;
+  const displayedText = expanded
+    ? PostDescription
+    : words?.slice(0, 20).join(" ") + (shouldTruncate ? "..." : "");
+
+  const timing = new Date(Postcreated_At);
+  const time = `${timing.getDate()}-${
+    timing.getMonth() + 1
+  }-${timing.getFullYear()}`;
+
   useEffect(() => {
     if (Like.length !== 0) {
-      setLikeButtonDisable(Like.some((like) => like.userId == PostId));
+      setLikeButtonDisable(Like.some((like) => like.userId == user.id)); 
     }
-  }, []); //userId Add akrna Hai  ❎
+  }, []);
 
-  // Submit Like Button
+  const handleMouseMove = (e) => {
+    const { left, top, width, height } =
+      e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - left - width / 2) / (width / 2);
+    const y = (e.clientY - top - height / 2) / (height / 2);
+    setHoverDirection({ x, y });
+  };
+
+ 
   const setLikeSubmit = async () => {
     try {
       setLikeButtonDisable(true);
-      const likedData = { postId: PostId, userId: user.id }; //userId Add akrna Hai  ❎
+      const likedData = { postId: PostId, userId: user.id };
       await LikeSubmite(likedData);
-      setLike((prev) => [...prev, user.id]); // userId provide karna ho ga   ❎
+      setLike((prev = []) => [...prev, user.id]); 
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Submit Comment Button
+ 
   const setCommentSubmit = async () => {
     if (!commentValue.trim()) return;
     try {
       const commentData = {
         postId: PostId,
         commentMessage: commentValue,
-        userName: user.name, //Add User Name ❎
+        userName: user?.name,
       };
       setCommentsDisplay((prev = []) => [commentData, ...prev]);
       await CommentAdd(commentData);
@@ -82,80 +77,87 @@ const FestivalCard = ({
   };
 
   return (
-    <div className="relative bg-white rounded-lg p-4 w-full max-w-lg mx-auto shadow-md overflow-hidden">
+    <div className="bg-white rounded-lg p-4 w-full max-w-[40rem] mx-auto shadow-md">
       <motion.div
-        className="absolute top-0 left-10"
-        variants={balloonVariants}
-        initial="initial"
-        animate="animate"
+        className="relative w-full bg-white rounded-lg overflow-hidden cursor-pointer p-4 sm:p-6"
+        onMouseMove={handleMouseMove}
+        whileHover={{ scale: 1.03 }}
+        transition={{ type: "spring", stiffness: 180, damping: 12 }}
       >
-        {/* {festivalIcon} */}
-      </motion.div>
-      <motion.div
-        className="absolute top-0 right-10"
-        variants={balloonVariants}
-        initial="initial"
-        animate="animate"
-      >
-        {/* {festivalIcon} */}
-      </motion.div>
-      <motion.div
-        className="absolute bottom-5 left-1/2 transform -translate-x-1/2 text-yellow-400"
-        variants={sparkVariants}
-        initial="initial"
-        animate="animate"
-      >
-        ✨
-      </motion.div>
 
-      {PostImageUrl && (
-        <img src={PostImageUrl} alt="Post" className="w-full rounded-md" />
-      )}
-      <h2 className="text-xl font-bold mt-2 text-black">{PostTitle}</h2>
-      <p className="text-black">{PostDescription}</p>
+        {PostImageUrl && (
+          <motion.img
+            src={PostImageUrl}
+            alt="img"
+            className="w-full h-auto object-cover rounded-md"
+            initial={{ scale: 1 }}
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 150, damping: 10 }}
+          />
+        )}
 
-      <div className="flex items-center justify-between mt-4">
-        <button
-          className={`flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors ${
-            likeButtonDisable && "cursor-not-allowed opacity-50"
-          }`}
-          disabled={likeButtonDisable}
-          onClick={setLikeSubmit}
-        >
-          <ThumbsUp size={24} />
-          <span>Like {Like.length}</span>
-        </button>
-        <button
-          className="flex items-center space-x-2 text-gray-500"
-          onClick={() => setComments(!comments)}
-        >
-          <MessageCircle size={24} />
-          <span>Comment</span>
-        </button>
-      </div>
-
-      {comments && (
-        <div className="p-4 bg-white shadow-md">
-          <div className="flex items-center border rounded-md overflow-hidden">
-            <input
-              type="text"
-              value={commentValue}
-              onChange={(e) => setCommentValue(e.target.value)}
-              className="w-full p-2 outline-none text-black"
-              placeholder="Write a comment..."
-            />
-            <button
-              className="bg-blue-500 text-white px-3 py-2 text-sm hover:bg-blue-600 transition"
-              onClick={setCommentSubmit}
-            >
-              Submit
-            </button>
-          </div>
-          <CommentBox comments={commentsDisplay} />
+        <div className="p-4 sm:p-6">
+          <h2 className="text-xl font-semibold text-black mb-2">
+            {PostTitle}
+          </h2>
+          <p className="text-black text-base mt-2 font-medium">
+          {displayedText}{shouldTruncate && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                className="text-blue-400  "
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? "View Less" : "View More"}
+              </motion.button>
+            )}
+          </p>
         </div>
-      )}
+
+        <div className="flex items-center justify-between mt-4">
+          <button
+            className={`flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors ${
+              likeButtonDisable && "cursor-not-allowed opacity-50"
+            }`}
+            aria-label="Like post"
+            disabled={likeButtonDisable}
+            onClick={setLikeSubmit}
+          >
+            <ThumbsUp size={30} />
+            <span>Like {Like.length}</span>
+          </button>
+          <button
+            className="flex items-center space-x-2 text-gray-500 hover:text-gray-700 transition-colors"
+            aria-label="Comment on post"
+            onClick={() => setComments(!comments)}
+          >
+            <MessageCircle size={30} />
+            <span>Comment</span>
+          </button>
+        </div>
+
+        {comments && (
+          <div className="p-4 bg-white shadow-md">
+            <div className="flex items-center border rounded-md overflow-hidden">
+              <input
+                type="text"
+                value={commentValue}
+                onChange={(e) => setCommentValue(e.target.value)}
+                className="w-full p-2 outline-none text-black"
+                placeholder="Write a comment..."
+              />
+              <button
+                className="bg-blue-500 text-white px-3 py-2 text-sm hover:bg-blue-600 transition"
+                onClick={setCommentSubmit}
+              >
+                Submit
+              </button>
+            </div>
+            <CommentBox comments={commentsDisplay} />
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 };
 
-export default FestivalCard;
+export default CompanyEvent;

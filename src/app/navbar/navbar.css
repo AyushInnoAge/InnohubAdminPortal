@@ -7,7 +7,7 @@
   top: 0;
   left: 0;
   width: 100%;
-
+ 
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -15,25 +15,28 @@
   z-index: 1000;
   border-radius: 10px;
 }
-
+ 
 /* Navbar Container */
 .navbar-container {
   display: flex;
   width: 100%;
   align-items: center;
+  justify-content: space-between;
+  /* Add space for menu button */
+  z-index: 2;
 }
-
+ 
 /* Logo */
 .logo-container {
   display: flex;
   align-items: center;
 }
-
+ 
 .logo {
   width: 42px;
   height: 42px;
 }
-
+ 
 .brand-name {
   background: linear-gradient(135deg, #707bff, #d65dff);
   -webkit-background-clip: text;
@@ -42,14 +45,15 @@
   font-size: 24px;
   margin-left: 10px;
 }
-
+ 
 /* Centering Navigation Links */
 .nav-links {
   display: flex;
   gap: 25px;
-  margin: 0 auto; /* Centering */
+  margin: 0 auto;
+  align-items: center; /* Centering */
 }
-
+ 
 /* Nav Link with Hover Underline */
 .nav-link {
   position: relative;
@@ -61,7 +65,7 @@
   border-radius: 6px;
   transition: all 0.3s ease-in-out;
 }
-
+ 
 .nav-link::after {
   content: "";
   position: absolute;
@@ -74,19 +78,20 @@
     #707bff,
     #d65dff
   ); /* Change this to your preferred underline color */
-  transition: all 0.3s ease-in-out;
+;
   transform: translateX(-50%);
 }
-
-.nav-link:hover::after {
+ 
+.nav-link:hover::after,
+.nav-link.active::after {
   width: 100%;
 }
-
+ 
 /* Dropdown Menu */
 .nav-item {
   position: relative;
 }
-
+ 
 .dropdown-btn {
   background: none;
   border: none;
@@ -98,7 +103,7 @@
   transition: all 0.3s ease-in-out;
   color: black;
 }
-
+ 
 .dropdown-content {
   position: absolute;
   top: 120%; /* Lowered dropdown */
@@ -113,7 +118,7 @@
   transition: opacity 0.3s ease-in-out;
   z-index: 1000;
 }
-
+ 
 .dropdown-item {
   padding: 12px;
   color: #333;
@@ -123,29 +128,30 @@
   transition: background 0.3s;
   display: block;
 }
-
+ 
 .dropdown-item:hover {
   background: #f1f1f1;
 }
-
+ 
 /* Right Side Container (Profile & Cart) */
 .right-container {
   display: flex;
   align-items: center;
-  margin-left: auto; /* Push to the right */
+  /* margin-left: auto; Push to the right */
   gap: 20px;
+  z-index: 2; /* Ensure it stays above other elements */
 }
-
+ 
 /* Cart */
 .cart {
   font-size: 20px;
 }
-
+ 
 /* Profile Button */
 .profile-container {
-  position: sticky
+  position: relative
 }
-
+ 
 .profile-btn {
   display: flex;
   align-items: center;
@@ -157,11 +163,11 @@
   transition: all 0.3s ease-in-out;
   color: white;
 }
-
+ 
 .profile-btn:hover {
   background: #612883;
 }
-
+ 
 .profile-pic {
   width: 34px;
   height: 34px;
@@ -169,8 +175,13 @@
   border: 1px solid white;
   object-fit: cover;
   margin-right: 5px;
+  image-rendering: -webkit-optimize-contrast; /* Improve sharpness on Chrome */
+  image-rendering: crisp-edges; /* Improve sharpness on Firefox */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
 }
-
+ 
 /* Profile Dropdown */
 .profile-dropdown {
   position: absolute;
@@ -186,7 +197,7 @@
   transition: opacity 0.3s ease-in-out;
   z-index: 1000;
 }
-
+ 
 .profile-dropdown-item {
   padding: 10px 15px;
   color: #333;
@@ -197,13 +208,32 @@
   display: block;
   cursor: pointer;
 }
-
+ 
 .profile-dropdown-item:hover {
   background: #f1f1f1;
 }
+@media (max-width: 767px) {
+  .brand-name{
+    display: none;
+  }
+  .profile-text{
+    display: none;
+  }
+}
 
+ 
 /* Mobile Responsive Styles */
-@media (max-width: 768px) {
+@media (max-width: 932px) {
+  .navbar-container {
+    position: relative;
+    /* Change from space-between to flex-start */
+    display: flex;
+    justify-content: space-between; /* Keep space-between */
+    align-items: center;
+    padding: 0 10px;
+   
+  }
+
   .nav-links {
     display: none;
     flex-direction: column;
@@ -215,26 +245,48 @@
     padding: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }
-
+ 
   .nav-links.mobile-show {
     display: flex;
   }
-
+  .logo-container {
+    order: 2; /* Control the order of elements */
+    flex-shrink: 0; /* Prevent logo from shrinking */
+    margin-right: auto;
+  }
+  .right-container {
+    position: relative;
+    z-index: 2; /* Ensure it stays above other elements */
+  }
+ 
   .menu-btn {
     display: block;
     background: none;
     border: none;
     font-size: 24px;
     cursor: pointer;
+    order: 1; /* Control the order of elements */
+    margin-right: 10px
   }
-
+  .profile-dropdown {
+    right: 0; /* Ensure it stays aligned to the right */
+    position: absolute;
+  }
+ 
   .right-container {
-    margin-left: 0;
+    order: 3; /* Control the order of elements */
+    flex-shrink: 0; /* Prevent profile from shrinking */
+    position: relative;
+    z-index: 2;
+  }
+  .brand-name {
+    white-space: nowrap;
+    margin-left: 8px;
   }
 }
-
+ 
 /* Desktop: Hide Mobile Menu Button */
-@media (min-width: 769px) {
+@media (min-width: 932px) {
   .menu-btn {
     display: none;
   }
@@ -246,16 +298,16 @@
   align-items: center;
   justify-content: center;
 }
-
+ 
 .nav-link2 {
   position: relative;
-  font-size: 24px;
+  font-size: 24px;  
   color: black;
   text-decoration: none;
   display: flex;
   align-items: center;
 }
-
+ 
 /* Notification Badge */
 .notification-badge {
   position: absolute;
@@ -279,12 +331,12 @@
   align-items: center;
   justify-content: center;
 }
-
+ 
 /* Animation for badge */
 .notification-badge {
   animation: pop 0.3s ease-in-out;
 }
-
+ 
 @keyframes pop {
   0% {
     transform: scale(0.8);
@@ -295,14 +347,14 @@
     opacity: 1;
   }
 }
-
+ 
 .lower-dropdown {
   margin-top: 20px; /* Adjust as needed */
 }
 .menu-btn {
   color: black;
 }
-
+ 
 /* Sidebar Styles */
 /* Hide sidebar by default */
 /* Sidebar Styling */
@@ -322,7 +374,7 @@
   padding-top: 15px;
   transition: transform 0.3s ease-in-out;
 }
-
+ 
 /* Sidebar Header (Logo and Brand) */
 .sidebar-header {
   display: flex;
@@ -331,21 +383,21 @@
   padding: 15px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-
+ 
 .sidebar-header img {
   width: 60px; /* Adjust logo width */
   height: auto;
 }
-
+ 
 /* Sidebar Menu - Scrollable */
 .sidebar-menu {
   flex-grow: 1;
   overflow-y: auto;
   padding-top: 10px;
 }
-
+ 
 /* Sidebar Links */
-
+ 
 .sidebar-link {
   display: flex;
   align-items: center;
@@ -355,23 +407,23 @@
   text-decoration: none;
   font-size: 16px;
   cursor: pointer;
-
+ 
   transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
 }
-
+ 
 .sidebar-link:hover {
   background: linear-gradient(90deg, #707bff, #d65dff); /* Gradient effect */
   color: white;
   border-radius: 5px;
   padding-left: 25px; /* Slight movement on hover */
 }
-
+ 
 /* Sidebar Icons */
 .sidebar-link svg {
   margin-right: 10px;
   font-size: 18px;
 }
-
+ 
 /* Sidebar Section Headers */
 .sidebar-section {
   font-size: 12px;

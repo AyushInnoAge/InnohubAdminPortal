@@ -37,6 +37,7 @@ const BirthdayCard = ({
   PostTitle,
   PostDescription,
   Postcreated_At,
+  PostUserDetailed
 }) => {
   const { user } = useContext(AuthContext);
   const [Like, setLike] = useState(PostLike);
@@ -44,7 +45,13 @@ const BirthdayCard = ({
   const [commentValue, setCommentValue] = useState("");
   const [comments, setComments] = useState(false);
   const [likeButtonDisable, setLikeButtonDisable] = useState(false);
+  const {userDOJ, userName} = PostUserDetailed;
+  const [birthdayImage, setBirthdayImage] = useState("https://res.cloudinary.com/dnx8ycr6n/image/upload/v1744284255/uploads/ConstntImage/HappyBirthday.png");
+  const [anniversaryImage, setAnniversaryImage] = useState("https://res.cloudinary.com/dnx8ycr6n/image/upload/v1744261082/uploads/ConstntImage/WorkAnnirversary.png");
 
+  const getYearGap = (date) => new Date().getFullYear() - new Date(date).getFullYear();
+  const Time =getYearGap(userDOJ);
+  const [grammer, setGrammer]=useState(["st", "nd", "rd", "th", "th", "th", "th", "th", "th" , "th"]); //temp
   useEffect(() => {
     if (Like.length !== 0) {
       setLikeButtonDisable(Like.some((like) => like.userId == user.id)); 
@@ -82,7 +89,7 @@ const BirthdayCard = ({
   };
 
   return (
-    <div className="relative bg-white rounded-lg p-6 w-full max-w-lg mx-auto shadow-xl overflow-hidden border-2 border-gray-200">
+    <div className="relative bg-white rounded-lg p-6 w-full max-w-[40rem] mx-auto shadow-xl overflow-hidden border-2 border-gray-200">
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
@@ -106,17 +113,17 @@ const BirthdayCard = ({
         ✨
       </motion.div>
       <motion.img
-        src={PostImageUrl}
-        alt="Post"
+        src={PostType=="Anniversary"? anniversaryImage : birthdayImage}
+        alt="Image"
         className="w-full rounded-lg shadow-lg border-4 border-gray-300"
         initial={{ scale: 1 }}
         whileHover={{ scale: 1.1, rotate: 3 }}
         transition={{ type: "spring", stiffness: 150, damping: 10 }}
       />
-      <h2 className="text-2xl font-extrabold text-gray-900 text-center mt-4">
-        {PostTitle}
+      <h2 className="text-xl font-extrabold text-gray-900 text-center mt-4">
+        {PostType=="Anniversary"? `Congratulations On ${Time}${grammer[Time-1]} ${PostTitle}, ${userName}`: `${PostTitle}, ${userName}`}
       </h2>
-      <p className="text-gray-600 text-center mt-2 font-medium">
+      <p className="text-black text-base text-center mt-2 font-medium">
         {PostDescription}
       </p>
 
@@ -128,14 +135,14 @@ const BirthdayCard = ({
           disabled={likeButtonDisable}
           onClick={setLikeSubmit}
         >
-          <ThumbsUp size={24} />
+          <ThumbsUp size={30} />
           <span>Like {Like.length}</span>
         </button>
         <button
           className="flex items-center space-x-2 text-gray-500"
           onClick={() => setComments(!comments)}
         >
-          <MessageCircle size={24} />
+          <MessageCircle size={30} />
           <span>Comment</span>
         </button>
       </div>
