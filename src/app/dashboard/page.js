@@ -20,6 +20,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const lastPostRef = useRef(null);
   const [lastFetchedDate, setLastFetchedDate] = useState(null);
+  const [lastFetchId, setLastFetchId] = useState(null);
   const [hasMoredata, setHasMoreData] = useState(true);
   const [achievements, setAchievements] = useState([]);
   const [topshoutOutWinner, setTopShoutOutWinner] = useState([]);
@@ -29,7 +30,7 @@ export default function Home() {
     if (loading || !hasMoredata) return;
     setLoading(true);
     try {
-      const res = await DashboardDataFetch(lastFetchedDate);
+      const res = await DashboardDataFetch(lastFetchedDate, lastFetchId);
       const response = res.message.dashboardData;
 
       if (res.message.currentUserAchievements.length > 0) {
@@ -57,6 +58,11 @@ export default function Home() {
           ? response[response.length - 1]?.nominationData?.verifiedAt
           : response[response.length - 1]?.postData?.created_at;
         setLastFetchedDate(time);
+
+        let PostId = response[response.length - 1]?.nominationData
+          ? response[response.length - 1]?.nominationData?.id
+          : response[response.length - 1]?.postData?.id;
+        setLastFetchId(PostId);
       } else {
         setHasMoreData(false);
       }
@@ -138,12 +144,16 @@ export default function Home() {
           ) : (
             <div className="w-full max-w-4xl mx-auto space-y-6">
               {dashboardData.length === 0 && !loading ? (
-                <h1 className="text-black text-center text-3xl">No data available</h1>
+                <h1 className="text-black text-center text-3xl">
+                  No data available
+                </h1>
               ) : (
                 dashboardData.map((post, index) => (
                   <div
                     key={index}
-                    ref={index === dashboardData.length - 1 ? lastPostRef : null}
+                    ref={
+                      index === dashboardData.length - 1 ? lastPostRef : null
+                    }
                   >
                     {post.postData?.type === "Post" ? (
                       <AnimatedPostCard
@@ -169,7 +179,9 @@ export default function Home() {
                         PostTitle={post.postData.title}
                         Postcreated_At={post.postData?.created_at}
                       />
-                    ) : ["Birthday", "Anniversary"].includes(post.postData?.type) ? (
+                    ) : ["Birthday", "Anniversary"].includes(
+                        post.postData?.type
+                      ) ? (
                       <BirthdayCard
                         PostId={post.postData?.id}
                         PostImageUrl={post.postData?.image}
@@ -202,8 +214,8 @@ export default function Home() {
                         PostTitle={post.postData?.title}
                       />
                     ) : ["Star of the month", "Shoutout"].includes(
-                      post.nominationData?.nomination_Type
-                    ) ? (
+                        post.nominationData?.nomination_Type
+                      ) ? (
                       <AppreciationCard
                         PostId={post.nominationData?.id}
                         NominatedUser={post.nominationData?.userId}
@@ -212,7 +224,9 @@ export default function Home() {
                         PostDescription={post.nominationData?.shoutoutReason}
                         PostLike={post.nominationData?.postLikes}
                         PostComment={post.nominationData?.postComments}
-                        PostShoutoutCatagory={post.nominationData?.shoutoutCatagory}
+                        PostShoutoutCatagory={
+                          post.nominationData?.shoutoutCatagory
+                        }
                         PostImage={post.nominationData?.image}
                       />
                     ) : null}

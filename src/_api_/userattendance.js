@@ -46,6 +46,7 @@ const saveRazorpayAttendance = async (attendanceData) => {
         body: JSON.stringify(attendanceData),
         headers: {
           "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
       }
     );
