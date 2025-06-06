@@ -92,7 +92,7 @@ export default function LoginPage() {
     <div className={styles.container}>
       {displayValue ? <div className={styles.card}>
         <img src="/logo.svg" alt="Innoage Logo" className={styles.logo} />
-        <h2 className={styles.title}>Welcome To InnoAge</h2>
+        <h2 className={styles.title}>Welcome To InnoHub</h2>
         <p className={styles.subtitle}>Sign in to your account</p>
 
         {error && <p className={styles.error}>{error}</p>}
