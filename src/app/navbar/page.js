@@ -99,7 +99,7 @@ export default function Navbar() {
           {/* Logo */}
           <div className="logo-container">
             {/* <Image src="/logo.svg" alt="Logo" width={40} height={40} /> */}
-            <span className="brand-name">InnoAge</span>
+            <span className="brand-name">Innohub</span>
           </div>
 
           {/* Hamburger Menu for Small Screens */}
