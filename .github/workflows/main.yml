@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      
 
 jobs:
   build-and-deploy:
@@ -22,9 +21,13 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Create .env file from secrets
+      run: |
+        echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env
+        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+
     - name: Build Next.js app
       run: |
-        echo "NEXT_PUBLIC_API_URL=${{ secrets.YOUR_ENV_VAR }}" >> .env
         npm run build
         npx next export
 
