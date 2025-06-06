@@ -11,7 +11,7 @@ import { MdOutlineEvent } from "react-icons/md";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
-import { Database } from 'lucide-react';
+import { Database } from "lucide-react";
 
 import { MdOutlinePreview } from "react-icons/md";
 import {
@@ -99,7 +99,7 @@ export default function Navbar() {
           {/* Logo */}
           <div className="logo-container">
             {/* <Image src="/logo.svg" alt="Logo" width={40} height={40} /> */}
-            <span className="brand-name">Shoutout Space</span>
+            <span className="brand-name">InnoAge</span>
           </div>
 
           {/* Hamburger Menu for Small Screens */}
@@ -175,26 +175,23 @@ export default function Navbar() {
             </div>
             <div className="nav-item">
               {user?.userRole &&
-                (user.userRole === 1 || user.userRole === 2 || user.userRole==3) && (
+                (user.userRole === 1 ||
+                  user.userRole === 2 ||
+                  user.userRole == 3) && (
                   <div className="dropdown1">
-                <button
-                  className={`nav-link ${
-                    activeRoute === "/allemployeeattendance" ? "active" : ""
-                  }`}
-                  onClick={() => {
-                    handleNavClick("/allemployeeattendance");
-                  }}
-                >
-                  Attendance
-                </button>
-              </div>
-                 
+                    <button
+                      className={`nav-link ${
+                        activeRoute === "/allemployeeattendance" ? "active" : ""
+                      }`}
+                      onClick={() => {
+                        handleNavClick("/allemployeeattendance");
+                      }}
+                    >
+                      Attendance
+                    </button>
+                  </div>
                 )}
             </div>
-            
-           
-           
-            
           </div>
 
           {/* Profile & Cart */}
@@ -293,7 +290,7 @@ export default function Navbar() {
                 All Employees
               </Link>
             )}
-             {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
+            {user?.userRole && (user.userRole === 1 || user.userRole === 2) && (
               <div className="sidebar-section"> Attendance Records</div>
             )}
 
@@ -304,7 +301,7 @@ export default function Navbar() {
                 onClick={toggleSidebar}
               >
                 <Database />
-               Attendance Records
+                Attendance Records
               </Link>
             )}
           </div>
